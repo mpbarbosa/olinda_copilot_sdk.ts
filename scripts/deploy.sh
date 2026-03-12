@@ -62,31 +62,46 @@ if ! git diff --quiet || ! git diff --cached --quiet; then
   fail "Working tree is dirty. Commit or stash your changes first."
 fi
 
-# ── Guard: tag must not already exist ─────────────────────────────────────────
+# ── Guard: check whether tag already exists and whether it has been delivered ──
+TAG_EXISTS_LOCALLY=false
 if git rev-parse "${TAG}" >/dev/null 2>&1; then
-  echo -e "${RED}[deploy] ✗${NC} Tag ${TAG} already exists. Bump the version before deploying." >&2
-  exit 3
+  TAG_EXISTS_LOCALLY=true
+  # Check if the tag is already on the remote (i.e. already delivered via CDN)
+  if git ls-remote --tags origin "refs/tags/${TAG}" 2>/dev/null | grep -q .; then
+    echo -e "${RED}[deploy] ✗${NC} Tag ${TAG} already exists and is already delivered. Bump the version before deploying." >&2
+    exit 3
+  fi
+  warn "Tag ${TAG} exists locally but has not been pushed to the remote yet."
+  warn "Skipping build/test steps and resuming from CDN delivery (push) step."
+  echo ""
 fi
 
-# ── Step 1/5 — Install + Validate ────────────────────────────────────────────
-info "Step 1/5 — Installing dependencies and type-checking …"
-npm ci --prefer-offline --no-audit
-npm run validate || fail "Type-check failed. Aborting deploy."
-ok "Dependencies installed and types valid"
-echo ""
+if [[ "${TAG_EXISTS_LOCALLY}" == "false" ]]; then
+  # ── Step 1/5 — Install + Validate ──────────────────────────────────────────
+  info "Step 1/5 — Installing dependencies and type-checking …"
+  npm ci --prefer-offline --no-audit
+  npm run validate || fail "Type-check failed. Aborting deploy."
+  ok "Dependencies installed and types valid"
+  echo ""
 
-# ── Step 2/5 — Test ──────────────────────────────────────────────────────────
-info "Step 2/5 — Running tests …"
-npm test || fail "Tests failed. Aborting deploy."
-ok "Tests passed"
-echo ""
+  # ── Step 2/5 — Test ────────────────────────────────────────────────────────
+  info "Step 2/5 — Running tests …"
+  npm test || fail "Tests failed. Aborting deploy."
+  ok "Tests passed"
+  echo ""
 
-# ── Step 3/5 — Build (CJS + ESM) ─────────────────────────────────────────────
-info "Step 3/5 — Building CJS and ESM bundles …"
-npm run build     || fail "CJS build failed. Aborting deploy."
-npm run build:esm || fail "ESM build failed. Aborting deploy."
-ok "Build complete (dist/ · dist/esm/)"
-echo ""
+  # ── Step 3/5 — Build (CJS + ESM) ───────────────────────────────────────────
+  info "Step 3/5 — Building CJS and ESM bundles …"
+  npm run build     || fail "CJS build failed. Aborting deploy."
+  npm run build:esm || fail "ESM build failed. Aborting deploy."
+  ok "Build complete (dist/ · dist/esm/)"
+  echo ""
+else
+  info "Step 1/5 — Skipped (tag already built locally)"
+  info "Step 2/5 — Skipped (tag already built locally)"
+  info "Step 3/5 — Skipped (tag already built locally)"
+  echo ""
+fi
 
 # ── Step 4/5 — CDN delivery (commit artifacts, tag & push to GitHub) ─────────
 info "Step 4/5 — Enabling CDN delivery via GitHub …"
@@ -109,8 +124,13 @@ if [[ -z "${CURRENT_BRANCH}" ]]; then
 fi
 
 git pull --rebase origin "${CURRENT_BRANCH}"
-git tag -a "${TAG}" -m "Release ${TAG}"
-ok "Created tag ${TAG}"
+
+if [[ "${TAG_EXISTS_LOCALLY}" == "false" ]]; then
+  git tag -a "${TAG}" -m "Release ${TAG}"
+  ok "Created tag ${TAG}"
+else
+  info "Reusing existing local tag ${TAG}"
+fi
 
 git push origin "${CURRENT_BRANCH}" --tags
 ok "Pushed to origin/${CURRENT_BRANCH} with tag ${TAG}"
