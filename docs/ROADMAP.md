@@ -5,7 +5,7 @@ Grounded in the [official `@github/copilot-sdk` documentation](https://github.co
 
 ---
 
-## Current State (v0.1.1)
+## Current State (v0.1.2)
 
 | Module | File | Status |
 |---|---|---|
