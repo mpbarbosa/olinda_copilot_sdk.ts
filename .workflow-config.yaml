@@ -35,3 +35,11 @@ workflow:
   auto_commit: false
   multi_stage_pipeline: false
   ml_optimize: false
+
+deploy:
+  description: 'Build, publish olinda_copilot_sdk.ts to npm, and tag the release'
+  script: 'scripts/deploy.sh'
+  cdn_fallback:
+    description: 'Build and tag olinda_copilot_sdk.ts for CDN delivery (npm publish skipped)'
+    env:
+      SKIP_NPM_PUBLISH: 'true'
