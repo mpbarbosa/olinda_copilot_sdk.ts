@@ -104,7 +104,7 @@ export interface SessionConfig {
 	sessionId?: string;
 	/**
 	 * Client name included in the User-Agent header for API requests.
-	 * @since 0.3.0
+	 * @since 0.3.1
 	 */
 	clientName?: string;
 	/**
@@ -119,7 +119,7 @@ export interface SessionConfig {
 	 * or `{ type: 'replace', content: '...' }` for full control.
 	 *
 	 * **Breaking change from 0.2.x**: was `string`; now `SystemMessageConfig`.
-	 * @since 0.3.0
+	 * @since 0.3.1
 	 */
 	systemMessage?: SystemMessageConfig;
 	/**
@@ -129,7 +129,7 @@ export interface SessionConfig {
 	workingDirectory?: string;
 	/**
 	 * Override the default configuration directory location.
-	 * @since 0.3.0
+	 * @since 0.3.1
 	 */
 	configDir?: string;
 	/**
@@ -151,19 +151,19 @@ export interface SessionConfig {
 	/**
 	 * Custom tools exposed to the Copilot CLI server.
 	 * Build tool definitions with the re-exported {@link defineTool} helper.
-	 * @since 0.3.0
+	 * @since 0.3.1
 	 */
 	tools?: Tool<unknown>[];
 	/**
 	 * Allowlist of tool names. When set, only these tools are available.
 	 * Takes precedence over {@link excludedTools}.
-	 * @since 0.3.0
+	 * @since 0.3.1
 	 */
 	availableTools?: string[];
 	/**
 	 * Blocklist of tool names. All other tools remain available.
 	 * Ignored when {@link availableTools} is specified.
-	 * @since 0.3.0
+	 * @since 0.3.1
 	 */
 	excludedTools?: string[];
 	/**
@@ -190,34 +190,34 @@ export interface SessionConfig {
 	/**
 	 * Hook handlers for intercepting session lifecycle events.
 	 * @see {@link SessionHooks}
-	 * @since 0.3.0
+	 * @since 0.3.1
 	 */
 	hooks?: SessionHooks;
 	/**
 	 * MCP server configurations keyed by server name.
 	 * Use {@link createLocalMCPServer} and {@link createRemoteMCPServer} to build entries.
-	 * @since 0.3.0
+	 * @since 0.3.1
 	 */
 	mcpServers?: MCPServerMap;
 	/**
 	 * Custom agent definitions exposed to the session.
-	 * @since 0.3.0
+	 * @since 0.3.1
 	 */
 	customAgents?: CustomAgentConfig[];
 	/**
 	 * Directories from which to load additional skills.
-	 * @since 0.3.0
+	 * @since 0.3.1
 	 */
 	skillDirectories?: string[];
 	/**
 	 * Names of skills to disable for this session.
-	 * @since 0.3.0
+	 * @since 0.3.1
 	 */
 	disabledSkills?: string[];
 	/**
 	 * Infinite session configuration for persistent workspaces and automatic
 	 * context compaction. Set to `{ enabled: false }` to disable.
-	 * @since 0.3.0
+	 * @since 0.3.1
 	 */
 	infiniteSessions?: InfiniteSessionConfig;
 }
@@ -225,6 +225,6 @@ export interface SessionConfig {
 /**
  * Configuration subset used when resuming an existing session.
  * Re-exported from `@github/copilot-sdk` for convenience.
- * @since 0.3.0
+ * @since 0.3.1
  */
 export type { ResumeSessionConfig } from '@github/copilot-sdk';

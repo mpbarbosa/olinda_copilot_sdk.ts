@@ -5,7 +5,7 @@
  * @description Typed configuration interfaces for Model Context Protocol (MCP) servers.
  * Supports both local (stdio) servers and remote (HTTP/SSE) servers as defined by the
  * {@link https://github.com/github/copilot-sdk/blob/main/docs/features/mcp.md | Copilot SDK MCP documentation}.
- * @since 0.3.0
+ * @since 0.3.1
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createLocalMCPServer = createLocalMCPServer;
@@ -15,7 +15,7 @@ exports.createRemoteMCPServer = createRemoteMCPServer;
  *
  * @param config - Local MCP server options.
  * @returns A validated `LocalMCPServer` configuration object.
- * @since 0.3.0
+ * @since 0.3.1
  * @example
  * ```ts
  * const fs = createLocalMCPServer({
@@ -33,7 +33,7 @@ function createLocalMCPServer(config) {
  *
  * @param config - Remote MCP server options.
  * @returns A validated `RemoteMCPServer` configuration object.
- * @since 0.3.0
+ * @since 0.3.1
  * @example
  * ```ts
  * const gh = createRemoteMCPServer({

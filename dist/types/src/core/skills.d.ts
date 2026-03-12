@@ -4,13 +4,13 @@
  * @description Typed configuration interfaces and utilities for Copilot Skills.
  * Skills are reusable prompt modules loaded from directories containing a `SKILL.md` file.
  * See the {@link https://github.com/github/copilot-sdk/blob/main/docs/features/skills.md | Copilot SDK Skills documentation}.
- * @since 0.3.0
+ * @since 0.3.1
  */
 /**
  * Metadata describing a single Copilot Skill.
  * Corresponds to the parsed front-matter / header of a `SKILL.md` file.
  *
- * @since 0.3.0
+ * @since 0.3.1
  */
 export interface SkillConfig {
     /** Human-readable skill name. Defaults to the directory name when omitted. */
@@ -24,7 +24,7 @@ export interface SkillConfig {
  * Session-level configuration for Copilot Skills.
  * Passed as part of `SessionConfig` when creating a session.
  *
- * @since 0.3.0
+ * @since 0.3.1
  * @example
  * ```ts
  * const skillConfig: SkillSessionConfig = {
@@ -54,7 +54,7 @@ export interface SkillSessionConfig {
  *
  * @param paths - Raw list of directory paths (may contain duplicates or blanks).
  * @returns Ordered, deduplicated array of non-empty path strings.
- * @since 0.3.0
+ * @since 0.3.1
  * @example
  * ```ts
  * loadSkillDirectories(['./skills', './skills', '', './extra'])

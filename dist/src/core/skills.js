@@ -5,7 +5,7 @@
  * @description Typed configuration interfaces and utilities for Copilot Skills.
  * Skills are reusable prompt modules loaded from directories containing a `SKILL.md` file.
  * See the {@link https://github.com/github/copilot-sdk/blob/main/docs/features/skills.md | Copilot SDK Skills documentation}.
- * @since 0.3.0
+ * @since 0.3.1
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.loadSkillDirectories = loadSkillDirectories;
@@ -18,7 +18,7 @@ exports.loadSkillDirectories = loadSkillDirectories;
  *
  * @param paths - Raw list of directory paths (may contain duplicates or blanks).
  * @returns Ordered, deduplicated array of non-empty path strings.
- * @since 0.3.0
+ * @since 0.3.1
  * @example
  * ```ts
  * loadSkillDirectories(['./skills', './skills', '', './extra'])

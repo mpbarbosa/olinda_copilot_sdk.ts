@@ -1,6 +1,6 @@
 # ROADMAP — olinda_copilot_sdk.ts
 
-> **Current version**: 0.3.0  
+> **Current version**: 0.3.1  
 > **Reference SDK**: `@github/copilot-sdk` v0.1.32  
 > **Goal**: Become a complete, idiomatic TypeScript companion to `@github/copilot-sdk` — covering both the HTTP REST surface (olinda's unique contribution) and the full CLI-process session surface.
 
@@ -11,7 +11,7 @@
 - [Current State](#current-state)
 - [Gap Analysis](#gap-analysis)
 - [Milestone v0.2.1 — Session Client Export + Core Parity](#milestone-v021--session-client-export--core-parity)
-- [Milestone v0.3.0 — Full SessionConfig Parity](#milestone-v030--full-sessionconfig-parity)
+- [Milestone v0.3.1 — Full SessionConfig Parity](#milestone-v030--full-sessionconfig-parity)
 - [Milestone v0.4.0 — Permission & Hooks Bridge](#milestone-v040--permission--hooks-bridge)
 - [Milestone v0.5.0 — Session Management & Model Introspection](#milestone-v050--session-management--model-introspection)
 - [Milestone v0.6.0 — Advanced Features](#milestone-v060--advanced-features)
@@ -37,10 +37,10 @@
 | Error hierarchy | ✅ Exported | `CopilotSDKError`, `AuthenticationError`, `APIError`, `SystemError` |
 | `CopilotSdkWrapper` (CLI process session wrapper) | ✅ Exported | `CopilotSdkWrapper`, `CopilotSdkWrapperOptions`, `InitializeResult`, `SendResult` |
 | `approveAll` (SDK-compatible `PermissionHandler`) | ✅ Exported | Re-exported directly from `@github/copilot-sdk` |
-| `defineTool` helper | ✅ Exported | Type-safe tool definition factory (v0.3.0) |
-| `ResumeSessionConfig` | ✅ Exported | Session resumption type (v0.3.0) |
+| `defineTool` helper | ✅ Exported | Type-safe tool definition factory (v0.3.1) |
+| `ResumeSessionConfig` | ✅ Exported | Session resumption type (v0.3.1) |
 | `UserInputHandler` / `onUserInputRequest` | ✅ Exported | Agent can ask user questions |
-| `SystemMessageConfig` (append/replace union) | ✅ Exported | `SystemMessageAppendConfig`, `SystemMessageReplaceConfig` (v0.3.0) |
+| `SystemMessageConfig` (append/replace union) | ✅ Exported | `SystemMessageAppendConfig`, `SystemMessageReplaceConfig` (v0.3.1) |
 
 ---
 
@@ -139,7 +139,7 @@ olinda's hook system (`PreToolUseHandler`, `PostToolUseHandler`, etc.) uses a **
 
 ---
 
-## Milestone v0.3.0 — Full SessionConfig Parity
+## Milestone v0.3.1 — Full SessionConfig Parity
 
 > **Theme**: `olinda`'s `SessionConfig` should be a complete superset of `@github/copilot-sdk`'s `SessionConfig`.
 
