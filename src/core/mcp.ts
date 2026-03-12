@@ -4,13 +4,13 @@
  * @description Typed configuration interfaces for Model Context Protocol (MCP) servers.
  * Supports both local (stdio) servers and remote (HTTP/SSE) servers as defined by the
  * {@link https://github.com/github/copilot-sdk/blob/main/docs/features/mcp.md | Copilot SDK MCP documentation}.
- * @since 0.3.1
+ * @since 0.3.2
  */
 
 /**
  * Shared fields for all MCP server configurations.
  *
- * @since 0.3.1
+ * @since 0.3.2
  */
 interface BaseMCPServer {
 	/**
@@ -26,7 +26,7 @@ interface BaseMCPServer {
 /**
  * Configuration for a local (stdio) MCP server that runs as a subprocess.
  *
- * @since 0.3.1
+ * @since 0.3.2
  * @example
  * ```ts
  * const server = createLocalMCPServer({
@@ -52,7 +52,7 @@ export interface LocalMCPServer extends BaseMCPServer {
 /**
  * Configuration for a remote (HTTP or SSE) MCP server.
  *
- * @since 0.3.1
+ * @since 0.3.2
  * @example
  * ```ts
  * const server = createRemoteMCPServer({
@@ -76,7 +76,7 @@ export interface RemoteMCPServer extends BaseMCPServer {
  * A named map of MCP servers passed to `SessionConfig.mcpServers`.
  * Each key is the server name; the value is the server configuration.
  *
- * @since 0.3.1
+ * @since 0.3.2
  * @example
  * ```ts
  * const servers: MCPServerMap = {
@@ -92,7 +92,7 @@ export type MCPServerMap = Record<string, LocalMCPServer | RemoteMCPServer>;
  *
  * @param config - Local MCP server options.
  * @returns A validated `LocalMCPServer` configuration object.
- * @since 0.3.1
+ * @since 0.3.2
  * @example
  * ```ts
  * const fs = createLocalMCPServer({
@@ -111,7 +111,7 @@ export function createLocalMCPServer(config: LocalMCPServer): LocalMCPServer {
  *
  * @param config - Remote MCP server options.
  * @returns A validated `RemoteMCPServer` configuration object.
- * @since 0.3.1
+ * @since 0.3.2
  * @example
  * ```ts
  * const gh = createRemoteMCPServer({

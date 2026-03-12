@@ -51,7 +51,7 @@ describe('session_config types', () => {
 		expect((config.systemMessage as { mode: string }).mode).toBe('replace');
 	});
 
-	it('SessionConfig accepts v0.3.1 fields: clientName, configDir, availableTools, excludedTools', () => {
+	it('SessionConfig accepts v0.3.2 fields: clientName, configDir, availableTools, excludedTools', () => {
 		const config: SessionConfig = {
 			clientName: 'my-app',
 			configDir: '/home/user/.config/copilot',

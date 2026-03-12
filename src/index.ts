@@ -114,7 +114,7 @@ export type {
 } from '@github/copilot-sdk';
 
 // ---------------------------------------------------------------------------
-// v0.3.1 — Tool types, SystemMessageConfig, and defineTool
+// v0.3.2 — Tool types, SystemMessageConfig, and defineTool
 // ---------------------------------------------------------------------------
 
 export type {

@@ -8,7 +8,7 @@ Copilot chat completions API, SSE stream parsing, and message construction utili
 **GitHub dependency** (recommended — no build step required):
 
 ```bash
-npm install github:mpbarbosa/olinda_copilot_sdk.ts#v0.3.1
+npm install github:mpbarbosa/olinda_copilot_sdk.ts#v0.3.2
 ```
 
 The compiled `dist/` tree is committed to the repository and included in every
