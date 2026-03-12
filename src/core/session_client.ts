@@ -313,9 +313,10 @@ export class CopilotSdkWrapper {
 				try {
 					await Promise.race([
 						client.stop(),
-						new Promise<never>((_, reject) =>
-							setTimeout(() => reject(new Error('client.stop() timed out')), FORCE_STOP_TIMEOUT_MS),
-						),
+						new Promise<never>((_, reject) => {
+							const t = setTimeout(() => reject(new Error('client.stop() timed out')), FORCE_STOP_TIMEOUT_MS);
+							t.unref();
+						}),
 					]);
 				} catch {
 					// Cookbook: forceStop if stop() hangs
