@@ -90,7 +90,7 @@ export type {
 export { loadSkillDirectories } from './core/skills.js';
 
 // ---------------------------------------------------------------------------
-// v0.2.0 — CopilotSdkWrapper + SDK permission/input types
+// v0.2.1 — CopilotSdkWrapper + SDK permission/input types
 // ---------------------------------------------------------------------------
 
 export {

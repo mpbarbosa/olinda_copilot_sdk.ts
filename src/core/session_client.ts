@@ -213,7 +213,7 @@ export class CopilotSdkWrapper {
 	 * @param timeoutMs - Override the default timeout (ms).
 	 * @returns Final `SendResult` once the session becomes idle.
 	 * @throws {@link SystemError} If no active session exists.
-	 * @since 0.2.0
+	 * @since 0.2.1
 	 * @example
 	 * await wrapper.sendStream('Write a haiku', (delta) => process.stdout.write(delta));
 	 */

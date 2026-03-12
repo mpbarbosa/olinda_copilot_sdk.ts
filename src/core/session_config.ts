@@ -3,7 +3,7 @@
  * @module core/session_config
  * @description Typed `SessionConfig` surface that maps to the full set of
  * options accepted by the SDK when creating or resuming a Copilot session.
- * @since 0.2.0
+ * @since 0.2.1
  */
 
 import type { BYOKProvider } from './auth.js';
@@ -12,7 +12,7 @@ import type { PermissionHandler } from '@github/copilot-sdk';
 /**
  * Controls how much reasoning effort the model expends before responding.
  * Only honoured by models that support reasoning (e.g. `o3-mini`).
- * @since 0.2.0
+ * @since 0.2.1
  */
 export type ReasoningEffort = 'low' | 'medium' | 'high' | 'xhigh';
 
@@ -23,7 +23,7 @@ export type ReasoningEffort = 'low' | 'medium' | 'high' | 'xhigh';
 
 /**
  * A question sent by the agent to the user via the `ask_user` tool.
- * @since 0.2.0
+ * @since 0.2.1
  */
 export interface UserInputRequest {
 	/** The question the agent is asking. */
@@ -39,7 +39,7 @@ export interface UserInputRequest {
 
 /**
  * The user's answer to a {@link UserInputRequest}.
- * @since 0.2.0
+ * @since 0.2.1
  */
 export interface UserInputResponse {
 	/** The user's answer text. */
@@ -52,7 +52,7 @@ export interface UserInputResponse {
  * Handler called when the agent invokes the `ask_user` tool.
  * The return value is forwarded back to the model as the user's response.
  *
- * @since 0.2.0
+ * @since 0.2.1
  * @example
  * const handler: UserInputHandler = async (req) => ({
  *   answer: req.choices?.[0] ?? 'yes',
@@ -71,7 +71,7 @@ export type UserInputHandler = (
  * When used with {@link CopilotSdkWrapper}, `onPermissionRequest` defaults
  * to `approveAll` if not supplied.
  *
- * @since 0.2.0
+ * @since 0.2.1
  * @example
  * const config: SessionConfig = {
  *   model: 'gpt-4o',
@@ -155,7 +155,7 @@ export interface SessionConfig {
  * When used with {@link CopilotSdkWrapper}, `onPermissionRequest` defaults
  * to `approveAll` if not supplied.
  *
- * @since 0.2.0
+ * @since 0.2.1
  * @example
  * const config: SessionConfig = {
  *   model: 'gpt-4o',
