@@ -3,7 +3,7 @@
  * @module test/helpers/fixtures
  * @description Provides reusable test data for unit and integration tests,
  * reducing duplication and keeping individual test files focused on assertions.
- * @since 0.1.0
+ * @since 0.1.1
  */
 
 import type { Message, StreamChunk, CompletionResponse } from '../../src/core/types';

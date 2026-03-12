@@ -11,25 +11,25 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
-## [0.1.0] — 2026-03-12
+## [0.1.1] — 2026-03-12
 
 ### Added
 
 - `src/core/types.ts` — TypeScript interfaces for the GitHub Copilot API
-    - `Message`, `MessageRole`, `CompletionRequest`, `CompletionResponse`, `CompletionChoice`
-    - `StreamChunk`, `StreamChoice`, `StreamDelta`, `ClientOptions`
+  - `Message`, `MessageRole`, `CompletionRequest`, `CompletionResponse`, `CompletionChoice`
+  - `StreamChunk`, `StreamChoice`, `StreamDelta`, `ClientOptions`
 - `src/core/errors.ts` — custom error hierarchy
-    - `CopilotSDKError` (base), `AuthenticationError`, `APIError`
+  - `CopilotSDKError` (base), `AuthenticationError`, `APIError`
 - `src/core/client.ts` — `CopilotClient` class wrapping the Copilot completions API
-    - `complete()` — non-streaming chat completions
-    - `stream()` — async generator for SSE streaming completions
+  - `complete()` — non-streaming chat completions
+  - `stream()` — async generator for SSE streaming completions
 - `src/utils/messages.ts` — pure message factory functions
-    - `createUserMessage`, `createSystemMessage`, `createAssistantMessage`, `createFunctionMessage`
-    - `extractContent`, `hasRole`, `filterByRole`
+  - `createUserMessage`, `createSystemMessage`, `createAssistantMessage`, `createFunctionMessage`
+  - `extractContent`, `hasRole`, `filterByRole`
 - `src/utils/stream.ts` — pure SSE parsing utilities
-    - `parseSSELine`, `parseSSEChunk`, `extractDeltaContent`, `isStreamDone`
+  - `parseSSELine`, `parseSSEChunk`, `extractDeltaContent`, `isStreamDone`
 - `src/index.ts` — public barrel export
-- `package.json` — v0.1.0, build/test/lint scripts, `engines: node>=18, npm>=9`
+- `package.json` — v0.1.1, build/test/lint scripts, `engines: node>=18, npm>=9`
 - `tsconfig.json` — CJS build → `dist/`
 - `tsconfig.esm.json` — ESM build → `dist/esm/`
 - `jest.config.js` — ts-jest, 80% coverage thresholds

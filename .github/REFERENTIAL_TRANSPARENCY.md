@@ -22,6 +22,7 @@ When a function is referentially transparent, you can safely replace any functio
 ### Mathematical Foundation
 
 In mathematics, a function is referentially transparent by default:
+
 ```
 f(x) = x + 2
 ```
@@ -31,6 +32,7 @@ If `x = 3`, then `f(3) = 5` always, and you can replace `f(3)` with `5` anywhere
 ### Programming Context
 
 In JavaScript, referential transparency means functions behave like mathematical functions:
+
 ```javascript
 // Referentially transparent
 function add(a, b) {
@@ -141,6 +143,7 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
 ### Pure Functions (Referentially Transparent)
 
 Pure functions satisfy two conditions:
+
 1. **Deterministic**: Same input always produces same output
 2. **No side effects**: Don't modify external state or perform I/O
 
@@ -670,6 +673,7 @@ The ibira.js project demonstrates referential transparency in several areas:
 - **API Response Processing**: Pure functions for parsing and formatting data
 
 **Key Improvements for Referential Transparency:**
+
 - All time-dependent operations now accept `currentTime` as a parameter instead of calling `Date.now()` internally
 - Pure helper functions return values instead of mutating state
 - Side effects are isolated in wrapper functions that call pure helpers

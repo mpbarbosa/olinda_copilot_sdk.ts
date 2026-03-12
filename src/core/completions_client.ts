@@ -4,7 +4,7 @@
  * @description HTTP client for interacting with the GitHub Copilot chat completions API.
  * Wraps native `fetch` (available in Node.js ≥ 18) and provides typed request/response
  * helpers for both non-streaming and streaming completions.
- * @since 0.1.0
+ * @since 0.1.1
  */
 
 import { AuthenticationError, APIError } from './errors.js';
@@ -42,7 +42,7 @@ function parseSSELines(lines: string[]): Array<StreamChunk | null> {
 
 /**
  * Client for the GitHub Copilot chat completions API.
- * @since 0.1.0
+ * @since 0.1.1
  * @example
  * const client = new CopilotClient({ token: process.env.GITHUB_TOKEN! });
  * const res = await client.complete([{ role: 'user', content: 'Hello!' }]);
@@ -74,7 +74,7 @@ export class CopilotClient {
 	 * @returns Resolved completion response.
 	 * @throws {AuthenticationError} On HTTP 401.
 	 * @throws {APIError} On any other non-2xx HTTP response.
-	 * @since 0.1.0
+	 * @since 0.1.1
 	 * @example
 	 * const res = await client.complete([createUserMessage('Hi')]);
 	 * console.log(res.choices[0].message.content);
@@ -117,7 +117,7 @@ export class CopilotClient {
 	 * @returns Async iterable of stream chunks.
 	 * @throws {AuthenticationError} On HTTP 401.
 	 * @throws {APIError} On any other non-2xx HTTP response.
-	 * @since 0.1.0
+	 * @since 0.1.1
 	 * @example
 	 * for await (const chunk of client.stream([createUserMessage('Hi')])) {
 	 *   process.stdout.write(chunk.choices[0]?.delta?.content ?? '');

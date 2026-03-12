@@ -47,16 +47,16 @@ npm run lint:fix    # auto-fix
 
 - Test framework: **Jest + ts-jest** (TypeScript compiled natively — no pre-build needed)
 - Tests live in `test/` mirroring the `src/` structure:
-    - `test/utils/` — unit tests for `src/utils/` domain modules
-    - `test/core/` — unit tests for `src/core/` classes
-    - `test/integration/` — CJS smoke tests against compiled `dist/`
-    - `test/benchmarks/` — performance benchmarks (excluded from coverage)
-    - `test/helpers/` — shared fixtures and typed constants
+  - `test/utils/` — unit tests for `src/utils/` domain modules
+  - `test/core/` — unit tests for `src/core/` classes
+  - `test/integration/` — CJS smoke tests against compiled `dist/`
+  - `test/benchmarks/` — performance benchmarks (excluded from coverage)
+  - `test/helpers/` — shared fixtures and typed constants
 - **Coverage thresholds** (enforced by CI):
-    - Statements: ≥ 80%
-    - Functions: ≥ 80%
-    - Lines: ≥ 80%
-    - Branches: ≥ 75%
+  - Statements: ≥ 80%
+  - Functions: ≥ 80%
+  - Lines: ≥ 80%
+  - Branches: ≥ 75%
 - All new exported symbols must have corresponding tests
 - Run the full suite before opening a PR:
 
@@ -100,6 +100,7 @@ test: add negative test cases for parseSSEChunk
 ## Reporting Issues
 
 Open an issue at <https://github.com/mpbarbosa/olinda_copilot_sdk.ts/issues> with:
+
 - Node.js version (`node --version`)
 - Steps to reproduce
 - Expected vs actual behaviour

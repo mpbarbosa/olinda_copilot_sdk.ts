@@ -8,6 +8,7 @@ and message construction utilities.
 
 This project follows the same conventions as [`olinda_utils.js`](https://github.com/mpbarbosa/olinda_utils.js) — use it as the canonical reference.
 Key conventions adopted from that project:
+
 - 1-tab indent, single quotes, trailing commas in multi-line lists
 - JSDoc required on all exported symbols (`@param`, `@returns`, `@since`, `@example`)
 - Pure utility functions — never throw, no side effects, deterministic output

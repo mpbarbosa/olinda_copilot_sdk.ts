@@ -3,7 +3,7 @@
  * @module test/integration/cjs
  * @description Verifies that the CJS build is consumable via require() and
  * that representative functions from each domain behave correctly.
- * @since 0.1.0
+ * @since 0.1.1
  */
 
 // Use require() to exercise the CJS entry point
