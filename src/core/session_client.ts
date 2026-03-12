@@ -152,7 +152,7 @@ export class CopilotSdkWrapper {
 			if (this._authenticated) {
 				try {
 					this._availableModels = await this._client.listModels();
-				} catch (modelErr) {
+				} catch (modelErr: unknown) {
 					const msg = modelErr instanceof Error ? modelErr.message : String(modelErr);
 					logger.debug(`Could not fetch available models: ${msg}`);
 				}
@@ -166,7 +166,7 @@ export class CopilotSdkWrapper {
 				}
 				this._session = await this._client.createSession(sessionConfig);
 			}
-		} catch (error) {
+		} catch (error: unknown) {
 			// Cookbook: clean up the client so the CLI process is not orphaned
 			await this._client.stop().catch(() => {});
 			this._client = null;

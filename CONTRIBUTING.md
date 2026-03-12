@@ -102,6 +102,33 @@ test: add negative test cases for parseSSEChunk
 - [ ] JSDoc added for all new exports
 - [ ] `CHANGELOG.md` updated under `[Unreleased]`
 
+## Release & Distribution
+
+This package is installed directly from GitHub (e.g.
+`npm install github:mpbarbosa/olinda_copilot_sdk.ts#v0.2.1`).  When a consumer
+uses a tarball URL, npm **does not** run lifecycle scripts (`prepare`, `build`),
+so the compiled `dist/` output must be committed and present in the repository.
+
+> `dist/` is intentionally **not** gitignored in this project.
+
+**Before cutting a release tag:**
+
+```bash
+npm run build        # CJS → dist/src/ + dist/types/
+npm run build:esm    # ESM → dist/esm/
+npm test             # ensure all tests (including dist_artifacts) pass
+git add dist/
+git commit -m "chore: build dist for v<VERSION>"
+git tag v<VERSION>
+git push && git push --tags
+```
+
+The `test/integration/dist_artifacts.test.ts` suite verifies that all required
+entry points (`dist/src/index.js`, `dist/esm/index.js`, `dist/types/src/index.d.ts`)
+are present.  CI will fail if a tag is pushed without a prior build.
+
+---
+
 ## Reporting Issues
 
 Open an issue at <https://github.com/mpbarbosa/olinda_copilot_sdk.ts/issues> with:

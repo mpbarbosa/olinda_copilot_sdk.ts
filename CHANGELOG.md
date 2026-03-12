@@ -9,6 +9,20 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- `dist/` is no longer gitignored — compiled output is now committed and present
+  in GitHub archive tarballs, making `npm install github:mpbarbosa/olinda_copilot_sdk.ts#<tag>`
+  work without a build step in the consuming project.
+
+### Added
+
+- `test/integration/dist_artifacts.test.ts` — verifies CJS, ESM, and type
+  declaration entry points exist on disk; fails loudly if a release tag is cut
+  without a prior build.
+- Release & Distribution section in `CONTRIBUTING.md` documenting the pre-tag
+  build checklist.
+
 ---
 
 ## [0.2.1] — 2026-03-12

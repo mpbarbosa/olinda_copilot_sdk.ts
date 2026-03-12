@@ -10,7 +10,7 @@
 
 - [Current State](#current-state)
 - [Gap Analysis](#gap-analysis)
-- [Milestone v0.2.1 — Session Client Export + Core Parity](#milestone-v020--session-client-export--core-parity)
+- [Milestone v0.2.1 — Session Client Export + Core Parity](#milestone-v021--session-client-export--core-parity)
 - [Milestone v0.3.0 — Full SessionConfig Parity](#milestone-v030--full-sessionconfig-parity)
 - [Milestone v0.4.0 — Permission & Hooks Bridge](#milestone-v040--permission--hooks-bridge)
 - [Milestone v0.5.0 — Session Management & Model Introspection](#milestone-v050--session-management--model-introspection)

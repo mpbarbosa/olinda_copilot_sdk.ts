@@ -80,7 +80,9 @@ out
 
 # Nuxt.js build / generate output
 .nuxt
-dist
+# dist/ is intentionally tracked — compiled output must be present in GitHub
+# archive tarballs so the package is installable without a build step.
+# See CONTRIBUTING.md § "Release & Distribution".
 
 # Gatsby files
 .cache/
