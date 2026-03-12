@@ -34,6 +34,7 @@ export type {
 export { isGitHubToken, resolveHmacFromEnv, resolveAuthPriority } from './core/auth.js';
 
 export type { ReasoningEffort, SessionConfig, UserInputRequest, UserInputResponse, UserInputHandler } from './core/session_config.js';
+export type { ResumeSessionConfig } from './core/session_config.js';
 
 export type {
 	ToolResultObject,
@@ -111,3 +112,21 @@ export type {
 	PermissionRequest,
 	PermissionRequestResult,
 } from '@github/copilot-sdk';
+
+// ---------------------------------------------------------------------------
+// v0.3.0 — Tool types, SystemMessageConfig, and defineTool
+// ---------------------------------------------------------------------------
+
+export type {
+	Tool,
+	ToolHandler,
+	ToolInvocation,
+	ZodSchema,
+	SystemMessageAppendConfig,
+	SystemMessageReplaceConfig,
+	SystemMessageConfig,
+	CustomAgentConfig,
+	InfiniteSessionConfig,
+} from './core/tools.js';
+
+export { defineTool } from './core/tools.js';

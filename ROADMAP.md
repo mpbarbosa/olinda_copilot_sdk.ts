@@ -1,6 +1,6 @@
 # ROADMAP — olinda_copilot_sdk.ts
 
-> **Current version**: 0.1.3  
+> **Current version**: 0.3.0  
 > **Reference SDK**: `@github/copilot-sdk` v0.1.32  
 > **Goal**: Become a complete, idiomatic TypeScript companion to `@github/copilot-sdk` — covering both the HTTP REST surface (olinda's unique contribution) and the full CLI-process session surface.
 
@@ -35,12 +35,12 @@
 | Message utilities | ✅ Exported | `createUserMessage`, `createSystemMessage`, etc. |
 | Stream (SSE) parsing utilities | ✅ Exported | `parseSSELine`, `parseSSEChunk`, `extractDeltaContent` |
 | Error hierarchy | ✅ Exported | `CopilotSDKError`, `AuthenticationError`, `APIError`, `SystemError` |
-| `CopilotSdkWrapper` (CLI process session wrapper) | ❌ **NOT exported** | Exists in `src/core/session_client.ts` but not in `index.ts` |
-| `approveAll` (SDK-compatible `PermissionHandler`) | ❌ Missing | `approveAllTools` exists but is a different type |
-| `defineTool` helper | ❌ Missing | No equivalent for type-safe tool definition |
-| `ResumeSessionConfig` | ❌ Missing | No session resumption concept |
-| `UserInputHandler` / `onUserInputRequest` | ❌ Missing | Agent cannot ask user questions |
-| `SystemMessageConfig` (append/replace union) | ❌ Missing | olinda uses plain `string` |
+| `CopilotSdkWrapper` (CLI process session wrapper) | ✅ Exported | `CopilotSdkWrapper`, `CopilotSdkWrapperOptions`, `InitializeResult`, `SendResult` |
+| `approveAll` (SDK-compatible `PermissionHandler`) | ✅ Exported | Re-exported directly from `@github/copilot-sdk` |
+| `defineTool` helper | ✅ Exported | Type-safe tool definition factory (v0.3.0) |
+| `ResumeSessionConfig` | ✅ Exported | Session resumption type (v0.3.0) |
+| `UserInputHandler` / `onUserInputRequest` | ✅ Exported | Agent can ask user questions |
+| `SystemMessageConfig` (append/replace union) | ✅ Exported | `SystemMessageAppendConfig`, `SystemMessageReplaceConfig` (v0.3.0) |
 
 ---
 
@@ -124,17 +124,17 @@ olinda's hook system (`PreToolUseHandler`, `PostToolUseHandler`, etc.) uses a **
 
 ### Tasks
 
-- [ ] **Export `CopilotSdkWrapper`** from `index.ts`
+- [x] **Export `CopilotSdkWrapper`** from `index.ts`
   - Rename `session_client.ts` to `copilot_sdk_wrapper.ts` or expose it as-is
   - Export `CopilotSdkWrapperOptions`, `InitializeResult`, `SendResult` types
-- [ ] **Export `approveAll`** — re-export from `@github/copilot-sdk` (it is already a `PermissionHandler`)
-- [ ] **Add `onPermissionRequest` to `SessionConfig`**
+- [x] **Export `approveAll`** — re-export from `@github/copilot-sdk` (it is already a `PermissionHandler`)
+- [x] **Add `onPermissionRequest` to `SessionConfig`**
   - Type: `PermissionHandler` (import from `@github/copilot-sdk`)
   - Required when creating sessions via the CLI process client
-- [ ] **Export `PermissionHandler`**, `PermissionRequest`, `PermissionRequestResult` types
-- [ ] **Export `UserInputHandler`**, `UserInputRequest`, `UserInputResponse` types
-- [ ] **Add `onUserInputRequest` to `SessionConfig`**
-- [ ] Add `sendStream(prompt, onDelta, timeoutMs?)` to `CopilotSdkWrapper`
+- [x] **Export `PermissionHandler`**, `PermissionRequest`, `PermissionRequestResult` types
+- [x] **Export `UserInputHandler`**, `UserInputRequest`, `UserInputResponse` types
+- [x] **Add `onUserInputRequest` to `SessionConfig`**
+- [x] Add `sendStream(prompt, onDelta, timeoutMs?)` to `CopilotSdkWrapper`
   - Already present in internal `session_client.ts` — just needs export
 
 ---
@@ -145,7 +145,7 @@ olinda's hook system (`PreToolUseHandler`, `PostToolUseHandler`, etc.) uses a **
 
 ### Tasks
 
-- [ ] **Add missing `SessionConfig` fields**:
+- [x] **Add missing `SessionConfig` fields**:
   - `clientName?: string`
   - `configDir?: string`
   - `tools?: Tool<any>[]`
@@ -155,12 +155,12 @@ olinda's hook system (`PreToolUseHandler`, `PostToolUseHandler`, etc.) uses a **
   - `hooks?: SessionHooks`
   - `customAgents?: CustomAgentConfig[]`
   - `infiniteSessions?: InfiniteSessionConfig`
-- [ ] **Fix `reasoningEffort`** — add `'xhigh'` level to match SDK
-- [ ] **Add `SystemMessageConfig`** union type: `SystemMessageAppendConfig | SystemMessageReplaceConfig`
-- [ ] **Export `Tool<TArgs>`**, `ToolHandler<TArgs>`, `ToolInvocation` types
-- [ ] **Add `defineTool<T>(name, config)` helper** — mirrors SDK's function for type-safe tool definition
-- [ ] **Add `ResumeSessionConfig`** type and wire into `CopilotSdkWrapper.resumeSession()`
-- [ ] **Add `CustomAgentConfig`** and `InfiniteSessionConfig` types
+- [x] **Fix `reasoningEffort`** — add `'xhigh'` level to match SDK
+- [x] **Add `SystemMessageConfig`** union type: `SystemMessageAppendConfig | SystemMessageReplaceConfig`
+- [x] **Export `Tool<TArgs>`**, `ToolHandler<TArgs>`, `ToolInvocation` types
+- [x] **Add `defineTool<T>(name, config)` helper** — mirrors SDK's function for type-safe tool definition
+- [x] **Add `ResumeSessionConfig`** type and wire into `CopilotSdkWrapper.resumeSession()`
+- [x] **Add `CustomAgentConfig`** and `InfiniteSessionConfig` types
 
 ---
 

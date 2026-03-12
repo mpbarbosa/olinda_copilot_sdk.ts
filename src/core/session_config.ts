@@ -7,7 +7,15 @@
  */
 
 import type { BYOKProvider } from './auth.js';
-import type { PermissionHandler } from '@github/copilot-sdk';
+import type { SessionHooks } from './hooks.js';
+import type { MCPServerMap } from './mcp.js';
+import type {
+	PermissionHandler,
+	SystemMessageConfig,
+	Tool,
+	CustomAgentConfig,
+	InfiniteSessionConfig,
+} from '@github/copilot-sdk';
 
 /**
  * Controls how much reasoning effort the model expends before responding.
@@ -75,15 +83,17 @@ export type UserInputHandler = (
  * @example
  * const config: SessionConfig = {
  *   model: 'gpt-4o',
- *   systemMessage: 'You are a TypeScript expert.',
+ *   systemMessage: { mode: 'append', content: 'You are a TypeScript expert.' },
  *   streaming: true,
+ *   tools: [defineTool('echo', { description: 'Echo input', handler: async (a) => a })],
  * };
  *
  * @example
- * // Resumable session with BYOK
+ * // Resumable session with BYOK and MCP servers
  * const config: SessionConfig = {
  *   sessionId: 'session-user42-2026-03-12',
  *   provider: { type: 'anthropic', apiKey: 'sk-ant-...', model: 'claude-sonnet-4' },
+ *   mcpServers: { myServer: createLocalMCPServer({ command: 'node', args: ['server.js'] }) },
  * };
  */
 export interface SessionConfig {
@@ -93,21 +103,35 @@ export interface SessionConfig {
 	 */
 	sessionId?: string;
 	/**
+	 * Client name included in the User-Agent header for API requests.
+	 * @since 0.3.0
+	 */
+	clientName?: string;
+	/**
 	 * Model identifier to use for this session.
 	 * Examples: `'gpt-4o'`, `'claude-sonnet-4'`, `'o3-mini'`.
 	 * Defaults to the SDK's configured default model.
 	 */
 	model?: string;
 	/**
-	 * System prompt injected at the start of the conversation.
-	 * Overrides the default Copilot system message.
+	 * System message configuration controlling how the system prompt is built.
+	 * Use `{ type: 'append', content: '...' }` to append to the default SDK message,
+	 * or `{ type: 'replace', content: '...' }` for full control.
+	 *
+	 * **Breaking change from 0.2.x**: was `string`; now `SystemMessageConfig`.
+	 * @since 0.3.0
 	 */
-	systemMessage?: string;
+	systemMessage?: SystemMessageConfig;
 	/**
 	 * Working directory forwarded to the Copilot CLI process.
 	 * Tools that access the file system will resolve paths relative to this dir.
 	 */
 	workingDirectory?: string;
+	/**
+	 * Override the default configuration directory location.
+	 * @since 0.3.0
+	 */
+	configDir?: string;
 	/**
 	 * Controls reasoning effort for models that support it.
 	 * `'low'` is fastest; `'xhigh'` produces the most thorough responses.
@@ -124,6 +148,24 @@ export interface SessionConfig {
 	 * When set, the session uses the specified provider's endpoint and key.
 	 */
 	provider?: BYOKProvider;
+	/**
+	 * Custom tools exposed to the Copilot CLI server.
+	 * Build tool definitions with the re-exported {@link defineTool} helper.
+	 * @since 0.3.0
+	 */
+	tools?: Tool<unknown>[];
+	/**
+	 * Allowlist of tool names. When set, only these tools are available.
+	 * Takes precedence over {@link excludedTools}.
+	 * @since 0.3.0
+	 */
+	availableTools?: string[];
+	/**
+	 * Blocklist of tool names. All other tools remain available.
+	 * Ignored when {@link availableTools} is specified.
+	 * @since 0.3.0
+	 */
+	excludedTools?: string[];
 	/**
 	 * Handler called whenever the SDK requests permission for an operation
 	 * (shell execution, file write, MCP tool call, etc.).
@@ -145,88 +187,44 @@ export interface SessionConfig {
 	 * };
 	 */
 	onUserInputRequest?: UserInputHandler;
+	/**
+	 * Hook handlers for intercepting session lifecycle events.
+	 * @see {@link SessionHooks}
+	 * @since 0.3.0
+	 */
+	hooks?: SessionHooks;
+	/**
+	 * MCP server configurations keyed by server name.
+	 * Use {@link createLocalMCPServer} and {@link createRemoteMCPServer} to build entries.
+	 * @since 0.3.0
+	 */
+	mcpServers?: MCPServerMap;
+	/**
+	 * Custom agent definitions exposed to the session.
+	 * @since 0.3.0
+	 */
+	customAgents?: CustomAgentConfig[];
+	/**
+	 * Directories from which to load additional skills.
+	 * @since 0.3.0
+	 */
+	skillDirectories?: string[];
+	/**
+	 * Names of skills to disable for this session.
+	 * @since 0.3.0
+	 */
+	disabledSkills?: string[];
+	/**
+	 * Infinite session configuration for persistent workspaces and automatic
+	 * context compaction. Set to `{ enabled: false }` to disable.
+	 * @since 0.3.0
+	 */
+	infiniteSessions?: InfiniteSessionConfig;
 }
-
 
 /**
- * Full configuration for a Copilot SDK session.
- *
- * All fields are optional — omitted fields fall back to SDK defaults.
- * When used with {@link CopilotSdkWrapper}, `onPermissionRequest` defaults
- * to `approveAll` if not supplied.
- *
- * @since 0.2.1
- * @example
- * const config: SessionConfig = {
- *   model: 'gpt-4o',
- *   systemMessage: 'You are a TypeScript expert.',
- *   streaming: true,
- * };
- *
- * @example
- * // Resumable session with BYOK
- * const config: SessionConfig = {
- *   sessionId: 'session-user42-2026-03-12',
- *   provider: { type: 'anthropic', apiKey: 'sk-ant-...', model: 'claude-sonnet-4' },
- * };
+ * Configuration subset used when resuming an existing session.
+ * Re-exported from `@github/copilot-sdk` for convenience.
+ * @since 0.3.0
  */
-export interface SessionConfig {
-	/**
-	 * Opaque session identifier for resuming a previous session.
-	 * When omitted, the SDK creates a new ephemeral session.
-	 */
-	sessionId?: string;
-	/**
-	 * Model identifier to use for this session.
-	 * Examples: `'gpt-4o'`, `'claude-sonnet-4'`, `'o3-mini'`.
-	 * Defaults to the SDK's configured default model.
-	 */
-	model?: string;
-	/**
-	 * System prompt injected at the start of the conversation.
-	 * Overrides the default Copilot system message.
-	 */
-	systemMessage?: string;
-	/**
-	 * Working directory forwarded to the Copilot CLI process.
-	 * Tools that access the file system will resolve paths relative to this dir.
-	 */
-	workingDirectory?: string;
-	/**
-	 * Controls reasoning effort for models that support it.
-	 * `'low'` is fastest; `'xhigh'` produces the most thorough responses.
-	 */
-	reasoningEffort?: ReasoningEffort;
-	/**
-	 * When `true`, the SDK emits real-time streaming events instead of
-	 * waiting for a complete response. Default: `false`.
-	 */
-	streaming?: boolean;
-	/**
-	 * Bring Your Own Key provider to route completions through a
-	 * third-party model instead of GitHub Copilot.
-	 * When set, the session uses the specified provider's endpoint and key.
-	 */
-	provider?: BYOKProvider;
-	/**
-	 * Handler called whenever the SDK requests permission for an operation
-	 * (shell execution, file write, MCP tool call, etc.).
-	 * When omitted, {@link CopilotSdkWrapper} uses `approveAll` by default.
-	 *
-	 * @example
-	 * import { approveAll } from 'olinda_copilot_sdk.ts';
-	 * const config: SessionConfig = { onPermissionRequest: approveAll };
-	 */
-	onPermissionRequest?: PermissionHandler;
-	/**
-	 * Handler called when the agent invokes the `ask_user` tool.
-	 * Enables interactive Q&A flows where the model can ask the user questions.
-	 * When omitted, the `ask_user` tool is not available in the session.
-	 *
-	 * @example
-	 * const config: SessionConfig = {
-	 *   onUserInputRequest: async (req) => ({ answer: 'yes', wasFreeform: false }),
-	 * };
-	 */
-	onUserInputRequest?: UserInputHandler;
-}
+export type { ResumeSessionConfig } from '@github/copilot-sdk';

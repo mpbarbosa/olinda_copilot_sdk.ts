@@ -4,4 +4,7 @@
 // This file exists solely so Jest's CJS resolver can locate the module name.
 class CopilotClient {}
 function approveAll() {}
-module.exports = { CopilotClient, approveAll };
+function defineTool(name, config) {
+	return { name, ...config };
+}
+module.exports = { CopilotClient, approveAll, defineTool };
