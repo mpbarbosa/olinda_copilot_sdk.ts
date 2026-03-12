@@ -5,7 +5,7 @@ Grounded in the [official `@github/copilot-sdk` documentation](https://github.co
 
 ---
 
-## Current State (v0.1.0)
+## Current State (v0.1.1)
 
 | Module | File | Status |
 |---|---|---|
@@ -162,6 +162,7 @@ When `streaming: true`, the SDK emits 40+ typed events in real time. This phase 
 ### 5.2 — `SessionClient` streaming extension
 
 Extend `session_client.ts` with:
+
 - `stream(prompt, options?)` — async generator of typed `SessionEvent` items
 - `streamText(prompt, options?)` — convenience generator yielding only text-delta strings
 
