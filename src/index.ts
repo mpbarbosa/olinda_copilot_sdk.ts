@@ -33,7 +33,7 @@ export type {
 
 export { isGitHubToken, resolveHmacFromEnv, resolveAuthPriority } from './core/auth.js';
 
-export type { ReasoningEffort, SessionConfig } from './core/session_config.js';
+export type { ReasoningEffort, SessionConfig, UserInputRequest, UserInputResponse, UserInputHandler } from './core/session_config.js';
 
 export type {
 	ToolResultObject,
@@ -88,3 +88,26 @@ export type {
 } from './core/skills.js';
 
 export { loadSkillDirectories } from './core/skills.js';
+
+// ---------------------------------------------------------------------------
+// v0.2.0 — CopilotSdkWrapper + SDK permission/input types
+// ---------------------------------------------------------------------------
+
+export {
+	CopilotSdkWrapper,
+} from './core/session_client.js';
+
+export type {
+	CopilotSdkWrapperOptions,
+	InitializeResult,
+	SendResult,
+} from './core/session_client.js';
+
+/** Re-exported from `@github/copilot-sdk` — approves all permission requests automatically. */
+export { approveAll } from '@github/copilot-sdk';
+
+export type {
+	PermissionHandler,
+	PermissionRequest,
+	PermissionRequestResult,
+} from '@github/copilot-sdk';

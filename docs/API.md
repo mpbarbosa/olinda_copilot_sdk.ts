@@ -195,7 +195,7 @@ Pass an explicit `env` object in tests to avoid reading from the real environmen
 ### `ReasoningEffort`
 
 ```typescript
-type ReasoningEffort = 'low' | 'medium' | 'high';
+type ReasoningEffort = 'low' | 'medium' | 'high' | 'xhigh';
 ```
 
 Controls reasoning depth for models that support it (e.g. `o3-mini`).
@@ -210,9 +210,39 @@ Full configuration for a `@github/copilot-sdk` session. All fields optional.
 | `model` | `string` | Model identifier (e.g. `'gpt-4o'`, `'claude-sonnet-4'`) |
 | `systemMessage` | `string` | System prompt override |
 | `workingDirectory` | `string` | Working directory forwarded to the CLI process |
-| `reasoningEffort` | `ReasoningEffort` | Reasoning depth: `'low'` \| `'medium'` \| `'high'` |
+| `reasoningEffort` | `ReasoningEffort` | Reasoning depth: `'low'` \| `'medium'` \| `'high'` \| `'xhigh'` |
 | `streaming` | `boolean` | Emit real-time events. Default: `false` |
 | `provider` | `BYOKProvider` | Route through a BYOK provider instead of Copilot |
+| `onPermissionRequest` | `PermissionHandler` | Handler for permission requests. Defaults to `approveAll` in `CopilotSdkWrapper` |
+| `onUserInputRequest` | `UserInputHandler` | Handler for `ask_user` tool invocations |
+
+### `UserInputRequest`
+
+```typescript
+interface UserInputRequest {
+  question: string;
+  choices?: string[];
+  allowFreeform?: boolean;
+}
+```
+
+### `UserInputResponse`
+
+```typescript
+interface UserInputResponse {
+  answer: string;
+  wasFreeform: boolean;
+}
+```
+
+### `UserInputHandler`
+
+```typescript
+type UserInputHandler = (
+  request: UserInputRequest,
+  invocation: { sessionId: string },
+) => Promise<UserInputResponse> | UserInputResponse;
+```
 
 ```typescript
 // Example
@@ -226,6 +256,155 @@ const config: SessionConfig = {
 const config: SessionConfig = {
   sessionId: 'session-user42-2026-03-12',
   provider: { type: 'anthropic', apiKey: 'sk-ant-...', model: 'claude-sonnet-4' },
+};
+```
+
+---
+
+## `CopilotSdkWrapper`
+
+High-level wrapper around the `@github/copilot-sdk` `CopilotClient` that manages
+the full session lifecycle: client start/stop, session creation/destruction,
+serialised request dispatch, and error-resilient cleanup.
+
+### Constructor
+
+```typescript
+new CopilotSdkWrapper(options?: CopilotSdkWrapperOptions)
+```
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `model` | `string` | SDK default | Model identifier for sessions |
+| `timeout` | `number` | SDK default | Default `sendAndWait` timeout (ms) |
+| `workingDirectory` | `string` | `process.cwd()` | Working directory for the session |
+
+### `CopilotSdkWrapper.isAvailable()`
+
+Static method. Returns `true` if the `@github/copilot-sdk` `CopilotClient` is importable.
+Use this to gate SDK features in environments where the SDK may not be installed.
+
+```typescript
+if (CopilotSdkWrapper.isAvailable()) {
+  const wrapper = new CopilotSdkWrapper();
+}
+```
+
+### `initialize()`
+
+Starts the client, authenticates, fetches available models, and creates a new session.
+
+```typescript
+async initialize(): Promise<InitializeResult>
+```
+
+Returns `InitializeResult`:
+
+| Field | Type | Description |
+|---|---|---|
+| `authenticated` | `boolean` | Whether the SDK is authenticated |
+| `availableModels` | `ModelInfo[]` | List of models returned by the SDK |
+
+### `send(prompt, timeoutMs?)`
+
+Sends a prompt and waits for the complete response. Requests are serialised — concurrent
+callers queue automatically.
+
+```typescript
+async send(prompt: string, timeoutMs?: number): Promise<SendResult>
+```
+
+Returns `SendResult`:
+
+| Field | Type | Description |
+|---|---|---|
+| `content` | `string` | Full response text |
+| `success` | `boolean` | Whether the SDK considers the response successful |
+
+Throws `SystemError` if called before `initialize()`.
+
+### `sendStream(prompt, onDelta, timeoutMs?)`
+
+Sends a prompt and calls `onDelta` for each incremental text chunk as the model streams.
+Returns the final `SendResult` once streaming completes. Requests are serialised like `send()`.
+
+```typescript
+async sendStream(
+  prompt: string,
+  onDelta: (delta: string) => void,
+  timeoutMs?: number,
+): Promise<SendResult>
+```
+
+Throws `SystemError` if called before `initialize()`.
+
+```typescript
+const wrapper = new CopilotSdkWrapper();
+await wrapper.initialize();
+await wrapper.sendStream('Write a haiku', (delta) => process.stdout.write(delta));
+```
+
+### `abort()`
+
+Aborts the current in-flight request, if supported by the SDK session.
+
+```typescript
+async abort(): Promise<void>
+```
+
+### `recreateSession()`
+
+Destroys the current session, stops the client, restarts the client, and creates a fresh
+session. Called before each retry after a timeout.
+
+```typescript
+async recreateSession(): Promise<void>
+```
+
+### `cleanup()`
+
+Destroys the current session and stops the client. Calls `forceStop()` if `stop()` does not
+complete within 5 seconds.
+
+```typescript
+async cleanup(): Promise<void>
+```
+
+### Properties
+
+| Property | Type | Description |
+|---|---|---|
+| `client` | `CopilotClient \| null` | The underlying SDK client, or `null` if not started |
+| `session` | `CopilotSession \| null` | The active session, or `null` if not initialised |
+| `authenticated` | `boolean` | `true` after a successful `initialize()` |
+| `availableModels` | `ModelInfo[]` | Models fetched during `initialize()` |
+
+---
+
+## `approveAll`
+
+Re-exported from `@github/copilot-sdk`. A ready-made `PermissionHandler` that
+unconditionally approves every permission request.
+
+```typescript
+import { approveAll } from 'olinda_copilot_sdk.ts';
+
+const wrapper = new CopilotSdkWrapper();
+// approveAll is the default — pass it explicitly only if you want to be explicit:
+const config: SessionConfig = { onPermissionRequest: approveAll };
+```
+
+### `PermissionHandler` / `PermissionRequest` / `PermissionRequestResult`
+
+Re-exported types from `@github/copilot-sdk` for consumers who want to implement
+custom permission handlers.
+
+```typescript
+import type { PermissionHandler, PermissionRequest } from 'olinda_copilot_sdk.ts';
+
+const handler: PermissionHandler = async (request, { sessionId }) => {
+  console.log(`Session ${sessionId} requesting: ${request.type}`);
+  return approveAll(request, { sessionId });
 };
 ```
 

@@ -9,28 +9,29 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+---
+
+## [0.2.0] — 2026-03-12
+
 ### Added
 
-- `src/core/auth.ts` — authentication types and utilities
-  - `AuthOptions`, `HmacKeyConfig`, `BYOKProvider` (union of `AzureProvider`, `OpenAIProvider`,
-    `AnthropicProvider`, `OpenAICompatibleProvider`), `ResolvedAuth`
-  - `AuthMethod` — resolved auth method union type
-  - `isGitHubToken(token)` — recognise GitHub OAuth/PAT token prefixes
-  - `resolveHmacFromEnv(env)` — read HMAC key pair from environment
-  - `resolveAuthPriority(options, env?)` — resolve auth method following SDK priority order
-- `src/core/session_config.ts` — session configuration types
-  - `ReasoningEffort` — `'low' | 'medium' | 'high'`
-  - `SessionConfig` — full typed session options surface
-- `src/core/hooks.ts` — session lifecycle hook types and factory functions
-  - `SessionHooks`, `HooksConfig`, and all input/output interface types
-  - `createHooks(config)` — typed `SessionHooks` factory
-  - `approveAllTools()` — pre-built allow-all pre-tool-use handler
-  - `denyTools(toolNames, reason?)` — pre-built deny-by-name pre-tool-use handler
+- `CopilotSdkWrapper` — first-class public export (previously internal-only)
+  - `initialize()` — start client, authenticate, fetch models, create session
+  - `send(prompt, timeoutMs?)` — serialised send with full response
+  - `sendStream(prompt, onDelta, timeoutMs?)` — streaming send with per-delta callback
+  - `abort()` — abort in-flight request
+  - `recreateSession()` — destroy + restart + fresh session
+  - `cleanup()` — graceful shutdown with forceStop fallback
+  - `CopilotSdkWrapper.isAvailable()` — static availability check
+- `CopilotSdkWrapperOptions`, `InitializeResult`, `SendResult` — companion types
+- `approveAll` — re-exported from `@github/copilot-sdk` for convenient default use
+- `PermissionHandler`, `PermissionRequest`, `PermissionRequestResult` — re-exported from `@github/copilot-sdk`
+- `UserInputHandler`, `UserInputRequest`, `UserInputResponse` — new types for `ask_user` handler support
+- `SessionConfig.onPermissionRequest` — optional permission handler (defaults to `approveAll` in wrapper)
+- `SessionConfig.onUserInputRequest` — optional handler for `ask_user` tool invocations
+- `ReasoningEffort` now includes `'xhigh'` variant
 
-### Changed
-
-- `AuthMethod`: removed unreachable `'github-cli'` member — steps 5 and 6 of
-  `resolveAuthPriority` are both signalled as `stored-oauth`
+---
 
 ---
 

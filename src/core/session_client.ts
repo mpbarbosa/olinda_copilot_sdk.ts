@@ -200,8 +200,63 @@ export class CopilotSdkWrapper {
 	}
 
 	/**
-	 * Aborts any in-flight request on the current session (if the SDK supports it).
+	 * Sends a prompt to the current session, streaming text deltas as they arrive.
+	 * Requests are serialised — concurrent callers wait their turn.
+	 *
+	 * Under the hood, this subscribes to `assistant.message_delta` events on the
+	 * session before calling `sendAndWait`, invoking `onDelta` for every incremental
+	 * text chunk the model emits. The subscription is cleaned up automatically once
+	 * the session becomes idle.
+	 *
+	 * @param prompt    - The prompt text.
+	 * @param onDelta   - Called with each incremental text chunk as it streams in.
+	 * @param timeoutMs - Override the default timeout (ms).
+	 * @returns Final `SendResult` once the session becomes idle.
+	 * @throws {@link SystemError} If no active session exists.
+	 * @since 0.2.0
+	 * @example
+	 * await wrapper.sendStream('Write a haiku', (delta) => process.stdout.write(delta));
 	 */
+	async sendStream(
+		prompt: string,
+		onDelta: (delta: string) => void,
+		timeoutMs?: number,
+	): Promise<SendResult> {
+		if (!this._session) {
+			throw new SystemError('No active session. Call initialize() first.');
+		}
+
+		const doStream = async (): Promise<SendResult> => {
+			let finalContent = '';
+			let finalSuccess = false;
+
+			const unsubscribe = this._session!.on((event) => {
+				if (event.type === 'assistant.message_delta') {
+					onDelta(event.data.deltaContent);
+				} else if (event.type === 'assistant.message') {
+					finalContent = event.data.content;
+					finalSuccess = true;
+				}
+			});
+
+			try {
+				await this._session!.sendAndWait(
+					{ prompt },
+					timeoutMs ?? this._timeout,
+				);
+			} finally {
+				unsubscribe();
+			}
+
+			return { content: finalContent, success: finalSuccess };
+		};
+
+		const result = this._sendQueue.then(doStream);
+		this._sendQueue = result.catch(() => {}) as Promise<void>;
+		return result;
+	}
+
+
 	async abort(): Promise<void> {
 		const session = this._session as (CopilotSession & { abort?: () => Promise<void> }) | null;
 		if (session && typeof session.abort === 'function') {

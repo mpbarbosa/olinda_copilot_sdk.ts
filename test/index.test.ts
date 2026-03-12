@@ -4,6 +4,8 @@ import {
 	AuthenticationError,
 	APIError,
 	SystemError,
+	CopilotSdkWrapper,
+	approveAll,
 	createUserMessage,
 	createSystemMessage,
 	createAssistantMessage,
@@ -77,6 +79,15 @@ describe('Public API surface', () => {
 	it('SystemError is an instance of CopilotSDKError', () => {
 		expect(new SystemError('test')).toBeInstanceOf(CopilotSDKError);
 	});
+
+	it('should export CopilotSdkWrapper class', () => expect(CopilotSdkWrapper).toBeDefined());
+
+	it('CopilotSdkWrapper initialises with no session', () => {
+		const wrapper = new CopilotSdkWrapper();
+		expect(wrapper.session).toBeNull();
+	});
+
+	it('should export approveAll function', () => expect(typeof approveAll).toBe('function'));
 
 	it('should export auth utility functions', () => {
 		expect(typeof isGitHubToken).toBe('function');
