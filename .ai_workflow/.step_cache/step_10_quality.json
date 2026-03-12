@@ -34,7 +34,7 @@
     "src/core/session_config.ts": {
       "score": 100,
       "issueCount": 0,
-      "lastAnalyzed": "2026-03-12T18:46:48.521Z"
+      "lastAnalyzed": "2026-03-12T19:08:12.568Z"
     },
     "src/core/types.ts": {
       "score": 100,
@@ -44,7 +44,22 @@
     "src/core/tools.ts": {
       "score": 100,
       "issueCount": 0,
-      "lastAnalyzed": "2026-03-12T18:46:48.521Z"
+      "lastAnalyzed": "2026-03-12T19:08:12.568Z"
+    },
+    "src/core/mcp.ts": {
+      "score": 100,
+      "issueCount": 0,
+      "lastAnalyzed": "2026-03-12T19:08:12.568Z"
+    },
+    "src/core/skills.ts": {
+      "score": 100,
+      "issueCount": 0,
+      "lastAnalyzed": "2026-03-12T19:08:12.568Z"
+    },
+    "src/index.ts": {
+      "score": 100,
+      "issueCount": 0,
+      "lastAnalyzed": "2026-03-12T19:08:12.568Z"
     }
   }
 }

@@ -1,22 +1,13 @@
 {
   "version": 1,
   "partitionIndex": 1,
-  "totalPartitions": 13,
-  "filesHash": "6360e12d",
+  "totalPartitions": 4,
+  "filesHash": "25aa4e8c",
   "partitionLabels": [
     "test/core",
     "test/core (2)",
     "test/core (3)",
-    "test, test/integration, test/utils",
-    "dist/test",
-    "dist/test (2)",
-    "dist/test (3)",
-    "dist/test (4)",
-    "dist/types",
-    "dist/types (2)",
-    "dist/types (3)",
-    "dist/types (4)",
-    "test/__stubs__"
+    "test, test/integration, test/utils"
   ],
-  "updatedAt": "2026-03-12T18:45:38.673Z"
+  "updatedAt": "2026-03-12T19:07:27.991Z"
 }
