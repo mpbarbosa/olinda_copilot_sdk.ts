@@ -60,6 +60,31 @@
       "score": 100,
       "issueCount": 0,
       "lastAnalyzed": "2026-03-12T19:08:12.568Z"
+    },
+    ".ai_workflow/commit_history.json": {
+      "score": 100,
+      "issueCount": 0,
+      "lastAnalyzed": "2026-03-12T23:10:43.721Z"
+    },
+    ".ai_workflow/model_definitions.json": {
+      "score": 100,
+      "issueCount": 0,
+      "lastAnalyzed": "2026-03-12T23:10:43.721Z"
+    },
+    "src/lib/log_validator.ts": {
+      "score": 100,
+      "issueCount": 0,
+      "lastAnalyzed": "2026-03-12T23:10:43.721Z"
+    },
+    "src/utils/messages.ts": {
+      "score": 100,
+      "issueCount": 0,
+      "lastAnalyzed": "2026-03-12T23:10:43.721Z"
+    },
+    "src/utils/stream.ts": {
+      "score": 100,
+      "issueCount": 0,
+      "lastAnalyzed": "2026-03-12T23:10:43.721Z"
     }
   }
 }
