@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    strategy:
+      matrix:
+        node-version: [18, 20, 22]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Security audit
+        run: npm audit --audit-level=high
+
+      - name: Type-check
+        run: npm run validate
+
+      - name: Build
+        run: npm run build
+
+      - name: Build ESM
+        run: npm run build:esm
+
+      - name: Pack dry-run
+        if: matrix.node-version == 22
+        run: npm pack --dry-run
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test with coverage
+        run: npm run test:coverage
+
+      - name: Integration tests
+        run: npm run test:integration
+
+      - name: Upload coverage report
+        if: matrix.node-version == 22
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 14
