@@ -4,17 +4,17 @@
     "src/core/hooks.ts": {
       "score": 100,
       "issueCount": 0,
-      "lastAnalyzed": "2026-03-12T01:37:33.610Z"
+      "lastAnalyzed": "2026-03-12T12:36:55.711Z"
     },
     "src/core/auth.ts": {
       "score": 100,
       "issueCount": 0,
-      "lastAnalyzed": "2026-03-12T01:37:33.610Z"
+      "lastAnalyzed": "2026-03-12T12:36:55.711Z"
     },
     "src/core/completions_client.ts": {
       "score": 100,
       "issueCount": 0,
-      "lastAnalyzed": "2026-03-12T01:37:33.610Z"
+      "lastAnalyzed": "2026-03-12T12:36:55.711Z"
     },
     "src/core/errors.ts": {
       "score": 100,
@@ -25,6 +25,16 @@
       "score": 100,
       "issueCount": 0,
       "lastAnalyzed": "2026-03-12T01:37:33.610Z"
+    },
+    "src/core/session_client.ts": {
+      "score": 100,
+      "issueCount": 0,
+      "lastAnalyzed": "2026-03-12T12:36:55.711Z"
+    },
+    "src/core/session_config.ts": {
+      "score": 100,
+      "issueCount": 0,
+      "lastAnalyzed": "2026-03-12T12:36:55.711Z"
     }
   }
 }

@@ -1,14 +1,15 @@
 {
   "version": 1,
   "partitionIndex": 1,
-  "totalPartitions": 5,
-  "filesHash": "fb2578a2",
+  "totalPartitions": 6,
+  "filesHash": "0888a89a",
   "partitionLabels": [
     "src/core",
     "src/core (2)",
-    "src, src/utils, .ai_workflow/.step_cache",
-    ".ai_workflow, .ai_workflow/metrics, package-lock.json, package.json",
-    "tsconfig.esm.json, tsconfig.json, eslint.config.js, jest.config.js"
+    "src/utils, .markdownlint.json, package-lock.json, package.json",
+    "tsconfig.esm.json, tsconfig.json, eslint.config.js, src",
+    ".ai_workflow/.step_cache, .ai_workflow",
+    ".ai_workflow/metrics, jest.config.js"
   ],
-  "updatedAt": "2026-03-12T01:37:33.610Z"
+  "updatedAt": "2026-03-12T12:36:55.712Z"
 }
