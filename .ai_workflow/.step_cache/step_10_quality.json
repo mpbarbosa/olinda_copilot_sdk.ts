@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "fileScores": {
+    "src/core/hooks.ts": {
+      "score": 100,
+      "issueCount": 0,
+      "lastAnalyzed": "2026-03-12T01:37:33.610Z"
+    },
+    "src/core/auth.ts": {
+      "score": 100,
+      "issueCount": 0,
+      "lastAnalyzed": "2026-03-12T01:37:33.610Z"
+    },
+    "src/core/completions_client.ts": {
+      "score": 100,
+      "issueCount": 0,
+      "lastAnalyzed": "2026-03-12T01:37:33.610Z"
+    },
+    "src/core/errors.ts": {
+      "score": 100,
+      "issueCount": 0,
+      "lastAnalyzed": "2026-03-12T01:37:33.610Z"
+    },
+    "src/core/logger.ts": {
+      "score": 100,
+      "issueCount": 0,
+      "lastAnalyzed": "2026-03-12T01:37:33.610Z"
+    }
+  }
+}

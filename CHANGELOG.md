@@ -11,7 +11,7 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
-## [0.1.1] — 2026-03-12
+## [0.1.2] — 2026-03-12
 
 ### Added
 
@@ -29,7 +29,7 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 - `src/utils/stream.ts` — pure SSE parsing utilities
   - `parseSSELine`, `parseSSEChunk`, `extractDeltaContent`, `isStreamDone`
 - `src/index.ts` — public barrel export
-- `package.json` — v0.1.1, build/test/lint scripts, `engines: node>=18, npm>=9`
+- `package.json` — v0.1.2, build/test/lint scripts, `engines: node>=18, npm>=9`
 - `tsconfig.json` — CJS build → `dist/`
 - `tsconfig.esm.json` — ESM build → `dist/esm/`
 - `jest.config.js` — ts-jest, 80% coverage thresholds

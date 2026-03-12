@@ -2,18 +2,18 @@
  * TypeScript Types for GitHub Copilot SDK
  * @module core/types
  * @description Core TypeScript interfaces and types for the GitHub Copilot API.
- * @since 0.1.1
+ * @since 0.1.2
  */
 
 /**
  * Role of a chat message participant.
- * @since 0.1.1
+ * @since 0.1.2
  */
 export type MessageRole = 'system' | 'user' | 'assistant' | 'function';
 
 /**
  * A single chat message in a conversation.
- * @since 0.1.1
+ * @since 0.1.2
  * @example
  * const msg: Message = { role: 'user', content: 'Hello!' };
  */
@@ -28,7 +28,7 @@ export interface Message {
 
 /**
  * Request body for the Copilot completions endpoint.
- * @since 0.1.1
+ * @since 0.1.2
  */
 export interface CompletionRequest {
 	/** Conversation history to send to the model. */
@@ -45,7 +45,7 @@ export interface CompletionRequest {
 
 /**
  * A single choice in a non-streaming completion response.
- * @since 0.1.1
+ * @since 0.1.2
  */
 export interface CompletionChoice {
 	/** Zero-based index of this choice. */
@@ -58,7 +58,7 @@ export interface CompletionChoice {
 
 /**
  * Full non-streaming completion response from the Copilot API.
- * @since 0.1.1
+ * @since 0.1.2
  */
 export interface CompletionResponse {
 	/** Unique identifier for this completion. */
@@ -75,7 +75,7 @@ export interface CompletionResponse {
 
 /**
  * A delta (partial update) within a streaming response chunk.
- * @since 0.1.1
+ * @since 0.1.2
  */
 export interface StreamDelta {
 	/** Role, present only in the first chunk. */
@@ -86,7 +86,7 @@ export interface StreamDelta {
 
 /**
  * A single choice within a streaming response chunk.
- * @since 0.1.1
+ * @since 0.1.2
  */
 export interface StreamChoice {
 	/** Zero-based index of this choice. */
@@ -99,7 +99,7 @@ export interface StreamChoice {
 
 /**
  * A single Server-Sent Events chunk from a streaming completion.
- * @since 0.1.1
+ * @since 0.1.2
  */
 export interface StreamChunk {
 	/** Unique identifier for this completion stream. */
@@ -116,7 +116,7 @@ export interface StreamChunk {
 
 /**
  * Configuration options for {@link CopilotClient}.
- * @since 0.1.1
+ * @since 0.1.2
  */
 export interface ClientOptions {
 	/** GitHub token used to authenticate with the Copilot API. */
