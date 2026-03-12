@@ -20,7 +20,28 @@ export {
 	CopilotSDKError,
 	AuthenticationError,
 	APIError,
+	SystemError,
 } from './core/errors.js';
+
+export type {
+	AzureProvider,
+	OpenAIProvider,
+	AnthropicProvider,
+	OpenAICompatibleProvider,
+	BYOKProvider,
+	HmacKeyConfig,
+	AuthOptions,
+	AuthMethod,
+	ResolvedAuth,
+} from './core/auth.js';
+
+export {
+	isGitHubToken,
+	resolveHmacFromEnv,
+	resolveAuthPriority,
+} from './core/auth.js';
+
+export type { ReasoningEffort, SessionConfig } from './core/session_config.js';
 
 export {
 	createUserMessage,

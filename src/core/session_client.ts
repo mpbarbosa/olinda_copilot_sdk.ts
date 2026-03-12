@@ -14,8 +14,8 @@
  * @version 2.0.0
  */
 
-import { CopilotClient, CopilotSession, approveAll } from '@github/copilot-sdk';
-import type { ModelInfo, SessionConfig } from '@github/copilot-sdk';
+import { CopilotClient, approveAll } from '@github/copilot-sdk';
+import type { CopilotSession, ModelInfo, SessionConfig } from '@github/copilot-sdk';
 import { logger } from './logger.js';
 import { SystemError } from './errors.js';
 
