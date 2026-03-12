@@ -36,6 +36,21 @@ export class AuthenticationError extends CopilotSDKError {
 }
 
 /**
+ * Thrown when a precondition required by an operation is not met
+ * (e.g. calling `send()` before `initialize()`).
+ * @since 0.1.0
+ * @example
+ * throw new SystemError('No active session. Call initialize() first.');
+ */
+export class SystemError extends CopilotSDKError {
+	constructor(message: string) {
+		super(message);
+		this.name = 'SystemError';
+		Object.setPrototypeOf(this, new.target.prototype);
+	}
+}
+
+/**
  * Thrown when the Copilot API returns a non-successful HTTP status.
  * @since 0.1.0
  * @example

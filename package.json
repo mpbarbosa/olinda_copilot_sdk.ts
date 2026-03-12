@@ -52,6 +52,10 @@
     "type": "git",
     "url": "git+https://github.com/mpbarbosa/olinda_copilot_sdk.ts.git"
   },
+  "dependencies": {
+    "@github/copilot-sdk": "^0.1.32",
+    "olinda_utils.js": "github:mpbarbosa/olinda_utils.js#v0.3.15"
+  },
   "devDependencies": {
     "@types/jest": "^29.5.0",
     "@types/node": "^20.0.0",

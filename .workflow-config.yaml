@@ -1,0 +1,37 @@
+# AI Workflow Automation Configuration
+# Project: olinda_copilot_sdk.ts
+# See: https://github.com/mpbarbosa/ai_workflow.js
+
+project:
+  name: 'olinda_copilot_sdk.ts'
+  type: 'typescript-library'
+  description: 'TypeScript Wrapper Library for GitHub Copilot SDK'
+  kind: 'nodejs_api'
+  version: '0.1.0'
+
+tech_stack:
+  primary_language: 'typescript'
+  secondary_languages:
+    - 'javascript'
+  build_system: 'npm'
+  test_framework: 'jest'
+  test_command: 'npm test'
+  lint_command: 'npm run lint'
+  build_command: 'npm run build'
+  validate_command: 'npm run validate'
+
+structure:
+  source_dirs:
+    - src
+  test_dirs:
+    - test
+  docs_dirs:
+    - docs
+
+workflow:
+  smart_execution: true
+  parallel_execution: true
+  ai_cache_enabled: true
+  auto_commit: false
+  multi_stage_pipeline: false
+  ml_optimize: false

@@ -1,6 +1,6 @@
 /**
  * Copilot API Client
- * @module core/client
+ * @module core/completions_client
  * @description HTTP client for interacting with the GitHub Copilot chat completions API.
  * Wraps native `fetch` (available in Node.js ≥ 18) and provides typed request/response
  * helpers for both non-streaming and streaming completions.

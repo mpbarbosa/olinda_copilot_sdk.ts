@@ -3,7 +3,7 @@
  * @module index
  */
 
-export { CopilotClient } from './core/client.js';
+export { CopilotClient } from './core/completions_client.js';
 export type {
 	ClientOptions,
 	Message,

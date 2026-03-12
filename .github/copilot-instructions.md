@@ -28,23 +28,25 @@ Key conventions adopted from that project:
 
 ```
 src/
-  core/         # Core classes, types, and custom errors
-    client.ts   # CopilotClient — wraps the Copilot completions API
-    types.ts    # TypeScript interfaces (Message, CompletionResponse, etc.)
-    errors.ts   # Custom error hierarchy (CopilotSDKError, AuthenticationError, APIError)
-  utils/        # Pure utility functions
-    messages.ts # Message factory functions (createUserMessage, etc.)
-    stream.ts   # SSE stream parsing utilities
-  index.ts      # Public entry point — barrel re-exports only
+  core/                    # Core classes, types, and custom errors
+    completions_client.ts  # CopilotClient — REST HTTP completions API (stateless)
+    session_client.ts      # CopilotSdkWrapper — @github/copilot-sdk CLI sessions (stateful)
+    types.ts               # TypeScript interfaces (Message, CompletionResponse, etc.)
+    errors.ts              # Custom error hierarchy (CopilotSDKError, AuthenticationError, APIError, SystemError)
+    logger.ts              # Re-exports Logger, logger, LogLevel, stripAnsi from olinda_utils.js
+  utils/                   # Pure utility functions
+    messages.ts            # Message factory functions (createUserMessage, etc.)
+    stream.ts              # SSE stream parsing utilities
+  index.ts                 # Public entry point — barrel re-exports only
 test/
-  core/         # Unit tests for src/core/
-  utils/        # Unit tests for src/utils/
-  integration/  # Integration tests (CJS build smoke tests)
-  benchmarks/   # Performance benchmarks (excluded from coverage run)
-  helpers/      # Shared test fixtures and typed constants
-  index.test.ts # Smoke tests for the public export surface
-docs/           # Hand-authored API reference
-dist/           # Compiled output (gitignored)
+  core/                    # Unit tests for src/core/
+  utils/                   # Unit tests for src/utils/
+  integration/             # Integration tests (CJS build smoke tests)
+  benchmarks/              # Performance benchmarks (excluded from coverage run)
+  helpers/                 # Shared test fixtures and typed constants
+  index.test.ts            # Smoke tests for the public export surface
+docs/                      # Hand-authored API reference and roadmap
+dist/                      # Compiled output (gitignored)
 ```
 
 ## Commands

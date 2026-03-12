@@ -1,4 +1,4 @@
-import { CopilotClient } from '../../src/core/client';
+import { CopilotClient } from '../../src/core/completions_client';
 import { AuthenticationError, APIError } from '../../src/core/errors';
 import { COMPLETION_RESPONSE, STREAM_CHUNK, USER_MESSAGE } from '../helpers/fixtures';
 
