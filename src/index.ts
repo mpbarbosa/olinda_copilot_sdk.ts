@@ -43,6 +43,33 @@ export {
 
 export type { ReasoningEffort, SessionConfig } from './core/session_config.js';
 
+export type {
+	ToolResultObject,
+	BaseHookInput,
+	PreToolUseInput,
+	PreToolUseOutput,
+	PreToolUseHandler,
+	PostToolUseInput,
+	PostToolUseOutput,
+	PostToolUseHandler,
+	UserPromptInput,
+	UserPromptOutput,
+	UserPromptHandler,
+	SessionStartInput,
+	SessionStartOutput,
+	SessionStartHandler,
+	SessionEndInput,
+	SessionEndOutput,
+	SessionEndHandler,
+	ErrorOccurredInput,
+	ErrorOccurredOutput,
+	ErrorOccurredHandler,
+	SessionHooks,
+	HooksConfig,
+} from './core/hooks.js';
+
+export { createHooks, approveAllTools, denyTools } from './core/hooks.js';
+
 export {
 	createUserMessage,
 	createSystemMessage,

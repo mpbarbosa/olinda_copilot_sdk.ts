@@ -228,3 +228,156 @@ const config: SessionConfig = {
   provider: { type: 'anthropic', apiKey: 'sk-ant-...', model: 'claude-sonnet-4' },
 };
 ```
+
+---
+
+## Hooks
+
+Session hooks let you intercept and influence the Copilot session lifecycle.
+All hooks are optional; include only the ones you need.
+
+### Hook overview
+
+| Hook | Trigger | Can modify |
+|------|---------|-----------|
+| `onPreToolUse` | Before a tool runs | args, permission decision |
+| `onPostToolUse` | After a tool runs | tool result |
+| `onUserPromptSubmitted` | When the user submits a prompt | prompt text |
+| `onSessionStart` | When a session starts | initial context, config |
+| `onSessionEnd` | When a session ends | cleanup actions, summary |
+| `onErrorOccurred` | When an error occurs | recovery strategy |
+
+### `createHooks(config)`
+
+Factory that returns a typed `SessionHooks` object.
+
+```typescript
+import { createHooks, approveAllTools, denyTools } from 'olinda_copilot_sdk.ts';
+
+const hooks = createHooks({
+  onPreToolUse: approveAllTools(),
+  onSessionEnd: async (input) => ({
+    sessionSummary: `Ended: ${input.reason}`,
+  }),
+});
+```
+
+Pass the result to `SessionConfig.hooks` (or the SDK's `SessionConfig`).
+
+### `approveAllTools()`
+
+Returns a `PreToolUseHandler` that unconditionally approves every tool.
+
+```typescript
+const hooks = createHooks({ onPreToolUse: approveAllTools() });
+```
+
+### `denyTools(toolNames, reason?)`
+
+Returns a `PreToolUseHandler` that denies the listed tools and passes all others through.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `toolNames` | `string[]` | Tool names to deny |
+| `reason` | `string` (optional) | Human-readable denial reason |
+
+```typescript
+const hooks = createHooks({
+  onPreToolUse: denyTools(['bash', 'write_file'], 'blocked by policy'),
+});
+```
+
+### Hook input / output types
+
+Every hook input extends `BaseHookInput`:
+
+```typescript
+interface BaseHookInput {
+  timestamp: number;  // Unix epoch ms
+  cwd: string;        // Working directory at hook time
+}
+```
+
+**Pre-tool-use**
+
+```typescript
+interface PreToolUseInput extends BaseHookInput {
+  toolName: string;
+  toolArgs: unknown;
+}
+
+interface PreToolUseOutput {
+  permissionDecision?: 'allow' | 'deny' | 'ask';
+  permissionDecisionReason?: string;
+  modifiedArgs?: unknown;
+  additionalContext?: string;
+  suppressOutput?: boolean;
+}
+```
+
+**Post-tool-use**
+
+```typescript
+interface PostToolUseInput extends BaseHookInput {
+  toolName: string;
+  toolArgs: unknown;
+  toolResult: ToolResultObject;
+}
+
+interface PostToolUseOutput {
+  modifiedResult?: ToolResultObject;
+  additionalContext?: string;
+  suppressOutput?: boolean;
+}
+```
+
+**User prompt submitted**
+
+```typescript
+interface UserPromptInput extends BaseHookInput { prompt: string }
+interface UserPromptOutput {
+  modifiedPrompt?: string;
+  additionalContext?: string;
+  suppressOutput?: boolean;
+}
+```
+
+**Session start / end**
+
+```typescript
+interface SessionStartInput extends BaseHookInput {
+  source: 'startup' | 'resume' | 'new';
+  initialPrompt?: string;
+}
+interface SessionStartOutput {
+  additionalContext?: string;
+  modifiedConfig?: Record<string, unknown>;
+}
+
+interface SessionEndInput extends BaseHookInput {
+  reason: 'complete' | 'error' | 'abort' | 'timeout' | 'user_exit';
+  finalMessage?: string;
+  error?: string;
+}
+interface SessionEndOutput {
+  suppressOutput?: boolean;
+  cleanupActions?: string[];
+  sessionSummary?: string;
+}
+```
+
+**Error occurred**
+
+```typescript
+interface ErrorOccurredInput extends BaseHookInput {
+  error: string;
+  errorContext: 'model_call' | 'tool_execution' | 'system' | 'user_input';
+  recoverable: boolean;
+}
+interface ErrorOccurredOutput {
+  suppressOutput?: boolean;
+  errorHandling?: 'retry' | 'skip' | 'abort';
+  retryCount?: number;
+  userNotification?: string;
+}
+```
