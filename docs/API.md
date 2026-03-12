@@ -81,6 +81,7 @@ Pure SSE parsing utilities — no side effects, no state.
 |---|---|---|
 | `CopilotSDKError` | `Error` | Base error for all SDK errors |
 | `AuthenticationError` | `CopilotSDKError` | Token missing or authentication failed |
+| `SystemError` | `CopilotSDKError` | Precondition not met (e.g. calling `send()` before `initialize()`) |
 | `APIError` | `CopilotSDKError` | Non-2xx HTTP response from the API. Exposes `statusCode: number` |
 
 ---
@@ -141,7 +142,6 @@ type AuthMethod =
   | 'direct-api-token'  // COPILOT_TOKEN / GITHUB_COPILOT_TOKEN env var
   | 'env-token'         // COPILOT_GITHUB_TOKEN → GH_TOKEN → GITHUB_TOKEN chain
   | 'stored-oauth'      // requires async I/O from caller
-  | 'github-cli';       // requires gh CLI from caller
 ```
 
 ### `ResolvedAuth`
@@ -177,13 +177,13 @@ resolveAuthPriority(
 ): ResolvedAuth | null
 ```
 
-Resolves the authentication method to use, following the SDK's six-step priority order:
+Resolves the authentication method to use, following the SDK's priority order:
 
 1. `options.githubToken` → `{ method: 'github-token', token }`
 2. HMAC key (options or `COPILOT_HMAC_KEY_*` env) → `{ method: 'hmac-key', hmacKey }`
 3. `COPILOT_TOKEN` / `GITHUB_COPILOT_TOKEN` → `{ method: 'direct-api-token', token }`
 4. `COPILOT_GITHUB_TOKEN` → `GH_TOKEN` → `GITHUB_TOKEN` → `{ method: 'env-token', token }`
-5. `useLoggedInUser !== false` → `{ method: 'stored-oauth' }` _(caller performs I/O)_
+5. `useLoggedInUser !== false` → `{ method: 'stored-oauth' }` _(caller performs async I/O)_
 6. Returns `null` — no auth available
 
 Pass an explicit `env` object in tests to avoid reading from the real environment.
@@ -298,7 +298,7 @@ interface BaseHookInput {
 }
 ```
 
-**Pre-tool-use**
+#### Pre-tool-use
 
 ```typescript
 interface PreToolUseInput extends BaseHookInput {
@@ -315,7 +315,7 @@ interface PreToolUseOutput {
 }
 ```
 
-**Post-tool-use**
+#### Post-tool-use
 
 ```typescript
 interface PostToolUseInput extends BaseHookInput {
@@ -331,7 +331,7 @@ interface PostToolUseOutput {
 }
 ```
 
-**User prompt submitted**
+#### User prompt submitted
 
 ```typescript
 interface UserPromptInput extends BaseHookInput { prompt: string }
@@ -342,7 +342,7 @@ interface UserPromptOutput {
 }
 ```
 
-**Session start / end**
+#### Session start / end
 
 ```typescript
 interface SessionStartInput extends BaseHookInput {
@@ -366,7 +366,7 @@ interface SessionEndOutput {
 }
 ```
 
-**Error occurred**
+#### Error occurred
 
 ```typescript
 interface ErrorOccurredInput extends BaseHookInput {
@@ -381,3 +381,99 @@ interface ErrorOccurredOutput {
   userNotification?: string;
 }
 ```
+
+---
+
+## MCP Servers (`src/core/mcp.ts`)
+
+Typed configuration interfaces and factory helpers for [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) servers, which extend Copilot sessions with external tools.
+
+### Interfaces
+
+```typescript
+interface LocalMCPServer {
+  type?: 'local' | 'stdio';
+  command: string;
+  args: string[];
+  env?: Record<string, string>;
+  cwd?: string;
+  tools?: string[];   // ['*'] = all, [] = none, or list specific names
+  timeout?: number;
+}
+
+interface RemoteMCPServer {
+  type: 'http' | 'sse';
+  url: string;
+  headers?: Record<string, string>;
+  tools?: string[];
+  timeout?: number;
+}
+
+type MCPServerMap = Record<string, LocalMCPServer | RemoteMCPServer>;
+```
+
+### Factory functions
+
+#### `createLocalMCPServer(config: LocalMCPServer): LocalMCPServer`
+
+Returns a typed copy of a local (stdio) MCP server config. Pass the result to `SessionConfig.mcpServers`.
+
+```typescript
+const fs = createLocalMCPServer({
+  command: 'npx',
+  args: ['-y', '@modelcontextprotocol/server-filesystem', '/tmp'],
+  tools: ['*'],
+});
+```
+
+#### `createRemoteMCPServer(config: RemoteMCPServer): RemoteMCPServer`
+
+Returns a typed copy of a remote (HTTP/SSE) MCP server config.
+
+```typescript
+const gh = createRemoteMCPServer({
+  type: 'http',
+  url: 'https://api.githubcopilot.com/mcp/',
+  headers: { Authorization: 'Bearer TOKEN' },
+  tools: ['*'],
+});
+```
+
+---
+
+## Skills (`src/core/skills.ts`)
+
+Typed configuration interfaces and utilities for [Copilot Skills](https://github.com/github/copilot-sdk/blob/main/docs/features/skills.md) — reusable prompt modules loaded from directories containing a `SKILL.md` file.
+
+### Interfaces
+
+```typescript
+interface SkillConfig {
+  name?: string;
+  description?: string;
+  body: string;   // full SKILL.md markdown content
+}
+
+interface SkillSessionConfig {
+  skillDirectories: string[];
+  disabledSkills?: string[];
+}
+```
+
+### Utility functions
+
+#### `loadSkillDirectories(paths: string[]): string[]`
+
+Normalises and deduplicates a list of skill directory paths. Trims whitespace, removes empty strings, and preserves insertion order. Pure function — no filesystem access.
+
+```typescript
+loadSkillDirectories(['./skills', './skills', '', '  ./extra  '])
+// → ['./skills', './extra']
+```
+
+---
+
+## See Also
+
+- [ROADMAP.md](./ROADMAP.md) — planned phases and backlog items
+- [CONTRIBUTING.md](../CONTRIBUTING.md) — development setup, testing requirements, and commit conventions

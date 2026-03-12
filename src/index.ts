@@ -16,12 +16,7 @@ export type {
 	StreamDelta,
 } from './core/types.js';
 
-export {
-	CopilotSDKError,
-	AuthenticationError,
-	APIError,
-	SystemError,
-} from './core/errors.js';
+export { CopilotSDKError, AuthenticationError, APIError, SystemError } from './core/errors.js';
 
 export type {
 	AzureProvider,
@@ -35,11 +30,7 @@ export type {
 	ResolvedAuth,
 } from './core/auth.js';
 
-export {
-	isGitHubToken,
-	resolveHmacFromEnv,
-	resolveAuthPriority,
-} from './core/auth.js';
+export { isGitHubToken, resolveHmacFromEnv, resolveAuthPriority } from './core/auth.js';
 
 export type { ReasoningEffort, SessionConfig } from './core/session_config.js';
 
@@ -80,9 +71,19 @@ export {
 	filterByRole,
 } from './utils/messages.js';
 
-export {
-	parseSSELine,
-	parseSSEChunk,
-	extractDeltaContent,
-	isStreamDone,
-} from './utils/stream.js';
+export { parseSSELine, parseSSEChunk, extractDeltaContent, isStreamDone } from './utils/stream.js';
+
+export type {
+	LocalMCPServer,
+	RemoteMCPServer,
+	MCPServerMap,
+} from './core/mcp.js';
+
+export { createLocalMCPServer, createRemoteMCPServer } from './core/mcp.js';
+
+export type {
+	SkillConfig,
+	SkillSessionConfig,
+} from './core/skills.js';
+
+export { loadSkillDirectories } from './core/skills.js';

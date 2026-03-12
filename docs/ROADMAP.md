@@ -16,14 +16,18 @@ Grounded in the [official `@github/copilot-sdk` documentation](https://github.co
 | Logger (via olinda_utils.js) | `src/core/logger.ts` | ✅ Done |
 | Message factory utilities | `src/utils/messages.ts` | ✅ Done |
 | SSE stream parsing utilities | `src/utils/stream.ts` | ✅ Done |
+| Auth strategy types & utilities | `src/core/auth.ts` | ✅ Done |
+| Session config types | `src/core/session_config.ts` | ✅ Done |
+| MCP server types & factories | `src/core/mcp.ts` | ✅ Done |
+| Skills types & utilities | `src/core/skills.ts` | ✅ Done |
 
 ---
 
-## Phase 1 — Authentication & Session Foundations
+## Phase 1 — Authentication & Session Foundations ✅ Complete
 
 > Ref: [auth/index.md](https://github.com/github/copilot-sdk/blob/main/docs/auth/index.md) · [auth/byok.md](https://github.com/github/copilot-sdk/blob/main/docs/auth/byok.md) · [setup/index.md](https://github.com/github/copilot-sdk/blob/main/docs/setup/index.md)
 
-The SDK supports six authentication methods with a defined priority order. The current wrapper only exposes Bearer token auth. This phase adds typed abstractions for all auth strategies.
+Typed abstractions for all authentication strategies and full session configuration surface.
 
 ### 1.1 — Auth strategy types (`src/core/auth.ts`)
 
@@ -63,11 +67,11 @@ Typed `SessionConfig` surface matching the SDK's full options:
 
 ---
 
-## Phase 2 — Session Hooks
+## Phase 2 — Session Hooks ✅ Complete
 
 > Ref: [hooks/index.md](https://github.com/github/copilot-sdk/blob/main/docs/hooks/index.md) · [hooks/pre-tool-use.md](https://github.com/github/copilot-sdk/blob/main/docs/hooks/pre-tool-use.md) · [hooks/post-tool-use.md](https://github.com/github/copilot-sdk/blob/main/docs/hooks/post-tool-use.md)
 
-Hooks intercept the session at key lifecycle points. This phase adds a typed hook builder that wraps the raw `@github/copilot-sdk` hook callbacks.
+Typed hook builder that wraps the raw `@github/copilot-sdk` hook callbacks.
 
 ### 2.1 — Hook types (`src/core/hooks.ts`)
 
@@ -91,7 +95,7 @@ Hooks intercept the session at key lifecycle points. This phase adds a typed hoo
 
 ---
 
-## Phase 3 — MCP Servers & Skills
+## Phase 3 — MCP Servers & Skills ✅ Complete
 
 > Ref: [features/mcp.md](https://github.com/github/copilot-sdk/blob/main/docs/features/mcp.md) · [features/skills.md](https://github.com/github/copilot-sdk/blob/main/docs/features/skills.md)
 
@@ -269,6 +273,16 @@ Following the OpenTelemetry GenAI Semantic Conventions:
 | Session state inspection | Read `plan.md` and `files/` artifacts from active sessions |
 | CLI bundling helpers | Utilities for shipping the Copilot CLI with a Node.js app |
 | Microsoft Agent Framework integration | Typed bridge for MAF multi-agent workflows |
+| ibira.js fetch integration | Replace raw `fetch` calls in `completions_client.ts` with [`IbiraAPIFetcher` / `IbiraAPIFetchManager`](https://github.com/mpbarbosa/ibira.js) from the [ibira.js](https://github.com/mpbarbosa/ibira.js) project. Install with `npm install ibira.js` and import via `import { IbiraAPIFetcher, IbiraAPIFetchManager } from 'ibira.js'`. Gains LRU caching, retry with exponential back-off, request deduplication, and observer-pattern notifications — all zero-dependency and Node.js ≥18 compatible. |
+| `@github/copilot-sdk` semver review at 1.0 | Currently pinned as `^0.1.32` (resolves to `>=0.1.32 <0.2.0`). When the SDK reaches `1.0.0`, reassess the range: consider exact pinning or `~` to guard against unexpected breaking changes in a newly-stable API. Track the [copilot-sdk releases](https://github.com/github/copilot-sdk/releases) page. |
+| `CopilotClient` retry / resilience policy | `complete()` and `stream()` currently propagate transient network errors (DNS failures, connection resets) directly to the caller with no retry. Add an optional `RetryPolicy` option to `ClientOptions` — `{ maxAttempts: number, backoffMs: number }` — retrying only on network-level errors (not on `AuthenticationError` or `APIError`). Superseded if the `ibira.js` fetch integration is adopted (ibira already provides exponential back-off). |
+| `parseSSELines` / `utils/stream` consolidation | `parseSSELines` in `completions_client.ts` (`@internal`) duplicates JSON-parse logic already in `parseSSEChunk` (`utils/stream.ts`). When the streaming surface grows (Phase 5), replace the internal batch function with a loop over the public `parseSSEChunk` utility to eliminate the duplication. |
+| SSE malformed-line observability | `parseSSELines` silently skips malformed JSON lines (`catch { /* skip */ }`). Pure-function constraints prevent logging at parse time. Surface these as structured events via the OpenTelemetry bridge planned in Phase 8, or expose a `onMalformedLine` callback on `ClientOptions` so callers can instrument without coupling the core to a logger. |
+| Hooks submodule split | `src/core/hooks.ts` currently co-locates all six hook input/output interfaces and both convenience helpers. If the hook surface grows beyond Phase 2, split into `src/core/hooks/types.ts` (interfaces only) and `src/core/hooks/factories.ts` (convenience helpers) to keep each file focused. |
+| BYOK provider factory pattern | `auth.ts` uses a discriminated union for `BYOKProvider`. If new provider types are added (e.g. Bedrock, Vertex AI), introduce a `createBYOKProvider(type, config)` factory in `src/core/auth.ts` to centralise construction and validation instead of requiring callers to build the union object manually. |
+| Runtime API response validation | `response.json() as Promise<CompletionResponse>` in `completions_client.ts` trusts the API shape at compile time only. Add optional Zod schemas (`CompletionResponseSchema`, `StreamChunkSchema`) as a tree-shakeable companion module (`src/utils/schemas.ts`) so callers can opt in to runtime validation without adding Zod as a required peer dependency. |
+| Type-level test coverage (`tsd` / `expect-type`) | Add `tsd` or `expect-type` as a dev dependency to write `.test-d.ts` files that assert the public API's type signatures (e.g. `expectType<Message>(createUserMessage('x'))`). Run as part of `npm run validate`. Prevents type regressions that unit tests cannot catch. |
+| `explicit-function-return-type` ESLint rule | `@typescript-eslint/explicit-function-return-type` is not currently active. TypeScript inference covers non-exported functions reliably today; enable the rule when the public surface grows and inference becomes harder to audit at a glance. |
 
 ---
 
