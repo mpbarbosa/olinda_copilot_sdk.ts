@@ -9,9 +9,32 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- `src/core/auth.ts` — authentication types and utilities
+  - `AuthOptions`, `HmacKeyConfig`, `BYOKProvider` (union of `AzureProvider`, `OpenAIProvider`,
+    `AnthropicProvider`, `OpenAICompatibleProvider`), `ResolvedAuth`
+  - `AuthMethod` — resolved auth method union type
+  - `isGitHubToken(token)` — recognise GitHub OAuth/PAT token prefixes
+  - `resolveHmacFromEnv(env)` — read HMAC key pair from environment
+  - `resolveAuthPriority(options, env?)` — resolve auth method following SDK priority order
+- `src/core/session_config.ts` — session configuration types
+  - `ReasoningEffort` — `'low' | 'medium' | 'high'`
+  - `SessionConfig` — full typed session options surface
+- `src/core/hooks.ts` — session lifecycle hook types and factory functions
+  - `SessionHooks`, `HooksConfig`, and all input/output interface types
+  - `createHooks(config)` — typed `SessionHooks` factory
+  - `approveAllTools()` — pre-built allow-all pre-tool-use handler
+  - `denyTools(toolNames, reason?)` — pre-built deny-by-name pre-tool-use handler
+
+### Changed
+
+- `AuthMethod`: removed unreachable `'github-cli'` member — steps 5 and 6 of
+  `resolveAuthPriority` are both signalled as `stored-oauth`
+
 ---
 
-## [0.1.2] — 2026-03-12
+## [0.1.3] — 2026-03-12
 
 ### Added
 
@@ -29,7 +52,7 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 - `src/utils/stream.ts` — pure SSE parsing utilities
   - `parseSSELine`, `parseSSEChunk`, `extractDeltaContent`, `isStreamDone`
 - `src/index.ts` — public barrel export
-- `package.json` — v0.1.2, build/test/lint scripts, `engines: node>=18, npm>=9`
+- `package.json` — v0.1.3, build/test/lint scripts, `engines: node>=18, npm>=9`
 - `tsconfig.json` — CJS build → `dist/`
 - `tsconfig.esm.json` — ESM build → `dist/esm/`
 - `jest.config.js` — ts-jest, 80% coverage thresholds

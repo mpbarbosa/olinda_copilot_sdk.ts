@@ -3,6 +3,7 @@ import {
 	CopilotSDKError,
 	AuthenticationError,
 	APIError,
+	SystemError,
 	createUserMessage,
 	createSystemMessage,
 	createAssistantMessage,
@@ -14,6 +15,12 @@ import {
 	parseSSEChunk,
 	extractDeltaContent,
 	isStreamDone,
+	isGitHubToken,
+	resolveHmacFromEnv,
+	resolveAuthPriority,
+	createHooks,
+	approveAllTools,
+	denyTools,
 } from '../src/index';
 
 describe('Public API surface', () => {
@@ -63,5 +70,61 @@ describe('Public API surface', () => {
 
 	it('APIError exposes statusCode', () => {
 		expect(new APIError('Not Found', 404).statusCode).toBe(404);
+	});
+
+	it('should export SystemError class', () => expect(SystemError).toBeDefined());
+
+	it('SystemError is an instance of CopilotSDKError', () => {
+		expect(new SystemError('test')).toBeInstanceOf(CopilotSDKError);
+	});
+
+	it('should export auth utility functions', () => {
+		expect(typeof isGitHubToken).toBe('function');
+		expect(typeof resolveHmacFromEnv).toBe('function');
+		expect(typeof resolveAuthPriority).toBe('function');
+	});
+
+	it('isGitHubToken recognises gho_ prefix', () => {
+		expect(isGitHubToken('gho_abc')).toBe(true);
+		expect(isGitHubToken('sk-abc')).toBe(false);
+	});
+
+	it('resolveHmacFromEnv returns null when vars are absent', () => {
+		expect(resolveHmacFromEnv({})).toBeNull();
+	});
+
+	it('resolveAuthPriority returns github-token method for explicit token', () => {
+		const result = resolveAuthPriority({ githubToken: 'gho_test' }, {});
+		expect(result?.method).toBe('github-token');
+	});
+
+	it('should export hook factory functions', () => {
+		expect(typeof createHooks).toBe('function');
+		expect(typeof approveAllTools).toBe('function');
+		expect(typeof denyTools).toBe('function');
+	});
+
+	it('approveAllTools returns a handler that approves every tool', () => {
+		const handler = approveAllTools();
+		const result = handler(
+			{ timestamp: 0, cwd: '/', toolName: 'bash', toolArgs: {} },
+			{ sessionId: 'test' },
+		);
+		expect(result).toEqual({ permissionDecision: 'allow' });
+	});
+
+	it('denyTools returns a handler that denies listed tools', () => {
+		const handler = denyTools(['bash'], 'blocked');
+		const denied = handler(
+			{ timestamp: 0, cwd: '/', toolName: 'bash', toolArgs: {} },
+			{ sessionId: 'test' },
+		);
+		expect(denied).toMatchObject({ permissionDecision: 'deny' });
+	});
+
+	it('createHooks returns an object with the provided hooks', () => {
+		const onPreToolUse = approveAllTools();
+		const hooks = createHooks({ onPreToolUse });
+		expect(hooks.onPreToolUse).toBe(onPreToolUse);
 	});
 });

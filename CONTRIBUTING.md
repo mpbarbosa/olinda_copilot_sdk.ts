@@ -28,6 +28,11 @@ npm test             # run unit + integration test suite
 
 ## Code Style
 
+> The authoritative coding conventions for this project (indentation, quote style, JSDoc rules,
+> error-handling patterns, complexity limits, etc.) are maintained in
+> [`.github/copilot-instructions.md`](.github/copilot-instructions.md). The summary below
+> captures the most important points; refer to that file for the full specification.
+
 - **Language:** TypeScript — all source files live under `src/`
 - **Indentation:** 1 tab
 - **Quotes:** single quotes
@@ -72,7 +77,7 @@ npm run validate          # type-check only (no emit)
 
 Follow [Conventional Commits](https://www.conventionalcommits.org/):
 
-```
+```text
 <type>: <short summary>
 ```
 
@@ -80,7 +85,7 @@ Types: `feat`, `fix`, `docs`, `test`, `refactor`, `chore`, `perf`
 
 Examples:
 
-```
+```text
 feat: add streaming completions support
 fix: handle null response body in stream()
 docs: update API reference for CopilotClient

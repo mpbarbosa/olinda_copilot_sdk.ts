@@ -45,7 +45,10 @@ See [docs/API.md](./docs/API.md) for the full reference.
 | `CopilotClient` | HTTP client wrapping the Copilot completions API |
 | `createUserMessage` etc. | Pure message factory functions |
 | `parseSSELine` etc. | Pure SSE stream parsing utilities |
-| `CopilotSDKError` etc. | Typed error hierarchy |
+| `CopilotSDKError` etc. | Typed error hierarchy (`AuthenticationError`, `SystemError`, `APIError`) |
+| `resolveAuthPriority` etc. | Auth strategy utilities (`isGitHubToken`, `resolveHmacFromEnv`) |
+| `createHooks` etc. | Session hook factory and helpers (`approveAllTools`, `denyTools`) |
+| `SessionConfig` | Session configuration interface with full SDK option surface |
 
 ## Development
 
@@ -60,7 +63,7 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for contribution guidelines.
 
 ## Project Structure
 
-```
+```text
 olinda_copilot_sdk.ts/
 ├── src/           # TypeScript source
 │   ├── core/      # CopilotClient, types, errors

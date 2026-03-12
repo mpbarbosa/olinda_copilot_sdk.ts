@@ -3,7 +3,7 @@
  * @module core/session_config
  * @description Typed `SessionConfig` surface that maps to the full set of
  * options accepted by the SDK when creating or resuming a Copilot session.
- * @since 0.1.0
+ * @since 0.2.0
  */
 
 import type { BYOKProvider } from './auth.js';
@@ -11,7 +11,7 @@ import type { BYOKProvider } from './auth.js';
 /**
  * Controls how much reasoning effort the model expends before responding.
  * Only honoured by models that support reasoning (e.g. `o3-mini`).
- * @since 0.1.0
+ * @since 0.2.0
  */
 export type ReasoningEffort = 'low' | 'medium' | 'high';
 
@@ -20,7 +20,7 @@ export type ReasoningEffort = 'low' | 'medium' | 'high';
  *
  * All fields are optional — omitted fields fall back to SDK defaults.
  *
- * @since 0.1.0
+ * @since 0.2.0
  * @example
  * const config: SessionConfig = {
  *   model: 'gpt-4o',

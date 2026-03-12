@@ -39,16 +39,12 @@ describe('resolveHmacFromEnv', () => {
 		});
 	});
 
-	it('returns null when KEY_ID is missing', () => {
-		expect(resolveHmacFromEnv({ COPILOT_HMAC_KEY_SECRET: 's' })).toBeNull();
-	});
-
-	it('returns null when KEY_SECRET is missing', () => {
-		expect(resolveHmacFromEnv({ COPILOT_HMAC_KEY_ID: 'k' })).toBeNull();
-	});
-
-	it('returns null for an empty env', () => {
-		expect(resolveHmacFromEnv({})).toBeNull();
+	it.each([
+		{ desc: 'KEY_ID missing', env: { COPILOT_HMAC_KEY_SECRET: 's' } },
+		{ desc: 'KEY_SECRET missing', env: { COPILOT_HMAC_KEY_ID: 'k' } },
+		{ desc: 'empty env', env: {} },
+	])('returns null ($desc)', ({ env }) => {
+		expect(resolveHmacFromEnv(env)).toBeNull();
 	});
 });
 

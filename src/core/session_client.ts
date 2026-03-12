@@ -28,25 +28,25 @@ const FORCE_STOP_TIMEOUT_MS = 5_000;
 
 /** Options accepted by the {@link CopilotSdkWrapper} constructor. */
 export interface CopilotSdkWrapperOptions {
-  /** Model identifier to use when creating sessions (e.g. `"claude-sonnet-4.5"`). */
-  model?: string;
-  /** Default `sendAndWait` timeout in milliseconds. */
-  timeout?: number;
-  /** Working directory forwarded to the SDK session config. */
-  workingDirectory?: string;
+	/** Model identifier to use when creating sessions (e.g. `"claude-sonnet-4.5"`). */
+	model?: string;
+	/** Default `sendAndWait` timeout in milliseconds. */
+	timeout?: number;
+	/** Working directory forwarded to the SDK session config. */
+	workingDirectory?: string;
 }
 
 /** Shape returned by {@link CopilotSdkWrapper.initialize}. */
 export interface InitializeResult {
-  authenticated: boolean;
-  availableModels: ModelInfo[];
+	authenticated: boolean;
+	availableModels: ModelInfo[];
 }
 
 /** Raw event data returned by {@link CopilotSdkWrapper.send}. */
 export interface SendResult {
-  content: string;
-  success: boolean;
-  [key: string]: unknown;
+	content: string;
+	success: boolean;
+	[key: string]: unknown;
 }
 
 // ==============================================================================
@@ -65,222 +65,219 @@ export interface SendResult {
  *  - Optional session.abort() support
  */
 export class CopilotSdkWrapper {
-  private _model: string | undefined;
-  private _timeout: number | undefined;
-  private _workingDirectory: string | undefined;
+	private _model: string | undefined;
+	private _timeout: number | undefined;
+	private _workingDirectory: string | undefined;
 
-  private _client: CopilotClient | null;
-  private _session: CopilotSession | null;
-  private _authenticated: boolean;
-  private _availableModels: ModelInfo[];
+	private _client: CopilotClient | null;
+	private _session: CopilotSession | null;
+	private _authenticated: boolean;
+	private _availableModels: ModelInfo[];
 
-  /** Serialises concurrent send() calls — the SDK does not support simultaneous sendAndWait. */
-  private _sendQueue: Promise<void>;
+	/** Serialises concurrent send() calls — the SDK does not support simultaneous sendAndWait. */
+	private _sendQueue: Promise<void>;
 
-  constructor({ model, timeout, workingDirectory }: CopilotSdkWrapperOptions = {}) {
-    this._model = model;
-    this._timeout = timeout;
-    this._workingDirectory = workingDirectory;
+	constructor({ model, timeout, workingDirectory }: CopilotSdkWrapperOptions = {}) {
+		this._model = model;
+		this._timeout = timeout;
+		this._workingDirectory = workingDirectory;
 
-    this._client = null;
-    this._session = null;
-    this._authenticated = false;
-    this._availableModels = [];
+		this._client = null;
+		this._session = null;
+		this._authenticated = false;
+		this._availableModels = [];
 
-    this._sendQueue = Promise.resolve();
-  }
+		this._sendQueue = Promise.resolve();
+	}
 
-  // --------------------------------------------------------------------------
-  // Getters — expose SDK state for external inspection (e.g. consistency checks)
-  // --------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
+	// Getters — expose SDK state for external inspection (e.g. consistency checks)
+	// --------------------------------------------------------------------------
 
-  get client(): CopilotClient | null {
-    return this._client;
-  }
+	get client(): CopilotClient | null {
+		return this._client;
+	}
 
-  get session(): CopilotSession | null {
-    return this._session;
-  }
+	get session(): CopilotSession | null {
+		return this._session;
+	}
 
-  get authenticated(): boolean {
-    return this._authenticated;
-  }
+	get authenticated(): boolean {
+		return this._authenticated;
+	}
 
-  get availableModels(): ModelInfo[] {
-    return this._availableModels;
-  }
+	get availableModels(): ModelInfo[] {
+		return this._availableModels;
+	}
 
-  // --------------------------------------------------------------------------
-  // Static helpers
-  // --------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
+	// Static helpers
+	// --------------------------------------------------------------------------
 
-  /**
-   * Returns true if CopilotClient can be imported and instantiated.
-   * Does NOT start the CLI server — safe to call any time.
-   */
-  static isAvailable(): boolean {
-    try {
-      if (!CopilotClient || typeof CopilotClient !== 'function') return false;
-      const probe = new CopilotClient();
-      return probe !== null;
-    } catch {
-      return false;
-    }
-  }
+	/**
+	 * Returns true if CopilotClient can be imported and instantiated.
+	 * Does NOT start the CLI server — safe to call any time.
+	 */
+	static isAvailable(): boolean {
+		try {
+			if (!CopilotClient || typeof CopilotClient !== 'function') return false;
+			const probe = new CopilotClient();
+			return probe !== null;
+		} catch {
+			return false;
+		}
+	}
 
-  // --------------------------------------------------------------------------
-  // Lifecycle
-  // --------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
+	// Lifecycle
+	// --------------------------------------------------------------------------
 
-  /**
-   * Starts the Copilot CLI server, authenticates, and creates the first session.
-   *
-   * Cookbook pattern: if auth or session creation fails after client.start()
-   * the client is stopped inside a catch block so no orphaned process is left.
-   *
-   * @returns Resolved authentication state and available models.
-   * @throws Re-throws any error after cleaning up the client.
-   */
-  async initialize(): Promise<InitializeResult> {
-    this._client = new CopilotClient();
-    await this._client.start();
+	/**
+	 * Starts the Copilot CLI server, authenticates, and creates the first session.
+	 *
+	 * Cookbook pattern: if auth or session creation fails after client.start()
+	 * the client is stopped inside a catch block so no orphaned process is left.
+	 *
+	 * @returns Resolved authentication state and available models.
+	 * @throws Re-throws any error after cleaning up the client.
+	 */
+	async initialize(): Promise<InitializeResult> {
+		this._client = new CopilotClient();
+		await this._client.start();
 
-    try {
-      const status = await this._client.getAuthStatus();
-      this._authenticated = status?.isAuthenticated ?? false;
+		try {
+			const status = await this._client.getAuthStatus();
+			this._authenticated = status?.isAuthenticated ?? false;
 
-      if (this._authenticated) {
-        try {
-          this._availableModels = await this._client.listModels();
-        } catch (modelErr) {
-          const msg = modelErr instanceof Error ? modelErr.message : String(modelErr);
-          logger.debug(`Could not fetch available models: ${msg}`);
-        }
+			if (this._authenticated) {
+				try {
+					this._availableModels = await this._client.listModels();
+				} catch (modelErr) {
+					const msg = modelErr instanceof Error ? modelErr.message : String(modelErr);
+					logger.debug(`Could not fetch available models: ${msg}`);
+				}
 
-        const sessionConfig: SessionConfig = {
-          model: this._model,
-          onPermissionRequest: approveAll,
-        };
-        if (this._workingDirectory) {
-          sessionConfig.workingDirectory = this._workingDirectory;
-        }
-        this._session = await this._client.createSession(sessionConfig);
-      }
-    } catch (error) {
-      // Cookbook: clean up the client so the CLI process is not orphaned
-      await this._client.stop().catch(() => {});
-      this._client = null;
-      throw error;
-    }
+				const sessionConfig: SessionConfig = {
+					model: this._model,
+					onPermissionRequest: approveAll,
+				};
+				if (this._workingDirectory) {
+					sessionConfig.workingDirectory = this._workingDirectory;
+				}
+				this._session = await this._client.createSession(sessionConfig);
+			}
+		} catch (error) {
+			// Cookbook: clean up the client so the CLI process is not orphaned
+			await this._client.stop().catch(() => {});
+			this._client = null;
+			throw error;
+		}
 
-    return {
-      authenticated: this._authenticated,
-      availableModels: this._availableModels,
-    };
-  }
+		return {
+			authenticated: this._authenticated,
+			availableModels: this._availableModels,
+		};
+	}
 
-  /**
-   * Sends a prompt to the current session and returns the raw SDK response data.
-   * Requests are serialised — concurrent callers wait their turn.
-   *
-   * @param prompt    - The prompt text.
-   * @param timeoutMs - Override the default timeout (ms).
-   * @returns Raw event data from the SDK.
-   * @throws {@link SystemError} If no active session exists.
-   */
-  async send(prompt: string, timeoutMs?: number): Promise<SendResult> {
-    if (!this._session) {
-      throw new SystemError('No active session. Call initialize() first.');
-    }
+	/**
+	 * Sends a prompt to the current session and returns the raw SDK response data.
+	 * Requests are serialised — concurrent callers wait their turn.
+	 *
+	 * @param prompt    - The prompt text.
+	 * @param timeoutMs - Override the default timeout (ms).
+	 * @returns Raw event data from the SDK.
+	 * @throws {@link SystemError} If no active session exists.
+	 */
+	async send(prompt: string, timeoutMs?: number): Promise<SendResult> {
+		if (!this._session) {
+			throw new SystemError('No active session. Call initialize() first.');
+		}
 
-    const result = this._sendQueue.then(() => this._doSend(prompt, timeoutMs));
-    // Advance the queue regardless of success/failure so later requests aren't blocked.
-    this._sendQueue = result.catch(() => {}) as Promise<void>;
-    return result;
-  }
+		const result = this._sendQueue.then(() => this._doSend(prompt, timeoutMs));
+		// Advance the queue regardless of success/failure so later requests aren't blocked.
+		this._sendQueue = result.catch(() => {}) as Promise<void>;
+		return result;
+	}
 
-  /**
-   * Aborts any in-flight request on the current session (if the SDK supports it).
-   */
-  async abort(): Promise<void> {
-    const session = this._session as (CopilotSession & { abort?: () => Promise<void> }) | null;
-    if (session && typeof session.abort === 'function') {
-      await session.abort().catch(() => {});
-    }
-  }
+	/**
+	 * Aborts any in-flight request on the current session (if the SDK supports it).
+	 */
+	async abort(): Promise<void> {
+		const session = this._session as (CopilotSession & { abort?: () => Promise<void> }) | null;
+		if (session && typeof session.abort === 'function') {
+			await session.abort().catch(() => {});
+		}
+	}
 
-  /**
-   * Destroys the current session, restarts the client, and creates a fresh session.
-   * Called before each retry after a timeout so a stuck server process is replaced.
-   */
-  async recreateSession(): Promise<void> {
-    if (this._session) {
-      await this._session.destroy().catch(() => {});
-      this._session = null;
-    }
+	/**
+	 * Destroys the current session, restarts the client, and creates a fresh session.
+	 * Called before each retry after a timeout so a stuck server process is replaced.
+	 */
+	async recreateSession(): Promise<void> {
+		if (this._session) {
+			await this._session.destroy().catch(() => {});
+			this._session = null;
+		}
 
-    if (this._client) {
-      await this._client.stop().catch(() => {});
-      this._client = new CopilotClient();
-      await this._client.start();
-    }
+		if (this._client) {
+			await this._client.stop().catch(() => {});
+			this._client = new CopilotClient();
+			await this._client.start();
+		}
 
-    this._session = await this._client!.createSession({
-      model: this._model,
-      onPermissionRequest: approveAll,
-      ...(this._workingDirectory ? { workingDirectory: this._workingDirectory } : {}),
-    });
+		this._session = await this._client!.createSession({
+			model: this._model,
+			onPermissionRequest: approveAll,
+			...(this._workingDirectory ? { workingDirectory: this._workingDirectory } : {}),
+		});
 
-    // Reset the send queue so the fresh session isn't blocked by stale entries.
-    this._sendQueue = Promise.resolve();
+		// Reset the send queue so the fresh session isn't blocked by stale entries.
+		this._sendQueue = Promise.resolve();
 
-    logger.info('[SDK] Client and session recreated for retry');
-  }
+		logger.info('[SDK] Client and session recreated for retry');
+	}
 
-  /**
-   * Shuts down the session and client.
-   *
-   * Cookbook patterns applied:
-   *  - try-finally: client.stop() is always called even if session.destroy() throws.
-   *  - forceStop: if client.stop() hangs beyond FORCE_STOP_TIMEOUT_MS, forceStop() is called.
-   */
-  async cleanup(): Promise<void> {
-    try {
-      if (this._session) {
-        await this._session.destroy().catch(() => {});
-        this._session = null;
-      }
-    } finally {
-      if (this._client) {
-        const client = this._client;
-        this._client = null;
+	/**
+	 * Shuts down the session and client.
+	 *
+	 * Cookbook patterns applied:
+	 *  - try-finally: client.stop() is always called even if session.destroy() throws.
+	 *  - forceStop: if client.stop() hangs beyond FORCE_STOP_TIMEOUT_MS, forceStop() is called.
+	 */
+	async cleanup(): Promise<void> {
+		try {
+			if (this._session) {
+				await this._session.destroy().catch(() => {});
+				this._session = null;
+			}
+		} finally {
+			if (this._client) {
+				const client = this._client;
+				this._client = null;
 
-        try {
-          await Promise.race([
-            client.stop(),
-            new Promise<never>((_, reject) =>
-              setTimeout(
-                () => reject(new Error('client.stop() timed out')),
-                FORCE_STOP_TIMEOUT_MS
-              )
-            ),
-          ]);
-        } catch {
-          // Cookbook: forceStop if stop() hangs
-          await client.forceStop().catch(() => {});
-        }
-      }
-    }
-  }
+				try {
+					await Promise.race([
+						client.stop(),
+						new Promise<never>((_, reject) =>
+							setTimeout(() => reject(new Error('client.stop() timed out')), FORCE_STOP_TIMEOUT_MS),
+						),
+					]);
+				} catch {
+					// Cookbook: forceStop if stop() hangs
+					await client.forceStop().catch(() => {});
+				}
+			}
+		}
+	}
 
-  // --------------------------------------------------------------------------
-  // Private helpers
-  // --------------------------------------------------------------------------
+	// --------------------------------------------------------------------------
+	// Private helpers
+	// --------------------------------------------------------------------------
 
-  /** Performs a single serialised sendAndWait call. */
-  private async _doSend(prompt: string, timeoutMs?: number): Promise<SendResult> {
-    const timeout = timeoutMs ?? this._timeout;
-    const event = await this._session!.sendAndWait({ prompt }, timeout);
-    return (event?.data ?? { content: '', success: false }) as SendResult;
-  }
+	/** Performs a single serialised sendAndWait call. */
+	private async _doSend(prompt: string, timeoutMs?: number): Promise<SendResult> {
+		const timeout = timeoutMs ?? this._timeout;
+		const event = await this._session!.sendAndWait({ prompt }, timeout);
+		return (event?.data ?? { content: '', success: false }) as SendResult;
+	}
 }

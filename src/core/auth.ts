@@ -4,14 +4,14 @@
  * @description Typed authentication strategy abstractions that mirror the
  * `@github/copilot-sdk` priority order. Supports GitHub tokens, HMAC keys,
  * environment-variable chains, and Bring Your Own Key (BYOK) providers.
- * @since 0.1.0
+ * @since 0.2.0
  */
 
 // ── BYOK providers ────────────────────────────────────────────────────────────
 
 /**
  * Azure AI Foundry BYOK provider.
- * @since 0.1.0
+ * @since 0.2.0
  * @example
  * const provider: AzureProvider = {
  *   type: 'azure',
@@ -33,7 +33,7 @@ export interface AzureProvider {
 
 /**
  * OpenAI BYOK provider.
- * @since 0.1.0
+ * @since 0.2.0
  * @example
  * const provider: OpenAIProvider = {
  *   type: 'openai',
@@ -52,7 +52,7 @@ export interface OpenAIProvider {
 
 /**
  * Anthropic BYOK provider.
- * @since 0.1.0
+ * @since 0.2.0
  * @example
  * const provider: AnthropicProvider = {
  *   type: 'anthropic',
@@ -71,7 +71,7 @@ export interface AnthropicProvider {
 
 /**
  * Generic OpenAI-compatible endpoint BYOK provider.
- * @since 0.1.0
+ * @since 0.2.0
  * @example
  * const provider: OpenAICompatibleProvider = {
  *   type: 'openai-compatible',
@@ -92,7 +92,7 @@ export interface OpenAICompatibleProvider {
 
 /**
  * Union of all supported Bring Your Own Key providers.
- * @since 0.1.0
+ * @since 0.2.0
  */
 export type BYOKProvider =
 	| AzureProvider
@@ -104,7 +104,7 @@ export type BYOKProvider =
 
 /**
  * HMAC key pair for enterprise/backend authentication.
- * @since 0.1.0
+ * @since 0.2.0
  */
 export interface HmacKeyConfig {
 	/** HMAC key identifier. */
@@ -117,7 +117,7 @@ export interface HmacKeyConfig {
  * Auth configuration options passed to the SDK client or session.
  * Not all fields need to be set — `resolveAuthPriority` determines which
  * method is chosen based on priority order.
- * @since 0.1.0
+ * @since 0.2.0
  * @example
  * // Use an explicit GitHub token
  * const opts: AuthOptions = { githubToken: 'gho_...' };
@@ -162,22 +162,20 @@ export interface AuthOptions {
  * | `'hmac-key'` | ❌ | `hmacKey` field populated instead |
  * | `'direct-api-token'` | ✅ | From `COPILOT_TOKEN` env var |
  * | `'env-token'` | ✅ | From env var chain |
- * | `'stored-oauth'` | ❌ | Caller must fetch token via I/O |
- * | `'github-cli'` | ❌ | Caller must invoke `gh auth token` |
+ * | `'stored-oauth'` | ❌ | Caller must fetch token via async I/O |
  *
- * @since 0.1.0
+ * @since 0.2.0
  */
 export type AuthMethod =
 	| 'github-token'
 	| 'hmac-key'
 	| 'direct-api-token'
 	| 'env-token'
-	| 'stored-oauth'
-	| 'github-cli';
+	| 'stored-oauth';
 
 /**
  * The result of `resolveAuthPriority`.
- * @since 0.1.0
+ * @since 0.2.0
  */
 export interface ResolvedAuth {
 	/** The chosen authentication method. */
@@ -185,7 +183,7 @@ export interface ResolvedAuth {
 	/**
 	 * The resolved token string.
 	 * Present for `'github-token'`, `'direct-api-token'`, and `'env-token'` methods.
-	 * Absent for `'hmac-key'`, `'stored-oauth'`, and `'github-cli'` methods.
+	 * Absent for `'hmac-key'` and `'stored-oauth'` methods.
 	 */
 	token?: string;
 	/**
@@ -210,24 +208,20 @@ const DIRECT_TOKEN_VARS = ['COPILOT_TOKEN', 'GITHUB_COPILOT_TOKEN'] as const;
  * Env var names checked in the standard GitHub token chain (step 4).
  * @internal
  */
-const ENV_TOKEN_CHAIN = [
-	'COPILOT_GITHUB_TOKEN',
-	'GH_TOKEN',
-	'GITHUB_TOKEN',
-] as const;
+const ENV_TOKEN_CHAIN = ['COPILOT_GITHUB_TOKEN', 'GH_TOKEN', 'GITHUB_TOKEN'] as const;
 
 /**
  * Returns `true` if the token has a recognised GitHub OAuth or PAT prefix.
  * @param token - The token string to check.
  * @returns `true` when the token starts with `gho_`, `ghu_`, or `github_pat_`.
- * @since 0.1.0
+ * @since 0.2.0
  * @example
  * isGitHubToken('gho_abc');        // true
  * isGitHubToken('github_pat_xyz'); // true
  * isGitHubToken('sk-...');         // false
  */
 export function isGitHubToken(token: string): boolean {
-	return GITHUB_TOKEN_PREFIXES.some(prefix => token.startsWith(prefix));
+	return GITHUB_TOKEN_PREFIXES.some((prefix) => token.startsWith(prefix));
 }
 
 /**
@@ -235,11 +229,9 @@ export function isGitHubToken(token: string): boolean {
  * Expects both `COPILOT_HMAC_KEY_ID` and `COPILOT_HMAC_KEY_SECRET` to be set.
  * @param env - The environment object to read from.
  * @returns A `HmacKeyConfig` when both vars are present, otherwise `null`.
- * @since 0.1.0
+ * @since 0.2.0
  */
-export function resolveHmacFromEnv(
-	env: Record<string, string | undefined>,
-): HmacKeyConfig | null {
+export function resolveHmacFromEnv(env: Record<string, string | undefined>): HmacKeyConfig | null {
 	const keyId = env['COPILOT_HMAC_KEY_ID'];
 	const secret = env['COPILOT_HMAC_KEY_SECRET'];
 	if (keyId && secret) return { keyId, secret };
@@ -253,18 +245,17 @@ export function resolveHmacFromEnv(
  * 2. HMAC key — from `options.hmacKey`, or `COPILOT_HMAC_KEY_ID` + `COPILOT_HMAC_KEY_SECRET` env vars
  * 3. Direct API token — `COPILOT_TOKEN` or `GITHUB_COPILOT_TOKEN` env var
  * 4. Env-var chain — `COPILOT_GITHUB_TOKEN` → `GH_TOKEN` → `GITHUB_TOKEN`
- * 5. Stored OAuth credentials — signalled when `useLoggedInUser` is not `false`; caller must fetch token
- * 6. GitHub CLI credentials — implicit final fallback when `useLoggedInUser` is not `false`
+ * 5. Stored OAuth / GitHub CLI credentials — signalled as `stored-oauth` when
+ *    `useLoggedInUser` is not `false`; caller must perform async I/O to retrieve the token.
  *
- * Steps 5 and 6 require asynchronous I/O that the caller must perform after
- * receiving a `ResolvedAuth` with `method: 'stored-oauth'` or `'github-cli'`.
+ * When `useLoggedInUser` is `false`, step 5 is skipped and `null` is returned.
  *
  * @param options - Auth configuration.
  * @param env - Environment variable map. Defaults to `process.env`. Pass a plain
  *   object in tests to avoid reading from the real environment.
  * @returns A `ResolvedAuth` describing the chosen method, or `null` if no auth
  *   can be resolved.
- * @since 0.1.0
+ * @since 0.2.0
  * @example
  * // Explicit token — highest priority
  * resolveAuthPriority({ githubToken: 'gho_abc' });

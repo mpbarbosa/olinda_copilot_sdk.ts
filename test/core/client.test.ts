@@ -40,36 +40,30 @@ describe('CopilotClient.complete()', () => {
 			new Response(JSON.stringify(COMPLETION_RESPONSE), { status: 200 }),
 		);
 		await client.complete([USER_MESSAGE]);
+		expect(fetchSpy).toHaveBeenCalledTimes(1);
 		expect(fetchSpy).toHaveBeenCalledWith(
 			expect.stringContaining('/chat/completions'),
 			expect.objectContaining({ method: 'POST' }),
 		);
 	});
 
-	it('throws AuthenticationError on 401', async () => {
+	it.each([
+		[401, 'Unauthorized', AuthenticationError],
+		[500, 'Internal Server Error', APIError],
+		[404, 'Not Found', APIError],
+		[403, 'Forbidden', APIError],
+	])('throws %p (%s) for HTTP %i', async (status, statusText, ErrorClass) => {
 		jest.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
-			new Response('Unauthorized', { status: 401, statusText: 'Unauthorized' }),
+			new Response(statusText, { status, statusText }),
 		);
-		await expect(client.complete([USER_MESSAGE])).rejects.toBeInstanceOf(AuthenticationError);
-	});
-
-	it('throws APIError on 500', async () => {
-		jest.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
-			new Response('Server Error', { status: 500, statusText: 'Internal Server Error' }),
-		);
-		await expect(client.complete([USER_MESSAGE])).rejects.toBeInstanceOf(APIError);
+		await expect(client.complete([USER_MESSAGE])).rejects.toBeInstanceOf(ErrorClass);
 	});
 
 	it('APIError carries the HTTP status code', async () => {
 		jest.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
 			new Response('Not Found', { status: 404, statusText: 'Not Found' }),
 		);
-		try {
-			await client.complete([USER_MESSAGE]);
-		} catch (err) {
-			expect(err).toBeInstanceOf(APIError);
-			expect((err as APIError).statusCode).toBe(404);
-		}
+		await expect(client.complete([USER_MESSAGE])).rejects.toMatchObject({ statusCode: 404 });
 	});
 
 	it('uses the custom baseUrl when provided', async () => {
@@ -81,6 +75,7 @@ describe('CopilotClient.complete()', () => {
 			new Response(JSON.stringify(COMPLETION_RESPONSE), { status: 200 }),
 		);
 		await customClient.complete([USER_MESSAGE]);
+		expect(fetchSpy).toHaveBeenCalledTimes(1);
 		expect(fetchSpy).toHaveBeenCalledWith(
 			'https://custom.example.com/chat/completions',
 			expect.anything(),

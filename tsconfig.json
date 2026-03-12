@@ -12,6 +12,7 @@
     "outDir": "./dist",
     "declaration": true,
     "declarationDir": "./dist/types",
+    // rootDir must be "." (not "./src") because include covers test/** as well
     "rootDir": ".",
     "baseUrl": "."
   },
