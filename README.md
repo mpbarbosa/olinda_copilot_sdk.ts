@@ -5,15 +5,23 @@ Copilot chat completions API, SSE stream parsing, and message construction utili
 
 ## Installation
 
-**GitHub dependency** (recommended — no build step required):
+**GitHub dependency** (only supported install method):
 
 ```bash
 npm install github:mpbarbosa/olinda_copilot_sdk.ts#v0.3.2
 ```
 
-The compiled `dist/` tree is committed to the repository and included in every
-GitHub archive tarball, so the package is runnable immediately after install
-without requiring TypeScript or a build step in the consuming project.
+> **Why `github:` and not a CDN tarball?**
+> The `dist/` committed at the v0.3.2 tag is **incomplete** — `tools.js` and the
+> `sendStream` method are absent from the archived snapshot.
+> When npm resolves a `github:` shorthand it clones the repository, installs all
+> dependencies (including `devDependencies`), and runs the `prepare` lifecycle
+> script (`npm run build && npm run build:esm`), which compiles the full TypeScript
+> source and produces the correct `dist/` tree.
+> Downloading the raw GitHub archive tarball
+> (`https://github.com/…/archive/refs/tags/v0.3.2.tar.gz`) or installing via an
+> npm-registry-style tarball URL bypasses `prepare` entirely and will give you a
+> broken package — **always use the `github:` shorthand**.
 
 **Local development:**
 

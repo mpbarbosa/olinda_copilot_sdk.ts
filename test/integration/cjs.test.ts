@@ -79,4 +79,17 @@ describe('CJS build — public surface', () => {
 			expect(lib.isStreamDone(chunk)).toBe(true);
 		});
 	});
+
+	// v0.3.2 regression: tools.js and sendStream were absent from the committed
+	// dist snapshot at the tag.  The github: install triggers prepare which
+	// recompiles everything, so these must be present in the CJS build.
+	describe('v0.3.2 — tools and sendStream (regression)', () => {
+		it('defineTool is exported from the CJS build', () => {
+			expect(typeof lib.defineTool).toBe('function');
+		});
+
+		it('CopilotSdkWrapper.prototype.sendStream is a function', () => {
+			expect(typeof lib.CopilotSdkWrapper.prototype.sendStream).toBe('function');
+		});
+	});
 });
