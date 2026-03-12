@@ -87,8 +87,24 @@ export declare class CopilotSdkWrapper {
      */
     send(prompt: string, timeoutMs?: number): Promise<SendResult>;
     /**
-     * Aborts any in-flight request on the current session (if the SDK supports it).
+     * Sends a prompt to the current session, streaming text deltas as they arrive.
+     * Requests are serialised — concurrent callers wait their turn.
+     *
+     * Under the hood, this subscribes to `assistant.message_delta` events on the
+     * session before calling `sendAndWait`, invoking `onDelta` for every incremental
+     * text chunk the model emits. The subscription is cleaned up automatically once
+     * the session becomes idle.
+     *
+     * @param prompt    - The prompt text.
+     * @param onDelta   - Called with each incremental text chunk as it streams in.
+     * @param timeoutMs - Override the default timeout (ms).
+     * @returns Final `SendResult` once the session becomes idle.
+     * @throws {@link SystemError} If no active session exists.
+     * @since 0.2.1
+     * @example
+     * await wrapper.sendStream('Write a haiku', (delta) => process.stdout.write(delta));
      */
+    sendStream(prompt: string, onDelta: (delta: string) => void, timeoutMs?: number): Promise<SendResult>;
     abort(): Promise<void>;
     /**
      * Destroys the current session, restarts the client, and creates a fresh session.

@@ -1,6 +1,7 @@
-import type { ToolResultObject } from '@github/copilot-sdk';
+import { approveAll } from '@github/copilot-sdk';
+import type { PermissionHandler, ToolResultObject } from '@github/copilot-sdk';
 
-export type { ToolResultObject };
+export type { PermissionHandler, ToolResultObject };
 
 /**
  * Shared base fields present in every hook input.
@@ -55,6 +56,11 @@ export type PreToolUseHandler = (
 	invocation: { sessionId: string },
 ) => Promise<PreToolUseOutput | void> | PreToolUseOutput | void;
 
+/** SDK-naming alias for {@link PreToolUseInput}. @since 0.4.0 */
+export type PreToolUseHookInput = PreToolUseInput;
+/** SDK-naming alias for {@link PreToolUseOutput}. @since 0.4.0 */
+export type PreToolUseHookOutput = PreToolUseOutput;
+
 /**
  * Input passed to the post-tool-use hook.
  *
@@ -94,6 +100,11 @@ export type PostToolUseHandler = (
 	invocation: { sessionId: string },
 ) => Promise<PostToolUseOutput | void> | PostToolUseOutput | void;
 
+/** SDK-naming alias for {@link PostToolUseInput}. @since 0.4.0 */
+export type PostToolUseHookInput = PostToolUseInput;
+/** SDK-naming alias for {@link PostToolUseOutput}. @since 0.4.0 */
+export type PostToolUseHookOutput = PostToolUseOutput;
+
 /**
  * Input passed to the user-prompt-submitted hook.
  *
@@ -130,6 +141,20 @@ export type UserPromptHandler = (
 ) => Promise<UserPromptOutput | void> | UserPromptOutput | void;
 
 /**
+ * SDK-aligned alias for {@link UserPromptHandler}.
+ * Use this name for full compatibility with `@github/copilot-sdk`'s internal
+ * `SessionHooks.onUserPromptSubmitted` field.
+ *
+ * @since 0.4.0
+ */
+export type UserPromptSubmittedHandler = UserPromptHandler;
+
+/** SDK-naming alias for {@link UserPromptInput}. @since 0.4.0 */
+export type UserPromptSubmittedHookInput = UserPromptInput;
+/** SDK-naming alias for {@link UserPromptOutput}. @since 0.4.0 */
+export type UserPromptSubmittedHookOutput = UserPromptOutput;
+
+/**
  * Input passed to the session-start hook.
  *
  * @since 0.2.1
@@ -163,6 +188,11 @@ export type SessionStartHandler = (
 	input: SessionStartInput,
 	invocation: { sessionId: string },
 ) => Promise<SessionStartOutput | void> | SessionStartOutput | void;
+
+/** SDK-naming alias for {@link SessionStartInput}. @since 0.4.0 */
+export type SessionStartHookInput = SessionStartInput;
+/** SDK-naming alias for {@link SessionStartOutput}. @since 0.4.0 */
+export type SessionStartHookOutput = SessionStartOutput;
 
 /**
  * Input passed to the session-end hook.
@@ -202,6 +232,11 @@ export type SessionEndHandler = (
 	input: SessionEndInput,
 	invocation: { sessionId: string },
 ) => Promise<SessionEndOutput | void> | SessionEndOutput | void;
+
+/** SDK-naming alias for {@link SessionEndInput}. @since 0.4.0 */
+export type SessionEndHookInput = SessionEndInput;
+/** SDK-naming alias for {@link SessionEndOutput}. @since 0.4.0 */
+export type SessionEndHookOutput = SessionEndOutput;
 
 /**
  * Input passed to the error-occurred hook.
@@ -244,9 +279,18 @@ export type ErrorOccurredHandler = (
 	invocation: { sessionId: string },
 ) => Promise<ErrorOccurredOutput | void> | ErrorOccurredOutput | void;
 
+/** SDK-naming alias for {@link ErrorOccurredInput}. @since 0.4.0 */
+export type ErrorOccurredHookInput = ErrorOccurredInput;
+/** SDK-naming alias for {@link ErrorOccurredOutput}. @since 0.4.0 */
+export type ErrorOccurredHookOutput = ErrorOccurredOutput;
+
 /**
  * Registry of all session lifecycle hooks.
  * Every field is optional — provide only the hooks you need.
+ *
+ * The shape of this interface is structurally identical to `@github/copilot-sdk`'s
+ * internal `SessionHooks`, so a value produced by {@link createHooks} can be
+ * passed directly to `SessionConfig.hooks` without any conversion.
  *
  * @since 0.2.1
  */
@@ -256,7 +300,7 @@ export interface SessionHooks {
 	/** Fires after each tool invocation. Can modify the result. */
 	onPostToolUse?: PostToolUseHandler;
 	/** Fires when the user submits a prompt. Can modify the prompt text. */
-	onUserPromptSubmitted?: UserPromptHandler;
+	onUserPromptSubmitted?: UserPromptSubmittedHandler;
 	/** Fires when a session starts. Can inject initial context. */
 	onSessionStart?: SessionStartHandler;
 	/** Fires when a session ends. Can run cleanup. */
@@ -278,6 +322,8 @@ export type HooksConfig = Partial<SessionHooks>;
  *
  * This is a typed factory that gives full type inference when building hook
  * configs incrementally. Pass the result directly to `SessionConfig.hooks`.
+ * The returned object is structurally assignable to `@github/copilot-sdk`'s
+ * `SessionHooks` — no conversion needed.
  *
  * @param config - A partial set of session hook handlers.
  * @returns A `SessionHooks` object containing the provided handlers.
@@ -285,7 +331,7 @@ export type HooksConfig = Partial<SessionHooks>;
  * @example
  * ```ts
  * const hooks = createHooks({
- *   onPreToolUse: approveAllTools(),
+ *   onPreToolUse: (input) => input.toolName === 'bash' ? { permissionDecision: 'deny' } : undefined,
  *   onSessionEnd: async (input) => ({ sessionSummary: input.reason }),
  * });
  * ```
@@ -295,21 +341,26 @@ export function createHooks(config: HooksConfig): SessionHooks {
 }
 
 /**
- * Returns a {@link PreToolUseHandler} that unconditionally approves every
- * tool invocation.
+ * Returns a {@link PermissionHandler} that unconditionally approves every
+ * permission request — equivalent to the SDK's `approveAll` constant, but as
+ * a factory function for use when a fresh instance is required (e.g. per-test
+ * isolation or conditional wrapping).
  *
- * Useful as a starting point when building a whitelist-based permission model
- * or during development/testing.
+ * Pass the result to `SessionConfig.onPermissionRequest`.
  *
- * @returns A pre-tool-use handler that always returns `{ permissionDecision: 'allow' }`.
- * @since 0.2.1
+ * **Breaking change from 0.2.x:** Previously returned a `PreToolUseHandler`.
+ * To approve all tool invocations via hooks, use an inline handler instead:
+ * `createHooks({ onPreToolUse: () => ({ permissionDecision: 'allow' }) })`.
+ *
+ * @returns A `PermissionHandler` that approves every request.
+ * @since 0.4.0
  * @example
  * ```ts
- * const hooks = createHooks({ onPreToolUse: approveAllTools() });
+ * const config: SessionConfig = { onPermissionRequest: approveAllTools() };
  * ```
  */
-export function approveAllTools(): PreToolUseHandler {
-	return () => ({ permissionDecision: 'allow' });
+export function approveAllTools(): PermissionHandler {
+	return approveAll;
 }
 
 /**

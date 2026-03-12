@@ -14,11 +14,12 @@ jest.mock('@github/copilot-sdk', () => {
                 sendAndWait: jest.fn().mockResolvedValue({ data: { content: 'response', success: true } }),
                 destroy: jest.fn().mockResolvedValue(undefined),
                 abort: jest.fn().mockResolvedValue(undefined),
+                on: jest.fn().mockReturnValue(jest.fn()),
             }),
-        }), approveAll, jest.fn())
+        })),
+        approveAll: jest.fn(),
     };
 });
-;
 const CopilotClientMock = require('@github/copilot-sdk').CopilotClient;
 describe('CopilotSdkWrapper', () => {
     beforeEach(() => {
@@ -65,24 +66,31 @@ describe('CopilotSdkWrapper', () => {
             expect(result.availableModels.length).toBeGreaterThan(0);
         });
         it('should handle model fetch failure gracefully', async () => {
-            const client = new CopilotClientMock();
-            client.listModels.mockRejectedValueOnce(new Error('fail'));
+            CopilotClientMock.mockImplementationOnce(() => ({
+                start: jest.fn().mockResolvedValue(undefined),
+                stop: jest.fn().mockResolvedValue(undefined),
+                forceStop: jest.fn().mockResolvedValue(undefined),
+                getAuthStatus: jest.fn().mockResolvedValue({ isAuthenticated: true }),
+                listModels: jest.fn().mockRejectedValueOnce(new Error('fail')),
+                createSession: jest.fn().mockResolvedValue({
+                    sendAndWait: jest.fn().mockResolvedValue({ data: { content: 'response', success: true } }),
+                    destroy: jest.fn().mockResolvedValue(undefined),
+                    abort: jest.fn().mockResolvedValue(undefined),
+                }),
+            }));
             const wrapper = new session_client_1.CopilotSdkWrapper();
-            wrapper._client = client;
-            client.getAuthStatus.mockResolvedValue({ isAuthenticated: true });
-            client.createSession.mockResolvedValue({
-                sendAndWait: jest.fn().mockResolvedValue({ data: { content: 'response', success: true } }),
-                destroy: jest.fn().mockResolvedValue(undefined),
-                abort: jest.fn().mockResolvedValue(undefined),
-            });
             await expect(wrapper.initialize()).resolves.toBeDefined();
         });
         it('should cleanup client and re-throw error if session creation fails', async () => {
-            const client = new CopilotClientMock();
-            client.createSession.mockRejectedValueOnce(new Error('session fail'));
+            CopilotClientMock.mockImplementationOnce(() => ({
+                start: jest.fn().mockResolvedValue(undefined),
+                stop: jest.fn().mockResolvedValue(undefined),
+                forceStop: jest.fn().mockResolvedValue(undefined),
+                getAuthStatus: jest.fn().mockResolvedValue({ isAuthenticated: true }),
+                listModels: jest.fn().mockResolvedValue([]),
+                createSession: jest.fn().mockRejectedValueOnce(new Error('session fail')),
+            }));
             const wrapper = new session_client_1.CopilotSdkWrapper();
-            wrapper._client = client;
-            client.getAuthStatus.mockResolvedValue({ isAuthenticated: true });
             await expect(wrapper.initialize()).rejects.toThrow('session fail');
             expect(wrapper.client).toBeNull();
         });
@@ -130,11 +138,12 @@ describe('CopilotSdkWrapper', () => {
             await wrapper.initialize();
             const destroySpy = jest.spyOn(wrapper.session, 'destroy');
             const stopSpy = jest.spyOn(wrapper.client, 'stop');
-            const startSpy = jest.spyOn(wrapper.client, 'start');
             await wrapper.recreateSession();
             expect(destroySpy).toHaveBeenCalled();
             expect(stopSpy).toHaveBeenCalled();
-            expect(startSpy).toHaveBeenCalled();
+            // recreateSession creates a new CopilotClient; verify start() was called on it
+            const newClient = CopilotClientMock.mock.results[1].value;
+            expect(newClient.start).toHaveBeenCalled();
             expect(wrapper.session).not.toBeNull();
         });
     });
@@ -153,10 +162,104 @@ describe('CopilotSdkWrapper', () => {
         it('should call forceStop if stop times out', async () => {
             const wrapper = new session_client_1.CopilotSdkWrapper();
             await wrapper.initialize();
-            const stopSpy = jest.spyOn(wrapper.client, 'stop').mockImplementation(() => new Promise(() => { }));
-            const forceStopSpy = jest.spyOn(wrapper.client, 'forceStop');
-            await wrapper.cleanup();
-            expect(forceStopSpy).toHaveBeenCalled();
+            jest.useFakeTimers();
+            try {
+                jest.spyOn(wrapper.client, 'stop').mockImplementation(() => new Promise(() => { }));
+                const forceStopSpy = jest.spyOn(wrapper.client, 'forceStop');
+                const cleanupPromise = wrapper.cleanup();
+                await jest.advanceTimersByTimeAsync(6000);
+                await cleanupPromise;
+                expect(forceStopSpy).toHaveBeenCalled();
+            }
+            finally {
+                jest.useRealTimers();
+            }
+        });
+    });
+    describe('sendStream', () => {
+        it('should throw SystemError if no session exists', async () => {
+            const wrapper = new session_client_1.CopilotSdkWrapper();
+            await expect(wrapper.sendStream('prompt', jest.fn())).rejects.toThrow(errors_1.SystemError);
+        });
+        it('should call onDelta for each assistant.message_delta event', async () => {
+            let capturedHandler = null;
+            const unsubscribeMock = jest.fn();
+            CopilotClientMock.mockImplementationOnce(() => ({
+                start: jest.fn().mockResolvedValue(undefined),
+                stop: jest.fn().mockResolvedValue(undefined),
+                forceStop: jest.fn().mockResolvedValue(undefined),
+                getAuthStatus: jest.fn().mockResolvedValue({ isAuthenticated: true }),
+                listModels: jest.fn().mockResolvedValue([]),
+                createSession: jest.fn().mockResolvedValue({
+                    destroy: jest.fn().mockResolvedValue(undefined),
+                    abort: jest.fn().mockResolvedValue(undefined),
+                    on: jest.fn().mockImplementation((handler) => {
+                        capturedHandler = handler;
+                        return unsubscribeMock;
+                    }),
+                    sendAndWait: jest.fn().mockImplementation(async () => {
+                        capturedHandler?.({ type: 'assistant.message_delta', data: { deltaContent: 'hello ' } });
+                        capturedHandler?.({ type: 'assistant.message_delta', data: { deltaContent: 'world' } });
+                        capturedHandler?.({ type: 'assistant.message', data: { content: 'hello world' } });
+                        return { data: { content: 'hello world', success: true } };
+                    }),
+                }),
+            }));
+            const wrapper = new session_client_1.CopilotSdkWrapper();
+            await wrapper.initialize();
+            const onDelta = jest.fn();
+            const result = await wrapper.sendStream('write a haiku', onDelta);
+            expect(onDelta).toHaveBeenCalledTimes(2);
+            expect(onDelta).toHaveBeenNthCalledWith(1, 'hello ');
+            expect(onDelta).toHaveBeenNthCalledWith(2, 'world');
+            expect(result).toEqual({ content: 'hello world', success: true });
+            expect(unsubscribeMock).toHaveBeenCalled();
+        });
+        it('should return success=true from assistant.message event', async () => {
+            let capturedHandler = null;
+            CopilotClientMock.mockImplementationOnce(() => ({
+                start: jest.fn().mockResolvedValue(undefined),
+                stop: jest.fn().mockResolvedValue(undefined),
+                forceStop: jest.fn().mockResolvedValue(undefined),
+                getAuthStatus: jest.fn().mockResolvedValue({ isAuthenticated: true }),
+                listModels: jest.fn().mockResolvedValue([]),
+                createSession: jest.fn().mockResolvedValue({
+                    destroy: jest.fn().mockResolvedValue(undefined),
+                    abort: jest.fn().mockResolvedValue(undefined),
+                    on: jest.fn().mockImplementation((handler) => {
+                        capturedHandler = handler;
+                        return jest.fn();
+                    }),
+                    sendAndWait: jest.fn().mockImplementation(async () => {
+                        capturedHandler?.({ type: 'assistant.message', data: { content: 'the answer' } });
+                        return { data: { content: 'the answer', success: true } };
+                    }),
+                }),
+            }));
+            const wrapper = new session_client_1.CopilotSdkWrapper();
+            await wrapper.initialize();
+            const result = await wrapper.sendStream('prompt', jest.fn());
+            expect(result).toEqual({ content: 'the answer', success: true });
+        });
+        it('should unsubscribe from events even if sendAndWait throws', async () => {
+            const unsubscribeMock = jest.fn();
+            CopilotClientMock.mockImplementationOnce(() => ({
+                start: jest.fn().mockResolvedValue(undefined),
+                stop: jest.fn().mockResolvedValue(undefined),
+                forceStop: jest.fn().mockResolvedValue(undefined),
+                getAuthStatus: jest.fn().mockResolvedValue({ isAuthenticated: true }),
+                listModels: jest.fn().mockResolvedValue([]),
+                createSession: jest.fn().mockResolvedValue({
+                    destroy: jest.fn().mockResolvedValue(undefined),
+                    abort: jest.fn().mockResolvedValue(undefined),
+                    on: jest.fn().mockReturnValue(unsubscribeMock),
+                    sendAndWait: jest.fn().mockRejectedValue(new Error('network error')),
+                }),
+            }));
+            const wrapper = new session_client_1.CopilotSdkWrapper();
+            await wrapper.initialize();
+            await expect(wrapper.sendStream('prompt', jest.fn())).rejects.toThrow('network error');
+            expect(unsubscribeMock).toHaveBeenCalled();
         });
     });
 });

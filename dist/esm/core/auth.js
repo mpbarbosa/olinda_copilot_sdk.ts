@@ -4,7 +4,7 @@
  * @description Typed authentication strategy abstractions that mirror the
  * `@github/copilot-sdk` priority order. Supports GitHub tokens, HMAC keys,
  * environment-variable chains, and Bring Your Own Key (BYOK) providers.
- * @since 0.2.0
+ * @since 0.2.1
  */
 // ── Utilities ─────────────────────────────────────────────────────────────────
 /** Known GitHub token prefixes, in recognition-order. */
@@ -23,7 +23,7 @@ const ENV_TOKEN_CHAIN = ['COPILOT_GITHUB_TOKEN', 'GH_TOKEN', 'GITHUB_TOKEN'];
  * Returns `true` if the token has a recognised GitHub OAuth or PAT prefix.
  * @param token - The token string to check.
  * @returns `true` when the token starts with `gho_`, `ghu_`, or `github_pat_`.
- * @since 0.2.0
+ * @since 0.2.1
  * @example
  * isGitHubToken('gho_abc');        // true
  * isGitHubToken('github_pat_xyz'); // true
@@ -37,7 +37,7 @@ export function isGitHubToken(token) {
  * Expects both `COPILOT_HMAC_KEY_ID` and `COPILOT_HMAC_KEY_SECRET` to be set.
  * @param env - The environment object to read from.
  * @returns A `HmacKeyConfig` when both vars are present, otherwise `null`.
- * @since 0.2.0
+ * @since 0.2.1
  */
 export function resolveHmacFromEnv(env) {
     const keyId = env['COPILOT_HMAC_KEY_ID'];
@@ -63,7 +63,7 @@ export function resolveHmacFromEnv(env) {
  *   object in tests to avoid reading from the real environment.
  * @returns A `ResolvedAuth` describing the chosen method, or `null` if no auth
  *   can be resolved.
- * @since 0.2.0
+ * @since 0.2.1
  * @example
  * // Explicit token — highest priority
  * resolveAuthPriority({ githubToken: 'gho_abc' });

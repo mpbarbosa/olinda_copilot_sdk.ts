@@ -6,7 +6,7 @@
  *
  * @param config - A partial set of session hook handlers.
  * @returns A `SessionHooks` object containing the provided handlers.
- * @since 0.2.0
+ * @since 0.2.1
  * @example
  * ```ts
  * const hooks = createHooks({
@@ -26,7 +26,7 @@ export function createHooks(config) {
  * or during development/testing.
  *
  * @returns A pre-tool-use handler that always returns `{ permissionDecision: 'allow' }`.
- * @since 0.2.0
+ * @since 0.2.1
  * @example
  * ```ts
  * const hooks = createHooks({ onPreToolUse: approveAllTools() });
@@ -42,7 +42,7 @@ export function approveAllTools() {
  * @param toolNames - The tool names to deny.
  * @param reason - Optional human-readable reason included in the decision.
  * @returns A pre-tool-use handler that denies listed tools and returns `void` for others.
- * @since 0.2.0
+ * @since 0.2.1
  * @example
  * ```ts
  * const hooks = createHooks({

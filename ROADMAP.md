@@ -1,6 +1,6 @@
 # ROADMAP — olinda_copilot_sdk.ts
 
-> **Current version**: 0.3.3  
+> **Current version**: 0.4.0  
 > **Reference SDK**: `@github/copilot-sdk` v0.1.32  
 > **Goal**: Become the idiomatic TypeScript execution layer for `@github/copilot-sdk` — enabling applications to embed programmable, agentic AI workflows anywhere software runs, not just inside an IDE.
 
@@ -204,13 +204,13 @@ olinda's hook system (`PreToolUseHandler`, `PostToolUseHandler`, etc.) uses a **
 
 ### Tasks
 
-- [ ] **Align hook type signatures** with `@github/copilot-sdk`'s `PreToolUseHookInput` / `PreToolUseHookOutput`
+- [x] **Align hook type signatures** with `@github/copilot-sdk`'s `PreToolUseHookInput` / `PreToolUseHookOutput`
   - `BaseHookInput`: add `requestId`, `toolCallId`, align invocation object to `{ sessionId: string }`
   - Evaluate backward compat breakage (minor semver bump)
-- [ ] **`approveAllTools()` adapter** — return an `onPermissionRequest`-compatible `PermissionHandler` (not just `PreToolUseHandler`)
-- [ ] **`createHooks(config)` → `SessionHooks` bridge** — convert olinda's `HooksConfig` into `@github/copilot-sdk`'s `SessionHooks` shape so it can be passed to `SessionConfig.hooks` directly
-- [ ] **Export aligned `SessionHooks`** interface (wraps SDK's type or re-exports it)
-- [ ] **Export `UserPromptSubmittedHandler`**, `SessionStartHandler`, `SessionEndHandler`, `ErrorOccurredHandler`
+- [x] **`approveAllTools()` adapter** — return an `onPermissionRequest`-compatible `PermissionHandler` (not just `PreToolUseHandler`)
+- [x] **`createHooks(config)` → `SessionHooks` bridge** — convert olinda's `HooksConfig` into `@github/copilot-sdk`'s `SessionHooks` shape so it can be passed to `SessionConfig.hooks` directly
+- [x] **Export aligned `SessionHooks`** interface (wraps SDK's type or re-exports it)
+- [x] **Export `UserPromptSubmittedHandler`**, `SessionStartHandler`, `SessionEndHandler`, `ErrorOccurredHandler`
 
 ---
 

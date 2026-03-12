@@ -45,6 +45,12 @@ describe('Public API surface', () => {
     it('SystemError is an instance of CopilotSDKError', () => {
         expect(new index_1.SystemError('test')).toBeInstanceOf(index_1.CopilotSDKError);
     });
+    it('should export CopilotSdkWrapper class', () => expect(index_1.CopilotSdkWrapper).toBeDefined());
+    it('CopilotSdkWrapper initialises with no session', () => {
+        const wrapper = new index_1.CopilotSdkWrapper();
+        expect(wrapper.session).toBeNull();
+    });
+    it('should export approveAll function', () => expect(typeof index_1.approveAll).toBe('function'));
     it('should export auth utility functions', () => {
         expect(typeof index_1.isGitHubToken).toBe('function');
         expect(typeof index_1.resolveHmacFromEnv).toBe('function');

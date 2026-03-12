@@ -9,19 +9,49 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-### Fixed
+---
 
-- `dist/` is no longer gitignored — compiled output is now committed and present
-  in GitHub archive tarballs, making `npm install github:mpbarbosa/olinda_copilot_sdk.ts#<tag>`
-  work without a build step in the consuming project.
+## [0.4.0] — 2026-03-12
 
 ### Added
 
-- `test/integration/dist_artifacts.test.ts` — verifies CJS, ESM, and type
-  declaration entry points exist on disk; fails loudly if a release tag is cut
-  without a prior build.
-- Release & Distribution section in `CONTRIBUTING.md` documenting the pre-tag
-  build checklist.
+- **`UserPromptSubmittedHandler`** type alias — aligns with `@github/copilot-sdk`'s internal
+  naming for the user-prompt hook handler (`= UserPromptHandler`).
+- **SDK-naming type aliases** for all six hook families:
+  `PreToolUseHookInput`, `PreToolUseHookOutput`, `PostToolUseHookInput`, `PostToolUseHookOutput`,
+  `UserPromptSubmittedHookInput`, `UserPromptSubmittedHookOutput`,
+  `SessionStartHookInput`, `SessionStartHookOutput`, `SessionEndHookInput`, `SessionEndHookOutput`,
+  `ErrorOccurredHookInput`, `ErrorOccurredHookOutput`.
+  All are structurally identical to the existing `*Input`/`*Output` types.
+- **`PermissionHandler`** re-exported from `src/core/hooks.ts` (previously only from SDK direct re-export).
+- All new hook aliases exported from the public `index.ts` entry point.
+
+### Changed
+
+- **`approveAllTools()` now returns `PermissionHandler`** (breaking change from v0.3.x).
+  Previously returned `PreToolUseHandler` for use in `createHooks({ onPreToolUse: approveAllTools() })`.
+  Now wraps the SDK's `approveAll` constant, for use in `SessionConfig.onPermissionRequest`.
+  Migration: for inline hook-based approval use `createHooks({ onPreToolUse: () => ({ permissionDecision: 'allow' }) })` instead.
+
+### Fixed
+
+- `PermissionHandler` is no longer exported twice (previously from both `hooks.ts` and the `@github/copilot-sdk` direct re-export block in `index.ts`).
+
+---
+
+## [0.3.3]
+
+### Added
+
+- `LogValidator`, `parseLogIssues`, `buildValidationPrompt`, `selectRelevantFiles` — token-efficient
+  log-to-SDK validation pipeline (`src/lib/log_validator.ts`).
+- `LogIssue`, `CodeSnippet`, `LogValidatorOptions`, `IssueSeverity` — companion types.
+
+### Fixed
+
+- `test/lib/` was missing from `testPathPattern` in all test scripts — `log_validator.test.ts` now runs.
+- Cleanup `setTimeout` in `session_client.ts` is now `.unref()`'d to prevent intermittent worker force-exit.
+- Broken ROADMAP.md ToC anchor `#milestone-v031--` corrected to `#milestone-v032--`.
 
 ---
 

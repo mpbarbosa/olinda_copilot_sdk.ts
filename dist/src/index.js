@@ -2,9 +2,10 @@
 /**
  * olinda_copilot_sdk.ts — public API
  * @module index
+ * @since 0.1.3
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.loadSkillDirectories = exports.createRemoteMCPServer = exports.createLocalMCPServer = exports.isStreamDone = exports.extractDeltaContent = exports.parseSSEChunk = exports.parseSSELine = exports.filterByRole = exports.hasRole = exports.extractContent = exports.createFunctionMessage = exports.createAssistantMessage = exports.createSystemMessage = exports.createUserMessage = exports.denyTools = exports.approveAllTools = exports.createHooks = exports.resolveAuthPriority = exports.resolveHmacFromEnv = exports.isGitHubToken = exports.SystemError = exports.APIError = exports.AuthenticationError = exports.CopilotSDKError = exports.CopilotClient = void 0;
+exports.defineTool = exports.approveAll = exports.CopilotSdkWrapper = exports.loadSkillDirectories = exports.createRemoteMCPServer = exports.createLocalMCPServer = exports.isStreamDone = exports.extractDeltaContent = exports.parseSSEChunk = exports.parseSSELine = exports.filterByRole = exports.hasRole = exports.extractContent = exports.createFunctionMessage = exports.createAssistantMessage = exports.createSystemMessage = exports.createUserMessage = exports.denyTools = exports.approveAllTools = exports.createHooks = exports.resolveAuthPriority = exports.resolveHmacFromEnv = exports.isGitHubToken = exports.SystemError = exports.APIError = exports.AuthenticationError = exports.CopilotSDKError = exports.CopilotClient = void 0;
 var completions_client_js_1 = require("./core/completions_client.js");
 Object.defineProperty(exports, "CopilotClient", { enumerable: true, get: function () { return completions_client_js_1.CopilotClient; } });
 var errors_js_1 = require("./core/errors.js");
@@ -38,3 +39,13 @@ Object.defineProperty(exports, "createLocalMCPServer", { enumerable: true, get: 
 Object.defineProperty(exports, "createRemoteMCPServer", { enumerable: true, get: function () { return mcp_js_1.createRemoteMCPServer; } });
 var skills_js_1 = require("./core/skills.js");
 Object.defineProperty(exports, "loadSkillDirectories", { enumerable: true, get: function () { return skills_js_1.loadSkillDirectories; } });
+// ---------------------------------------------------------------------------
+// v0.2.1 — CopilotSdkWrapper + SDK permission/input types
+// ---------------------------------------------------------------------------
+var session_client_js_1 = require("./core/session_client.js");
+Object.defineProperty(exports, "CopilotSdkWrapper", { enumerable: true, get: function () { return session_client_js_1.CopilotSdkWrapper; } });
+/** Re-exported from `@github/copilot-sdk` — approves all permission requests automatically. */
+var copilot_sdk_1 = require("@github/copilot-sdk");
+Object.defineProperty(exports, "approveAll", { enumerable: true, get: function () { return copilot_sdk_1.approveAll; } });
+var tools_js_1 = require("./core/tools.js");
+Object.defineProperty(exports, "defineTool", { enumerable: true, get: function () { return tools_js_1.defineTool; } });

@@ -38,25 +38,39 @@ export type { ResumeSessionConfig } from './core/session_config.js';
 
 export type {
 	ToolResultObject,
+	PermissionHandler,
 	BaseHookInput,
 	PreToolUseInput,
 	PreToolUseOutput,
 	PreToolUseHandler,
+	PreToolUseHookInput,
+	PreToolUseHookOutput,
 	PostToolUseInput,
 	PostToolUseOutput,
 	PostToolUseHandler,
+	PostToolUseHookInput,
+	PostToolUseHookOutput,
 	UserPromptInput,
 	UserPromptOutput,
 	UserPromptHandler,
+	UserPromptSubmittedHandler,
+	UserPromptSubmittedHookInput,
+	UserPromptSubmittedHookOutput,
 	SessionStartInput,
 	SessionStartOutput,
 	SessionStartHandler,
+	SessionStartHookInput,
+	SessionStartHookOutput,
 	SessionEndInput,
 	SessionEndOutput,
 	SessionEndHandler,
+	SessionEndHookInput,
+	SessionEndHookOutput,
 	ErrorOccurredInput,
 	ErrorOccurredOutput,
 	ErrorOccurredHandler,
+	ErrorOccurredHookInput,
+	ErrorOccurredHookOutput,
 	SessionHooks,
 	HooksConfig,
 } from './core/hooks.js';
@@ -108,10 +122,13 @@ export type {
 export { approveAll } from '@github/copilot-sdk';
 
 export type {
-	PermissionHandler,
 	PermissionRequest,
 	PermissionRequestResult,
 } from '@github/copilot-sdk';
+
+// ---------------------------------------------------------------------------
+// v0.4.0 — Permission & Hooks Bridge
+// ---------------------------------------------------------------------------
 
 // ---------------------------------------------------------------------------
 // v0.3.2 — Tool types, SystemMessageConfig, and defineTool
@@ -130,3 +147,10 @@ export type {
 } from './core/tools.js';
 
 export { defineTool } from './core/tools.js';
+
+// ---------------------------------------------------------------------------
+// v0.3.3 — LogValidator: token-efficient log-to-SDK validation pipeline
+// ---------------------------------------------------------------------------
+
+export { LogValidator, parseLogIssues, buildValidationPrompt, selectRelevantFiles } from './lib/log_validator.js';
+export type { LogIssue, CodeSnippet, LogValidatorOptions, IssueSeverity } from './lib/log_validator.js';

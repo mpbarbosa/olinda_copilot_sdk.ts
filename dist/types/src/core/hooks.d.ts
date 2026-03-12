@@ -3,7 +3,7 @@ export type { ToolResultObject };
 /**
  * Shared base fields present in every hook input.
  *
- * @since 0.2.0
+ * @since 0.2.1
  */
 export interface BaseHookInput {
     /** Unix epoch milliseconds at the moment the hook fires. */
@@ -14,7 +14,7 @@ export interface BaseHookInput {
 /**
  * Input passed to the pre-tool-use hook.
  *
- * @since 0.2.0
+ * @since 0.2.1
  */
 export interface PreToolUseInput extends BaseHookInput {
     /** Name of the tool about to be invoked. */
@@ -26,7 +26,7 @@ export interface PreToolUseInput extends BaseHookInput {
  * Output returned by the pre-tool-use hook.
  * Return `void` to pass through without modification.
  *
- * @since 0.2.0
+ * @since 0.2.1
  */
 export interface PreToolUseOutput {
     /** Explicit permission decision; omit to defer to default policy. */
@@ -43,7 +43,7 @@ export interface PreToolUseOutput {
 /**
  * Handler function type for the pre-tool-use hook.
  *
- * @since 0.2.0
+ * @since 0.2.1
  */
 export type PreToolUseHandler = (input: PreToolUseInput, invocation: {
     sessionId: string;
@@ -51,7 +51,7 @@ export type PreToolUseHandler = (input: PreToolUseInput, invocation: {
 /**
  * Input passed to the post-tool-use hook.
  *
- * @since 0.2.0
+ * @since 0.2.1
  */
 export interface PostToolUseInput extends BaseHookInput {
     /** Name of the tool that was executed. */
@@ -65,7 +65,7 @@ export interface PostToolUseInput extends BaseHookInput {
  * Output returned by the post-tool-use hook.
  * Return `void` to pass through without modification.
  *
- * @since 0.2.0
+ * @since 0.2.1
  */
 export interface PostToolUseOutput {
     /** Replacement result to use instead of the actual tool result. */
@@ -78,7 +78,7 @@ export interface PostToolUseOutput {
 /**
  * Handler function type for the post-tool-use hook.
  *
- * @since 0.2.0
+ * @since 0.2.1
  */
 export type PostToolUseHandler = (input: PostToolUseInput, invocation: {
     sessionId: string;
@@ -86,7 +86,7 @@ export type PostToolUseHandler = (input: PostToolUseInput, invocation: {
 /**
  * Input passed to the user-prompt-submitted hook.
  *
- * @since 0.2.0
+ * @since 0.2.1
  */
 export interface UserPromptInput extends BaseHookInput {
     /** The raw prompt text the user submitted. */
@@ -96,7 +96,7 @@ export interface UserPromptInput extends BaseHookInput {
  * Output returned by the user-prompt-submitted hook.
  * Return `void` to pass through without modification.
  *
- * @since 0.2.0
+ * @since 0.2.1
  */
 export interface UserPromptOutput {
     /** Replacement prompt to use instead of the user's original text. */
@@ -109,7 +109,7 @@ export interface UserPromptOutput {
 /**
  * Handler function type for the user-prompt-submitted hook.
  *
- * @since 0.2.0
+ * @since 0.2.1
  */
 export type UserPromptHandler = (input: UserPromptInput, invocation: {
     sessionId: string;
@@ -117,7 +117,7 @@ export type UserPromptHandler = (input: UserPromptInput, invocation: {
 /**
  * Input passed to the session-start hook.
  *
- * @since 0.2.0
+ * @since 0.2.1
  */
 export interface SessionStartInput extends BaseHookInput {
     /** How the session was initiated. */
@@ -129,7 +129,7 @@ export interface SessionStartInput extends BaseHookInput {
  * Output returned by the session-start hook.
  * Return `void` to pass through without modification.
  *
- * @since 0.2.0
+ * @since 0.2.1
  */
 export interface SessionStartOutput {
     /** Extra context injected at the start of the session. */
@@ -140,7 +140,7 @@ export interface SessionStartOutput {
 /**
  * Handler function type for the session-start hook.
  *
- * @since 0.2.0
+ * @since 0.2.1
  */
 export type SessionStartHandler = (input: SessionStartInput, invocation: {
     sessionId: string;
@@ -148,7 +148,7 @@ export type SessionStartHandler = (input: SessionStartInput, invocation: {
 /**
  * Input passed to the session-end hook.
  *
- * @since 0.2.0
+ * @since 0.2.1
  */
 export interface SessionEndInput extends BaseHookInput {
     /** Reason the session terminated. */
@@ -162,7 +162,7 @@ export interface SessionEndInput extends BaseHookInput {
  * Output returned by the session-end hook.
  * Return `void` to pass through without modification.
  *
- * @since 0.2.0
+ * @since 0.2.1
  */
 export interface SessionEndOutput {
     /** Suppress session-end output from the session log. */
@@ -175,7 +175,7 @@ export interface SessionEndOutput {
 /**
  * Handler function type for the session-end hook.
  *
- * @since 0.2.0
+ * @since 0.2.1
  */
 export type SessionEndHandler = (input: SessionEndInput, invocation: {
     sessionId: string;
@@ -183,7 +183,7 @@ export type SessionEndHandler = (input: SessionEndInput, invocation: {
 /**
  * Input passed to the error-occurred hook.
  *
- * @since 0.2.0
+ * @since 0.2.1
  */
 export interface ErrorOccurredInput extends BaseHookInput {
     /** Human-readable description of the error. */
@@ -197,7 +197,7 @@ export interface ErrorOccurredInput extends BaseHookInput {
  * Output returned by the error-occurred hook.
  * Return `void` to accept the default error handling.
  *
- * @since 0.2.0
+ * @since 0.2.1
  */
 export interface ErrorOccurredOutput {
     /** Suppress error output from the session log. */
@@ -212,7 +212,7 @@ export interface ErrorOccurredOutput {
 /**
  * Handler function type for the error-occurred hook.
  *
- * @since 0.2.0
+ * @since 0.2.1
  */
 export type ErrorOccurredHandler = (input: ErrorOccurredInput, invocation: {
     sessionId: string;
@@ -221,7 +221,7 @@ export type ErrorOccurredHandler = (input: ErrorOccurredInput, invocation: {
  * Registry of all session lifecycle hooks.
  * Every field is optional — provide only the hooks you need.
  *
- * @since 0.2.0
+ * @since 0.2.1
  */
 export interface SessionHooks {
     /** Fires before each tool invocation. Can approve, deny, or modify args. */
@@ -241,7 +241,7 @@ export interface SessionHooks {
  * Partial session hooks configuration — a convenience alias for composing
  * hook configs before passing them to {@link createHooks}.
  *
- * @since 0.2.0
+ * @since 0.2.1
  */
 export type HooksConfig = Partial<SessionHooks>;
 /**
@@ -252,7 +252,7 @@ export type HooksConfig = Partial<SessionHooks>;
  *
  * @param config - A partial set of session hook handlers.
  * @returns A `SessionHooks` object containing the provided handlers.
- * @since 0.2.0
+ * @since 0.2.1
  * @example
  * ```ts
  * const hooks = createHooks({
@@ -270,7 +270,7 @@ export declare function createHooks(config: HooksConfig): SessionHooks;
  * or during development/testing.
  *
  * @returns A pre-tool-use handler that always returns `{ permissionDecision: 'allow' }`.
- * @since 0.2.0
+ * @since 0.2.1
  * @example
  * ```ts
  * const hooks = createHooks({ onPreToolUse: approveAllTools() });
@@ -284,7 +284,7 @@ export declare function approveAllTools(): PreToolUseHandler;
  * @param toolNames - The tool names to deny.
  * @param reason - Optional human-readable reason included in the decision.
  * @returns A pre-tool-use handler that denies listed tools and returns `void` for others.
- * @since 0.2.0
+ * @since 0.2.1
  * @example
  * ```ts
  * const hooks = createHooks({

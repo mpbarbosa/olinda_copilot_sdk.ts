@@ -3,33 +3,79 @@
  * @module core/session_config
  * @description Typed `SessionConfig` surface that maps to the full set of
  * options accepted by the SDK when creating or resuming a Copilot session.
- * @since 0.2.0
+ * @since 0.2.1
  */
 import type { BYOKProvider } from './auth.js';
+import type { SessionHooks } from './hooks.js';
+import type { MCPServerMap } from './mcp.js';
+import type { PermissionHandler, SystemMessageConfig, Tool, CustomAgentConfig, InfiniteSessionConfig } from '@github/copilot-sdk';
 /**
  * Controls how much reasoning effort the model expends before responding.
  * Only honoured by models that support reasoning (e.g. `o3-mini`).
- * @since 0.2.0
+ * @since 0.2.1
  */
-export type ReasoningEffort = 'low' | 'medium' | 'high';
+export type ReasoningEffort = 'low' | 'medium' | 'high' | 'xhigh';
+/**
+ * A question sent by the agent to the user via the `ask_user` tool.
+ * @since 0.2.1
+ */
+export interface UserInputRequest {
+    /** The question the agent is asking. */
+    question: string;
+    /** Optional list of predefined answer choices. */
+    choices?: string[];
+    /**
+     * When `true`, the user may answer with free-form text in addition to choices.
+     * @default true
+     */
+    allowFreeform?: boolean;
+}
+/**
+ * The user's answer to a {@link UserInputRequest}.
+ * @since 0.2.1
+ */
+export interface UserInputResponse {
+    /** The user's answer text. */
+    answer: string;
+    /** `true` if the user typed a free-form answer instead of choosing from the list. */
+    wasFreeform: boolean;
+}
+/**
+ * Handler called when the agent invokes the `ask_user` tool.
+ * The return value is forwarded back to the model as the user's response.
+ *
+ * @since 0.2.1
+ * @example
+ * const handler: UserInputHandler = async (req) => ({
+ *   answer: req.choices?.[0] ?? 'yes',
+ *   wasFreeform: false,
+ * });
+ */
+export type UserInputHandler = (request: UserInputRequest, invocation: {
+    sessionId: string;
+}) => Promise<UserInputResponse> | UserInputResponse;
 /**
  * Full configuration for a Copilot SDK session.
  *
  * All fields are optional — omitted fields fall back to SDK defaults.
+ * When used with {@link CopilotSdkWrapper}, `onPermissionRequest` defaults
+ * to `approveAll` if not supplied.
  *
- * @since 0.2.0
+ * @since 0.2.1
  * @example
  * const config: SessionConfig = {
  *   model: 'gpt-4o',
- *   systemMessage: 'You are a TypeScript expert.',
+ *   systemMessage: { mode: 'append', content: 'You are a TypeScript expert.' },
  *   streaming: true,
+ *   tools: [defineTool('echo', { description: 'Echo input', handler: async (a) => a })],
  * };
  *
  * @example
- * // Resumable session with BYOK
+ * // Resumable session with BYOK and MCP servers
  * const config: SessionConfig = {
  *   sessionId: 'session-user42-2026-03-12',
  *   provider: { type: 'anthropic', apiKey: 'sk-ant-...', model: 'claude-sonnet-4' },
+ *   mcpServers: { myServer: createLocalMCPServer({ command: 'node', args: ['server.js'] }) },
  * };
  */
 export interface SessionConfig {
@@ -39,24 +85,38 @@ export interface SessionConfig {
      */
     sessionId?: string;
     /**
+     * Client name included in the User-Agent header for API requests.
+     * @since 0.3.2
+     */
+    clientName?: string;
+    /**
      * Model identifier to use for this session.
      * Examples: `'gpt-4o'`, `'claude-sonnet-4'`, `'o3-mini'`.
      * Defaults to the SDK's configured default model.
      */
     model?: string;
     /**
-     * System prompt injected at the start of the conversation.
-     * Overrides the default Copilot system message.
+     * System message configuration controlling how the system prompt is built.
+     * Use `{ type: 'append', content: '...' }` to append to the default SDK message,
+     * or `{ type: 'replace', content: '...' }` for full control.
+     *
+     * **Breaking change from 0.2.x**: was `string`; now `SystemMessageConfig`.
+     * @since 0.3.2
      */
-    systemMessage?: string;
+    systemMessage?: SystemMessageConfig;
     /**
      * Working directory forwarded to the Copilot CLI process.
      * Tools that access the file system will resolve paths relative to this dir.
      */
     workingDirectory?: string;
     /**
+     * Override the default configuration directory location.
+     * @since 0.3.2
+     */
+    configDir?: string;
+    /**
      * Controls reasoning effort for models that support it.
-     * `'low'` is fastest; `'high'` produces the most thorough responses.
+     * `'low'` is fastest; `'xhigh'` produces the most thorough responses.
      */
     reasoningEffort?: ReasoningEffort;
     /**
@@ -70,4 +130,82 @@ export interface SessionConfig {
      * When set, the session uses the specified provider's endpoint and key.
      */
     provider?: BYOKProvider;
+    /**
+     * Custom tools exposed to the Copilot CLI server.
+     * Build tool definitions with the re-exported {@link defineTool} helper.
+     * @since 0.3.2
+     */
+    tools?: Tool<unknown>[];
+    /**
+     * Allowlist of tool names. When set, only these tools are available.
+     * Takes precedence over {@link excludedTools}.
+     * @since 0.3.2
+     */
+    availableTools?: string[];
+    /**
+     * Blocklist of tool names. All other tools remain available.
+     * Ignored when {@link availableTools} is specified.
+     * @since 0.3.2
+     */
+    excludedTools?: string[];
+    /**
+     * Handler called whenever the SDK requests permission for an operation
+     * (shell execution, file write, MCP tool call, etc.).
+     * When omitted, {@link CopilotSdkWrapper} uses `approveAll` by default.
+     *
+     * @example
+     * import { approveAll } from 'olinda_copilot_sdk.ts';
+     * const config: SessionConfig = { onPermissionRequest: approveAll };
+     */
+    onPermissionRequest?: PermissionHandler;
+    /**
+     * Handler called when the agent invokes the `ask_user` tool.
+     * Enables interactive Q&A flows where the model can ask the user questions.
+     * When omitted, the `ask_user` tool is not available in the session.
+     *
+     * @example
+     * const config: SessionConfig = {
+     *   onUserInputRequest: async (req) => ({ answer: 'yes', wasFreeform: false }),
+     * };
+     */
+    onUserInputRequest?: UserInputHandler;
+    /**
+     * Hook handlers for intercepting session lifecycle events.
+     * @see {@link SessionHooks}
+     * @since 0.3.2
+     */
+    hooks?: SessionHooks;
+    /**
+     * MCP server configurations keyed by server name.
+     * Use {@link createLocalMCPServer} and {@link createRemoteMCPServer} to build entries.
+     * @since 0.3.2
+     */
+    mcpServers?: MCPServerMap;
+    /**
+     * Custom agent definitions exposed to the session.
+     * @since 0.3.2
+     */
+    customAgents?: CustomAgentConfig[];
+    /**
+     * Directories from which to load additional skills.
+     * @since 0.3.2
+     */
+    skillDirectories?: string[];
+    /**
+     * Names of skills to disable for this session.
+     * @since 0.3.2
+     */
+    disabledSkills?: string[];
+    /**
+     * Infinite session configuration for persistent workspaces and automatic
+     * context compaction. Set to `{ enabled: false }` to disable.
+     * @since 0.3.2
+     */
+    infiniteSessions?: InfiniteSessionConfig;
 }
+/**
+ * Configuration subset used when resuming an existing session.
+ * Re-exported from `@github/copilot-sdk` for convenience.
+ * @since 0.3.2
+ */
+export type { ResumeSessionConfig } from '@github/copilot-sdk';
