@@ -8,7 +8,7 @@ Copilot chat completions API, SSE stream parsing, and message construction utili
 **GitHub dependency** (recommended — no build step required):
 
 ```bash
-npm install github:mpbarbosa/olinda_copilot_sdk.ts#v0.2.1
+npm install github:mpbarbosa/olinda_copilot_sdk.ts#v0.3.1
 ```
 
 The compiled `dist/` tree is committed to the repository and included in every
@@ -85,16 +85,33 @@ npm run build     # compile TypeScript → dist/
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for contribution guidelines.
 
+### Deployment
+
+`scripts/deploy.sh` builds the project, runs tests, and publishes to npm (CDN delivery via git tag always runs; npm publish requires `NPM_TOKEN`).
+
+```bash
+# CDN delivery only (no npm publish)
+bash scripts/deploy.sh
+
+# Full publish (CDN + npm registry)
+NPM_TOKEN=npm_... bash scripts/deploy.sh
+```
+
+The script guards against a dirty working tree and failing tests before proceeding.
+
 ## Project Structure
 
 ```text
 olinda_copilot_sdk.ts/
-├── src/           # TypeScript source
-│   ├── core/      # CopilotClient, types, errors
-│   └── utils/     # message and stream utilities
-├── test/          # Jest test suite
-├── docs/          # API reference
-└── .github/       # CI workflow and Copilot instructions
+├── src/                # TypeScript source
+│   ├── core/           # CopilotClient, types, errors
+│   └── utils/          # message and stream utilities
+├── test/               # Jest test suite
+│   └── __stubs__/      # shared test fixtures and typed constants
+├── scripts/            # automation scripts (deploy.sh)
+├── docs/               # API reference
+└── .github/            # CI/CD workflows and Copilot instructions
+    └── workflows/      # GitHub Actions workflow definitions
 ```
 
 ## License

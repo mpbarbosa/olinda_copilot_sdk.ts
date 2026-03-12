@@ -654,5 +654,5 @@ loadSkillDirectories(['./skills', './skills', '', '  ./extra  '])
 
 ## See Also
 
-- [ROADMAP.md](./ROADMAP.md) — planned phases and backlog items
+- [ROADMAP.md](../ROADMAP.md) — planned phases and backlog items
 - [CONTRIBUTING.md](../CONTRIBUTING.md) — development setup, testing requirements, and commit conventions

@@ -42,4 +42,4 @@ parallel to validate the full project lifecycle:
 
 - [CONTRIBUTING.md](../CONTRIBUTING.md) — contribution guidelines and commit conventions
 - [docs/API.md](../docs/API.md) — full public API reference
-- [docs/ROADMAP.md](../docs/ROADMAP.md) — feature roadmap and current state
+- [ROADMAP.md](../ROADMAP.md) — feature roadmap and current state
