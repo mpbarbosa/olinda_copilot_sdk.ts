@@ -14,9 +14,9 @@ jest.mock('@github/copilot-sdk', () => {
 				destroy: jest.fn().mockResolvedValue(undefined),
 				abort: jest.fn().mockResolvedValue(undefined),
 			}),
-		}),
+		})),
 		approveAll: jest.fn(),
-	});
+	};
 });
 
 const CopilotClientMock = require('@github/copilot-sdk').CopilotClient;
@@ -72,25 +72,32 @@ describe('CopilotSdkWrapper', () => {
 		});
 
 		it('should handle model fetch failure gracefully', async () => {
-			const client = new CopilotClientMock();
-			client.listModels.mockRejectedValueOnce(new Error('fail'));
+			CopilotClientMock.mockImplementationOnce(() => ({
+				start: jest.fn().mockResolvedValue(undefined),
+				stop: jest.fn().mockResolvedValue(undefined),
+				forceStop: jest.fn().mockResolvedValue(undefined),
+				getAuthStatus: jest.fn().mockResolvedValue({ isAuthenticated: true }),
+				listModels: jest.fn().mockRejectedValueOnce(new Error('fail')),
+				createSession: jest.fn().mockResolvedValue({
+					sendAndWait: jest.fn().mockResolvedValue({ data: { content: 'response', success: true } }),
+					destroy: jest.fn().mockResolvedValue(undefined),
+					abort: jest.fn().mockResolvedValue(undefined),
+				}),
+			}));
 			const wrapper = new CopilotSdkWrapper();
-			(wrapper as any)._client = client;
-			client.getAuthStatus.mockResolvedValue({ isAuthenticated: true });
-			client.createSession.mockResolvedValue({
-				sendAndWait: jest.fn().mockResolvedValue({ data: { content: 'response', success: true } }),
-				destroy: jest.fn().mockResolvedValue(undefined),
-				abort: jest.fn().mockResolvedValue(undefined),
-			});
 			await expect(wrapper.initialize()).resolves.toBeDefined();
 		});
 
 		it('should cleanup client and re-throw error if session creation fails', async () => {
-			const client = new CopilotClientMock();
-			client.createSession.mockRejectedValueOnce(new Error('session fail'));
+			CopilotClientMock.mockImplementationOnce(() => ({
+				start: jest.fn().mockResolvedValue(undefined),
+				stop: jest.fn().mockResolvedValue(undefined),
+				forceStop: jest.fn().mockResolvedValue(undefined),
+				getAuthStatus: jest.fn().mockResolvedValue({ isAuthenticated: true }),
+				listModels: jest.fn().mockResolvedValue([]),
+				createSession: jest.fn().mockRejectedValueOnce(new Error('session fail')),
+			}));
 			const wrapper = new CopilotSdkWrapper();
-			(wrapper as any)._client = client;
-			client.getAuthStatus.mockResolvedValue({ isAuthenticated: true });
 			await expect(wrapper.initialize()).rejects.toThrow('session fail');
 			expect(wrapper.client).toBeNull();
 		});
@@ -144,11 +151,12 @@ describe('CopilotSdkWrapper', () => {
 			await wrapper.initialize();
 			const destroySpy = jest.spyOn(wrapper.session!, 'destroy');
 			const stopSpy = jest.spyOn(wrapper.client!, 'stop');
-			const startSpy = jest.spyOn(wrapper.client!, 'start');
 			await wrapper.recreateSession();
 			expect(destroySpy).toHaveBeenCalled();
 			expect(stopSpy).toHaveBeenCalled();
-			expect(startSpy).toHaveBeenCalled();
+			// recreateSession creates a new CopilotClient; verify start() was called on it
+			const newClient = CopilotClientMock.mock.results[1].value as { start: jest.Mock };
+			expect(newClient.start).toHaveBeenCalled();
 			expect(wrapper.session).not.toBeNull();
 		});
 	});
@@ -169,10 +177,17 @@ describe('CopilotSdkWrapper', () => {
 		it('should call forceStop if stop times out', async () => {
 			const wrapper = new CopilotSdkWrapper();
 			await wrapper.initialize();
-			const stopSpy = jest.spyOn(wrapper.client!, 'stop').mockImplementation(() => new Promise(() => {}));
-			const forceStopSpy = jest.spyOn(wrapper.client!, 'forceStop');
-			await wrapper.cleanup();
-			expect(forceStopSpy).toHaveBeenCalled();
+			jest.useFakeTimers();
+			try {
+				jest.spyOn(wrapper.client!, 'stop').mockImplementation(() => new Promise(() => {}));
+				const forceStopSpy = jest.spyOn(wrapper.client!, 'forceStop');
+				const cleanupPromise = wrapper.cleanup();
+				await jest.advanceTimersByTimeAsync(6_000);
+				await cleanupPromise;
+				expect(forceStopSpy).toHaveBeenCalled();
+			} finally {
+				jest.useRealTimers();
+			}
 		});
 	});
 });

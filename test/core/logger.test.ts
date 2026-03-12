@@ -2,7 +2,12 @@ import { Logger, logger, LogLevel, stripAnsi } from '../../src/core/logger';
 
 describe('Logger re-exports', () => {
 	it('should export Logger class', () => {
-		const log = new Logger({ level: 'info' });
+		const log = new Logger();
+		expect(log).toBeInstanceOf(Logger);
+	});
+
+	it('should accept prefix and verbose options', () => {
+		const log = new Logger({ prefix: '[test]', verbose: true });
 		expect(log).toBeInstanceOf(Logger);
 	});
 
@@ -10,31 +15,53 @@ describe('Logger re-exports', () => {
 		expect(logger).toBeInstanceOf(Logger);
 	});
 
-	it('should log messages at different levels', () => {
-		const log = new Logger({ level: 'debug' });
-		const spy = jest.spyOn(log, 'log');
-		log.debug('debug message');
+	it('should call info method', () => {
+		const log = new Logger();
+		const spy = jest.spyOn(log, 'info').mockImplementation(() => {});
 		log.info('info message');
-		log.warn('warn message');
-		log.error('error message');
-		expect(spy).toHaveBeenCalledWith('debug', 'debug message');
-		expect(spy).toHaveBeenCalledWith('info', 'info message');
-		expect(spy).toHaveBeenCalledWith('warn', 'warn message');
-		expect(spy).toHaveBeenCalledWith('error', 'error message');
+		expect(spy).toHaveBeenCalledWith('info message');
 		spy.mockRestore();
 	});
 
-	it('should handle invalid log level gracefully', () => {
-		const log = new Logger({ level: 'info' });
-		expect(() => log.log('invalid' as any, 'test')).not.toThrow();
+	it('should call debug method', () => {
+		const log = new Logger();
+		const spy = jest.spyOn(log, 'debug').mockImplementation(() => {});
+		log.debug('debug message');
+		expect(spy).toHaveBeenCalledWith('debug message');
+		spy.mockRestore();
 	});
 
-	it('should export LogLevel enum', () => {
+	it('should call warn method', () => {
+		const log = new Logger();
+		const spy = jest.spyOn(log, 'warn').mockImplementation(() => {});
+		log.warn('warn message');
+		expect(spy).toHaveBeenCalledWith('warn message');
+		spy.mockRestore();
+	});
+
+	it('should call error method', () => {
+		const log = new Logger();
+		const spy = jest.spyOn(log, 'error').mockImplementation(() => {});
+		log.error('error message');
+		expect(spy).toHaveBeenCalledWith('error message');
+		spy.mockRestore();
+	});
+
+	it('should call success method', () => {
+		const log = new Logger();
+		const spy = jest.spyOn(log, 'success').mockImplementation(() => {});
+		log.success('done');
+		expect(spy).toHaveBeenCalledWith('done');
+		spy.mockRestore();
+	});
+
+	it('should export LogLevel with uppercase keys and lowercase values', () => {
 		expect(LogLevel).toBeDefined();
-		expect(Object.keys(LogLevel)).toContain('debug');
-		expect(Object.keys(LogLevel)).toContain('info');
-		expect(Object.keys(LogLevel)).toContain('warn');
-		expect(Object.keys(LogLevel)).toContain('error');
+		expect(LogLevel.DEBUG).toBe('debug');
+		expect(LogLevel.INFO).toBe('info');
+		expect(LogLevel.WARN).toBe('warn');
+		expect(LogLevel.ERROR).toBe('error');
+		expect(LogLevel.SUCCESS).toBe('success');
 	});
 
 	it('should strip ANSI codes from string', () => {

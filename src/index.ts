@@ -1,6 +1,7 @@
 /**
  * olinda_copilot_sdk.ts — public API
  * @module index
+ * @since 0.1.3
  */
 
 export { CopilotClient } from './core/completions_client.js';

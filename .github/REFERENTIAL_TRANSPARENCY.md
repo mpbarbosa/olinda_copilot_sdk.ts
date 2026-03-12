@@ -1,4 +1,4 @@
-# Referential Transparency in ibira.js
+# Referential Transparency in olinda_copilot_sdk.ts
 
 ## Table of Contents
 

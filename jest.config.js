@@ -4,6 +4,7 @@ module.exports = {
 	testEnvironment: 'node',
 	testMatch: ['<rootDir>/test/**/*.test.ts', '<rootDir>/test/**/*.benchmark.ts'],
 	moduleNameMapper: {
+		'^@github/copilot-sdk$': '<rootDir>/test/__stubs__/copilot-sdk.cjs',
 		'^(\\.{1,2}/.*)\\.js$': '$1',
 	},
 	randomize: true,

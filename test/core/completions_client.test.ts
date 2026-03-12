@@ -1,5 +1,6 @@
 import CopilotClient from '../../src/core/completions_client';
 import { AuthenticationError, APIError } from '../../src/core/errors';
+import type { Message } from '../../src/core/types';
 
 // Mock fetch globally
 const globalAny: any = global;
@@ -15,7 +16,7 @@ const validToken = 'test-token';
 const baseUrl = 'https://api.githubcopilot.com';
 const model = 'gpt-4o';
 
-const sampleMessages = [
+const sampleMessages: Message[] = [
 	{ role: 'user', content: 'Hello!' },
 ];
 
