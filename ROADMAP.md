@@ -2,20 +2,54 @@
 
 > **Current version**: 0.3.1  
 > **Reference SDK**: `@github/copilot-sdk` v0.1.32  
-> **Goal**: Become a complete, idiomatic TypeScript companion to `@github/copilot-sdk` — covering both the HTTP REST surface (olinda's unique contribution) and the full CLI-process session surface.
+> **Goal**: Become the idiomatic TypeScript execution layer for `@github/copilot-sdk` — enabling applications to embed programmable, agentic AI workflows anywhere software runs, not just inside an IDE.
+
+The era of "AI as text" — prompt in, text out, human decides what to do next — is over.
+Modern AI-powered systems **execute**: they plan steps, invoke tools, modify state, recover from errors, and adapt under constraints you define.
+olinda's role is to make that execution capability a composable, typed, application-layer primitive, covering both the HTTP REST surface (direct API access without a CLI process) and the full CLI-process session surface that powers agentic workflows.
 
 ---
 
 ## Table of Contents
 
+- [Design Philosophy](#design-philosophy)
 - [Current State](#current-state)
 - [Gap Analysis](#gap-analysis)
 - [Milestone v0.2.1 — Session Client Export + Core Parity](#milestone-v021--session-client-export--core-parity)
-- [Milestone v0.3.1 — Full SessionConfig Parity](#milestone-v030--full-sessionconfig-parity)
+- [Milestone v0.3.1 — Full SessionConfig Parity](#milestone-v031--full-sessionconfig-parity)
 - [Milestone v0.4.0 — Permission & Hooks Bridge](#milestone-v040--permission--hooks-bridge)
 - [Milestone v0.5.0 — Session Management & Model Introspection](#milestone-v050--session-management--model-introspection)
 - [Milestone v0.6.0 — Advanced Features](#milestone-v060--advanced-features)
+- [Milestone v0.7.0 — Agentic Execution Patterns](#milestone-v070--agentic-execution-patterns)
 - [Non-Goals](#non-goals)
+
+---
+
+## Design Philosophy
+
+Three patterns from production agentic systems guide olinda's roadmap priorities:
+
+### Pattern 1 — Delegate intent, not fixed steps
+
+Scripts break when context changes or errors require recovery.
+Agentic execution lets applications **expose intent and constraints** instead of encoding every step.
+The agent plans, executes, and adapts — all within boundaries you define.
+
+olinda's contribution: typed `SessionConfig` fields (`tools`, `customAgents`, `hooks`, `onPermissionRequest`) that let callers constrain the agent's scope without rebuilding orchestration from scratch.
+
+### Pattern 2 — Ground execution in structured runtime context
+
+Stuffing domain knowledge into prompts makes workflows brittle.
+Reliable agentic systems expose structured context — tools, MCP servers, skills — that the execution engine retrieves at runtime.
+
+olinda's contribution: first-class `defineTool`, `createLocalMCPServer`/`createRemoteMCPServer`, and `loadSkillDirectories` factories so domain-specific context is structured and composable, not embedded in prompt strings.
+
+### Pattern 3 — Embed execution outside the IDE
+
+Agentic capabilities belong wherever software runs: desktop apps, background services, SaaS platforms, event-driven systems.
+When your application can trigger logic, it can trigger agentic execution.
+
+olinda's contribution: the `CopilotSdkWrapper` abstraction and HTTP `CopilotClient` bring Copilot's planning and execution loop into any Node.js context — no IDE, no terminal required.
 
 ---
 
@@ -228,6 +262,40 @@ olinda's hook system (`PreToolUseHandler`, `PostToolUseHandler`, etc.) uses a **
 
 ---
 
+## Milestone v0.7.0 — Agentic Execution Patterns
+
+> **Theme**: Provide high-level helpers that turn the three agentic patterns (delegate intent, structured context, embedded execution) into simple, typed, composable APIs — reducing the gap between "SDK wrapper" and "execution layer."
+
+### Tasks
+
+#### Intent delegation
+
+- [ ] **`CopilotSdkWrapper.runTask(intent, options)`** — high-level helper that accepts a natural-language intent string and a constraints object (`tools`, `maxTurns`, `timeoutMs`) and runs the agentic loop to completion; returns a structured `TaskResult` with `output`, `steps`, and `exitReason`
+- [ ] **`TaskResult`** type — `{ output: string; steps: AgentStep[]; exitReason: 'completed' | 'max_turns' | 'timeout' | 'error' }`
+- [ ] **`AgentStep`** type — captures each planning/execution step: `{ type: 'tool_call' | 'message', toolName?: string, input?: unknown, output?: unknown, duration: number }`
+
+#### Event-driven invocation
+
+- [ ] **`createExecutionTrigger(wrapper, options)`** — factory that wraps a `CopilotSdkWrapper` and exposes a `trigger(intent)` method suitable for use in event handlers (file watchers, deployment hooks, user actions, webhooks); handles session lifecycle automatically
+- [ ] **`ExecutionTriggerOptions`** type — `{ sessionPolicy: 'reuse' | 'fresh'; onStep?: (step: AgentStep) => void; onComplete?: (result: TaskResult) => void }`
+- [ ] Cookbook example: trigger agentic execution from a `fs.watch` event (file change → agent analyzes and patches)
+- [ ] Cookbook example: trigger from an HTTP webhook (deployment event → agent runs post-deploy checks)
+
+#### Observable execution
+
+- [ ] **`CopilotSdkWrapper.on('step', handler)`** — stream individual agent steps as they execute (builds on the `on(eventType, handler)` planned in v0.6.0)
+- [ ] **`CopilotSdkWrapper.on('tool_call', handler)`** — fires before each tool invocation with the tool name and input
+- [ ] **`CopilotSdkWrapper.on('tool_result', handler)`** — fires after each tool returns with the output and duration
+- [ ] **`ExecutionObserver`** utility — subscribes to all execution events and emits a structured log, suitable for feeding into telemetry, audit trails, or CI dashboards
+
+#### Background service embedding
+
+- [ ] **`AgentService`** class — long-running wrapper around `CopilotSdkWrapper` designed for background services; manages session keep-alive, auto-reconnect, and a work queue (`enqueue(intent, options)`)
+- [ ] **`AgentServiceOptions`** type — `{ keepAliveIntervalMs?: number; maxQueueSize?: number; concurrency?: number }`
+- [ ] Document embedding pattern: running `AgentService` inside an Express/Fastify server, a worker thread, or a system daemon
+
+---
+
 ## Non-Goals
 
 The following will **not** be implemented in olinda, as they are internal SDK concerns:
@@ -253,3 +321,7 @@ Even after full parity, olinda's distinct value over bare `@github/copilot-sdk`:
 | Skills directory utilities | ✅ `loadSkillDirectories` | ⚠️ types only |
 | Hook factories (`approveAllTools`, `denyTools`) | ✅ | ❌ |
 | Typed `CopilotSdkWrapper` with cookbook patterns | ✅ (after v0.2.1) | ❌ (raw `CopilotClient` only) |
+| High-level intent delegation (`runTask`) | ✅ (v0.7.0) | ❌ |
+| Event-driven execution triggers | ✅ (v0.7.0) | ❌ |
+| Observable execution (`on('step' \| 'tool_call')`) | ✅ (v0.7.0) | ❌ |
+| Background service embedding (`AgentService`) | ✅ (v0.7.0) | ❌ |
