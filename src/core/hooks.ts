@@ -56,9 +56,9 @@ export type PreToolUseHandler = (
 	invocation: { sessionId: string },
 ) => Promise<PreToolUseOutput | void> | PreToolUseOutput | void;
 
-/** SDK-naming alias for {@link PreToolUseInput}. @since 0.4.0 */
+/** SDK-naming alias for {@link PreToolUseInput}. @since 0.4.1 */
 export type PreToolUseHookInput = PreToolUseInput;
-/** SDK-naming alias for {@link PreToolUseOutput}. @since 0.4.0 */
+/** SDK-naming alias for {@link PreToolUseOutput}. @since 0.4.1 */
 export type PreToolUseHookOutput = PreToolUseOutput;
 
 /**
@@ -100,9 +100,9 @@ export type PostToolUseHandler = (
 	invocation: { sessionId: string },
 ) => Promise<PostToolUseOutput | void> | PostToolUseOutput | void;
 
-/** SDK-naming alias for {@link PostToolUseInput}. @since 0.4.0 */
+/** SDK-naming alias for {@link PostToolUseInput}. @since 0.4.1 */
 export type PostToolUseHookInput = PostToolUseInput;
-/** SDK-naming alias for {@link PostToolUseOutput}. @since 0.4.0 */
+/** SDK-naming alias for {@link PostToolUseOutput}. @since 0.4.1 */
 export type PostToolUseHookOutput = PostToolUseOutput;
 
 /**
@@ -145,13 +145,13 @@ export type UserPromptHandler = (
  * Use this name for full compatibility with `@github/copilot-sdk`'s internal
  * `SessionHooks.onUserPromptSubmitted` field.
  *
- * @since 0.4.0
+ * @since 0.4.1
  */
 export type UserPromptSubmittedHandler = UserPromptHandler;
 
-/** SDK-naming alias for {@link UserPromptInput}. @since 0.4.0 */
+/** SDK-naming alias for {@link UserPromptInput}. @since 0.4.1 */
 export type UserPromptSubmittedHookInput = UserPromptInput;
-/** SDK-naming alias for {@link UserPromptOutput}. @since 0.4.0 */
+/** SDK-naming alias for {@link UserPromptOutput}. @since 0.4.1 */
 export type UserPromptSubmittedHookOutput = UserPromptOutput;
 
 /**
@@ -189,9 +189,9 @@ export type SessionStartHandler = (
 	invocation: { sessionId: string },
 ) => Promise<SessionStartOutput | void> | SessionStartOutput | void;
 
-/** SDK-naming alias for {@link SessionStartInput}. @since 0.4.0 */
+/** SDK-naming alias for {@link SessionStartInput}. @since 0.4.1 */
 export type SessionStartHookInput = SessionStartInput;
-/** SDK-naming alias for {@link SessionStartOutput}. @since 0.4.0 */
+/** SDK-naming alias for {@link SessionStartOutput}. @since 0.4.1 */
 export type SessionStartHookOutput = SessionStartOutput;
 
 /**
@@ -233,9 +233,9 @@ export type SessionEndHandler = (
 	invocation: { sessionId: string },
 ) => Promise<SessionEndOutput | void> | SessionEndOutput | void;
 
-/** SDK-naming alias for {@link SessionEndInput}. @since 0.4.0 */
+/** SDK-naming alias for {@link SessionEndInput}. @since 0.4.1 */
 export type SessionEndHookInput = SessionEndInput;
-/** SDK-naming alias for {@link SessionEndOutput}. @since 0.4.0 */
+/** SDK-naming alias for {@link SessionEndOutput}. @since 0.4.1 */
 export type SessionEndHookOutput = SessionEndOutput;
 
 /**
@@ -279,9 +279,9 @@ export type ErrorOccurredHandler = (
 	invocation: { sessionId: string },
 ) => Promise<ErrorOccurredOutput | void> | ErrorOccurredOutput | void;
 
-/** SDK-naming alias for {@link ErrorOccurredInput}. @since 0.4.0 */
+/** SDK-naming alias for {@link ErrorOccurredInput}. @since 0.4.1 */
 export type ErrorOccurredHookInput = ErrorOccurredInput;
-/** SDK-naming alias for {@link ErrorOccurredOutput}. @since 0.4.0 */
+/** SDK-naming alias for {@link ErrorOccurredOutput}. @since 0.4.1 */
 export type ErrorOccurredHookOutput = ErrorOccurredOutput;
 
 /**
@@ -353,7 +353,7 @@ export function createHooks(config: HooksConfig): SessionHooks {
  * `createHooks({ onPreToolUse: () => ({ permissionDecision: 'allow' }) })`.
  *
  * @returns A `PermissionHandler` that approves every request.
- * @since 0.4.0
+ * @since 0.4.1
  * @example
  * ```ts
  * const config: SessionConfig = { onPermissionRequest: approveAllTools() };
