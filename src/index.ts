@@ -163,7 +163,7 @@ export { runSdkSmokeTest, buildSmokeTestPrompt, validateSmokeTestResponse, forma
 export type { SdkSmokeTestOptions, SdkSmokeTestResult } from './lib/sdk_smoke_test.js';
 
 // ---------------------------------------------------------------------------
-// v0.5.0 — Session Management & Model Introspection
+// v0.5.1 — Session Management & Model Introspection
 // ---------------------------------------------------------------------------
 
 export type {

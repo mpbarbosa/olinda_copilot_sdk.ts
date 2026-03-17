@@ -18,7 +18,7 @@ olinda's role is to make that execution capability a composable, typed, applicat
 - [Milestone v0.2.1 — Session Client Export + Core Parity](#milestone-v021--session-client-export--core-parity)
 - [Milestone v0.3.2 — Full SessionConfig Parity](#milestone-v032--full-sessionconfig-parity)
 - [Milestone v0.4.1 — Permission & Hooks Bridge](#milestone-v040--permission--hooks-bridge)
-- [Milestone v0.5.0 — Session Management & Model Introspection](#milestone-v050--session-management--model-introspection)
+- [Milestone v0.5.1 — Session Management & Model Introspection](#milestone-v050--session-management--model-introspection)
 - [Milestone v0.6.0 — Advanced Features](#milestone-v060--advanced-features)
 - [Milestone v0.7.0 — Agentic Execution Patterns](#milestone-v070--agentic-execution-patterns)
 - [Non-Goals](#non-goals)
@@ -214,7 +214,7 @@ olinda's hook system (`PreToolUseHandler`, `PostToolUseHandler`, etc.) uses a **
 
 ---
 
-## Milestone v0.5.0 — Session Management & Model Introspection
+## Milestone v0.5.1 — Session Management & Model Introspection
 
 > **Theme**: Export the full set of session management and model query types so consumers don't need to depend on `@github/copilot-sdk` directly for types.
 
