@@ -8,6 +8,7 @@
  */
 
 import { AuthenticationError, APIError } from './errors.js';
+import { parseSSEStream, extractDeltaContent } from '../utils/stream.js';
 import type {
 	ClientOptions,
 	CompletionRequest,
@@ -15,30 +16,6 @@ import type {
 	StreamChunk,
 	Message,
 } from './types.js';
-
-/**
- * Parse a batch of SSE text lines into typed stream chunks.
- * Returns `null` as a sentinel value to signal `[DONE]`.
- * @internal
- */
-function parseSSELines(lines: string[]): Array<StreamChunk | null> {
-	const results: Array<StreamChunk | null> = [];
-	for (const line of lines) {
-		const trimmed = line.trim();
-		if (!trimmed.startsWith('data: ')) continue;
-		const data = trimmed.slice(6);
-		if (data === '[DONE]') {
-			results.push(null);
-			return results;
-		}
-		try {
-			results.push(JSON.parse(data) as StreamChunk);
-		} catch {
-			// skip malformed lines
-		}
-	}
-	return results;
-}
 
 /**
  * Client for the GitHub Copilot chat completions API.
@@ -152,25 +129,29 @@ export class CopilotClient {
 
 		if (!response.body) return;
 
-		const decoder = new TextDecoder();
-		const reader = response.body.getReader();
+		yield* parseSSEStream(response.body);
+	}
 
-		try {
-			let buffer = '';
-			while (true) {
-				const { done, value } = await reader.read();
-				if (done) break;
-				buffer += decoder.decode(value, { stream: true });
-				const lines = buffer.split('\n');
-				buffer = lines.pop() ?? '';
-				const items = parseSSELines(lines);
-				for (const item of items) {
-					if (item === null) return;
-					yield item;
-				}
-			}
-		} finally {
-			reader.releaseLock();
+	/**
+	 * Send a streaming chat completion request and yield the delta text content directly.
+	 * Equivalent to calling {@link stream} and mapping {@link extractDeltaContent} over each chunk.
+	 * @param messages - Conversation history.
+	 * @param options - Optional overrides for the request body.
+	 * @returns Async iterable of text strings (one per SSE chunk).
+	 * @throws {AuthenticationError} On HTTP 401.
+	 * @throws {APIError} On any other non-2xx HTTP response.
+	 * @since 0.4.2
+	 * @example
+	 * for await (const text of client.streamText([createUserMessage('Hi')])) {
+	 *   process.stdout.write(text);
+	 * }
+	 */
+	async *streamText(
+		messages: Message[],
+		options?: Partial<Omit<CompletionRequest, 'messages' | 'stream'>>,
+	): AsyncGenerator<string> {
+		for await (const chunk of this.stream(messages, options)) {
+			yield extractDeltaContent(chunk);
 		}
 	}
 }

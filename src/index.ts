@@ -87,7 +87,7 @@ export {
 	filterByRole,
 } from './utils/messages.js';
 
-export { parseSSELine, parseSSEChunk, extractDeltaContent, isStreamDone } from './utils/stream.js';
+export { parseSSELine, parseSSEChunk, parseSSEStream, extractDeltaContent, isStreamDone } from './utils/stream.js';
 
 export type {
 	LocalMCPServer,
@@ -154,3 +154,10 @@ export { defineTool } from './core/tools.js';
 
 export { LogValidator, parseLogIssues, buildValidationPrompt, selectRelevantFiles } from './lib/log_validator.js';
 export type { LogIssue, CodeSnippet, LogValidatorOptions, IssueSeverity } from './lib/log_validator.js';
+
+// ---------------------------------------------------------------------------
+// v0.4.2 — SdkSmokeTest: minimal connectivity check for the Copilot API
+// ---------------------------------------------------------------------------
+
+export { runSdkSmokeTest, buildSmokeTestPrompt, validateSmokeTestResponse, formatSmokeTestResult } from './lib/sdk_smoke_test.js';
+export type { SdkSmokeTestOptions, SdkSmokeTestResult } from './lib/sdk_smoke_test.js';
