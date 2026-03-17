@@ -29,6 +29,22 @@ const streamChunk = {
         { delta: { content: 'Hi' } },
     ],
 };
+const createMockStream = (lines) => {
+    const encoder = new TextEncoder();
+    const chunks = lines.map(line => encoder.encode(line + '\n'));
+    let index = 0;
+    return {
+        getReader: () => ({
+            read: jest.fn().mockImplementation(() => {
+                if (index < chunks.length) {
+                    return Promise.resolve({ done: false, value: chunks[index++] });
+                }
+                return Promise.resolve({ done: true, value: undefined });
+            }),
+            releaseLock: jest.fn(),
+        }),
+    };
+};
 describe('CopilotClient', () => {
     describe('constructor', () => {
         it('should throw AuthenticationError if token is missing', () => {
@@ -90,22 +106,6 @@ describe('CopilotClient', () => {
         });
     });
     describe('stream', () => {
-        const createMockStream = (lines) => {
-            const encoder = new TextEncoder();
-            const chunks = lines.map(line => encoder.encode(line + '\n'));
-            let index = 0;
-            return {
-                getReader: () => ({
-                    read: jest.fn().mockImplementation(() => {
-                        if (index < chunks.length) {
-                            return Promise.resolve({ done: false, value: chunks[index++] });
-                        }
-                        return Promise.resolve({ done: true, value: undefined });
-                    }),
-                    releaseLock: jest.fn(),
-                }),
-            };
-        };
         it('should yield stream chunks and stop at [DONE]', async () => {
             const sseLines = [
                 'data: {"choices":[{"delta":{"content":"Hi"}}]}',
@@ -176,22 +176,6 @@ describe('CopilotClient', () => {
         });
     });
     describe('streamText', () => {
-        const createMockStream = (lines) => {
-            const encoder = new TextEncoder();
-            const chunks = lines.map(line => encoder.encode(line + '\n'));
-            let index = 0;
-            return {
-                getReader: () => ({
-                    read: jest.fn().mockImplementation(() => {
-                        if (index < chunks.length) {
-                            return Promise.resolve({ done: false, value: chunks[index++] });
-                        }
-                        return Promise.resolve({ done: true, value: undefined });
-                    }),
-                    releaseLock: jest.fn(),
-                }),
-            };
-        };
         it('should yield delta text strings from stream chunks', async () => {
             const sseLines = [
                 'data: {"choices":[{"delta":{"content":"Hi"},"finish_reason":null}]}',

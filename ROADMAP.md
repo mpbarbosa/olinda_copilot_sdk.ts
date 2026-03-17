@@ -1,6 +1,6 @@
 # ROADMAP — olinda_copilot_sdk.ts
 
-> **Current version**: 0.4.1  
+> **Current version**: 0.5.1  
 > **Reference SDK**: `@github/copilot-sdk` v0.1.32  
 > **Goal**: Become the idiomatic TypeScript execution layer for `@github/copilot-sdk` — enabling applications to embed programmable, agentic AI workflows anywhere software runs, not just inside an IDE.
 

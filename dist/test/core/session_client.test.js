@@ -16,6 +16,20 @@ jest.mock('@github/copilot-sdk', () => {
                 abort: jest.fn().mockResolvedValue(undefined),
                 on: jest.fn().mockReturnValue(jest.fn()),
             }),
+            resumeSession: jest.fn().mockResolvedValue({
+                sendAndWait: jest.fn().mockResolvedValue({ data: { content: 'resumed', success: true } }),
+                destroy: jest.fn().mockResolvedValue(undefined),
+                abort: jest.fn().mockResolvedValue(undefined),
+                on: jest.fn().mockReturnValue(jest.fn()),
+            }),
+            listSessions: jest.fn().mockResolvedValue([{ id: 'session-1' }, { id: 'session-2' }]),
+            deleteSession: jest.fn().mockResolvedValue(undefined),
+            getLastSessionId: jest.fn().mockResolvedValue('session-1'),
+            getForegroundSessionId: jest.fn().mockResolvedValue('session-1'),
+            setForegroundSessionId: jest.fn().mockResolvedValue(undefined),
+            ping: jest.fn().mockResolvedValue({ message: 'hello', timestamp: 1735689600000 }),
+            getStatus: jest.fn().mockResolvedValue({ isAuthenticated: true }),
+            getState: jest.fn().mockReturnValue('connected'),
         })),
         approveAll: jest.fn(),
     };
@@ -260,6 +274,134 @@ describe('CopilotSdkWrapper', () => {
             await wrapper.initialize();
             await expect(wrapper.sendStream('prompt', jest.fn())).rejects.toThrow('network error');
             expect(unsubscribeMock).toHaveBeenCalled();
+        });
+    });
+    describe('resumeSession', () => {
+        it('should throw SystemError if no client is active', async () => {
+            const wrapper = new session_client_1.CopilotSdkWrapper();
+            await expect(wrapper.resumeSession('session-1')).rejects.toThrow(errors_1.SystemError);
+        });
+        it('should destroy existing session and resume new one by ID', async () => {
+            const wrapper = new session_client_1.CopilotSdkWrapper();
+            await wrapper.initialize();
+            const destroySpy = jest.spyOn(wrapper.session, 'destroy');
+            const resumeSpy = jest.spyOn(wrapper.client, 'resumeSession');
+            await wrapper.resumeSession('session-1');
+            expect(destroySpy).toHaveBeenCalled();
+            expect(resumeSpy).toHaveBeenCalledWith('session-1', { onPermissionRequest: expect.any(Function) });
+            expect(wrapper.session).not.toBeNull();
+        });
+        it('should pass config to resumeSession when provided', async () => {
+            const wrapper = new session_client_1.CopilotSdkWrapper();
+            await wrapper.initialize();
+            const resumeSpy = jest.spyOn(wrapper.client, 'resumeSession');
+            await wrapper.resumeSession('session-1', { model: 'test-model', onPermissionRequest: jest.fn() });
+            expect(resumeSpy).toHaveBeenCalledWith('session-1', { model: 'test-model', onPermissionRequest: expect.any(Function) });
+        });
+    });
+    describe('listSessions', () => {
+        it('should throw SystemError if no client is active', async () => {
+            const wrapper = new session_client_1.CopilotSdkWrapper();
+            await expect(wrapper.listSessions()).rejects.toThrow(errors_1.SystemError);
+        });
+        it('should return sessions from the client', async () => {
+            const wrapper = new session_client_1.CopilotSdkWrapper();
+            await wrapper.initialize();
+            const sessions = await wrapper.listSessions();
+            expect(sessions).toEqual([{ id: 'session-1' }, { id: 'session-2' }]);
+        });
+        it('should forward optional filter to client', async () => {
+            const wrapper = new session_client_1.CopilotSdkWrapper();
+            await wrapper.initialize();
+            const listSpy = jest.spyOn(wrapper.client, 'listSessions');
+            await wrapper.listSessions({ repository: 'owner/repo' });
+            expect(listSpy).toHaveBeenCalledWith({ repository: 'owner/repo' });
+        });
+    });
+    describe('deleteSession', () => {
+        it('should throw SystemError if no client is active', async () => {
+            const wrapper = new session_client_1.CopilotSdkWrapper();
+            await expect(wrapper.deleteSession('session-1')).rejects.toThrow(errors_1.SystemError);
+        });
+        it('should call deleteSession on the client', async () => {
+            const wrapper = new session_client_1.CopilotSdkWrapper();
+            await wrapper.initialize();
+            const deleteSpy = jest.spyOn(wrapper.client, 'deleteSession');
+            await wrapper.deleteSession('session-1');
+            expect(deleteSpy).toHaveBeenCalledWith('session-1');
+        });
+    });
+    describe('getLastSessionId', () => {
+        it('should throw SystemError if no client is active', async () => {
+            const wrapper = new session_client_1.CopilotSdkWrapper();
+            await expect(wrapper.getLastSessionId()).rejects.toThrow(errors_1.SystemError);
+        });
+        it('should return last session ID from the client', async () => {
+            const wrapper = new session_client_1.CopilotSdkWrapper();
+            await wrapper.initialize();
+            const id = await wrapper.getLastSessionId();
+            expect(id).toBe('session-1');
+        });
+    });
+    describe('getForegroundSessionId', () => {
+        it('should throw SystemError if no client is active', async () => {
+            const wrapper = new session_client_1.CopilotSdkWrapper();
+            await expect(wrapper.getForegroundSessionId()).rejects.toThrow(errors_1.SystemError);
+        });
+        it('should return foreground session ID from the client', async () => {
+            const wrapper = new session_client_1.CopilotSdkWrapper();
+            await wrapper.initialize();
+            const id = await wrapper.getForegroundSessionId();
+            expect(id).toBe('session-1');
+        });
+    });
+    describe('setForegroundSessionId', () => {
+        it('should throw SystemError if no client is active', async () => {
+            const wrapper = new session_client_1.CopilotSdkWrapper();
+            await expect(wrapper.setForegroundSessionId('session-1')).rejects.toThrow(errors_1.SystemError);
+        });
+        it('should call setForegroundSessionId on the client', async () => {
+            const wrapper = new session_client_1.CopilotSdkWrapper();
+            await wrapper.initialize();
+            const setSpy = jest.spyOn(wrapper.client, 'setForegroundSessionId');
+            await wrapper.setForegroundSessionId('session-1');
+            expect(setSpy).toHaveBeenCalledWith('session-1');
+        });
+    });
+    describe('ping', () => {
+        it('should throw SystemError if no client is active', async () => {
+            const wrapper = new session_client_1.CopilotSdkWrapper();
+            await expect(wrapper.ping()).rejects.toThrow(errors_1.SystemError);
+        });
+        it('should return ping response from the client', async () => {
+            const wrapper = new session_client_1.CopilotSdkWrapper();
+            await wrapper.initialize();
+            const result = await wrapper.ping('hello');
+            expect(result).toEqual({ message: 'hello', timestamp: 1735689600000 });
+        });
+    });
+    describe('getStatus', () => {
+        it('should throw SystemError if no client is active', async () => {
+            const wrapper = new session_client_1.CopilotSdkWrapper();
+            await expect(wrapper.getStatus()).rejects.toThrow(errors_1.SystemError);
+        });
+        it('should return status from the client', async () => {
+            const wrapper = new session_client_1.CopilotSdkWrapper();
+            await wrapper.initialize();
+            const status = await wrapper.getStatus();
+            expect(status).toEqual({ isAuthenticated: true });
+        });
+    });
+    describe('getState', () => {
+        it('should throw SystemError if no client is active', () => {
+            const wrapper = new session_client_1.CopilotSdkWrapper();
+            expect(() => wrapper.getState()).toThrow(errors_1.SystemError);
+        });
+        it('should return connection state from the client', async () => {
+            const wrapper = new session_client_1.CopilotSdkWrapper();
+            await wrapper.initialize();
+            const state = wrapper.getState();
+            expect(state).toBe('connected');
         });
     });
 });

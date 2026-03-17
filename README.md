@@ -51,9 +51,14 @@ const res = await client.complete([
 ]);
 console.log(res.choices[0].message.content);
 
-// Streaming completion
+// Streaming completion (raw chunks)
 for await (const chunk of client.stream([createUserMessage('Tell me a joke')])) {
   process.stdout.write(chunk.choices[0]?.delta?.content ?? '');
+}
+
+// Streaming completion (text-only convenience generator)
+for await (const text of client.streamText([createUserMessage('Tell me a joke')])) {
+  process.stdout.write(text);
 }
 
 // Session-based wrapper (CLI process, tools, MCP)
@@ -61,6 +66,12 @@ const wrapper = new CopilotSdkWrapper({ token: process.env.GITHUB_TOKEN!, onPerm
 await wrapper.initialize();
 const result = await wrapper.send('Summarize this repo');
 console.log(result.choices[0].message.content);
+
+// Session management (v0.5.1+)
+const sessionId = await wrapper.getLastSessionId();
+const sessions = await wrapper.listSessions();
+const status = await wrapper.getStatus();
+const state = wrapper.getState();
 await wrapper.cleanup();
 ```
 
