@@ -7,6 +7,22 @@
  */
 import type { StreamChunk } from '../core/types.js';
 /**
+ * Parse a `ReadableStream` of SSE bytes into an async generator of {@link StreamChunk} objects.
+ * Handles UTF-8 decoding, line buffering, and `[DONE]` sentinel detection internally.
+ * Releases the stream reader lock on completion or error (via `finally`).
+ * @param body - The readable byte stream from a `fetch` response body.
+ * @returns Async generator yielding parsed {@link StreamChunk} objects until `[DONE]`.
+ * @since 0.4.2
+ * @example
+ * const response = await fetch(url, options);
+ * if (response.body) {
+ *   for await (const chunk of parseSSEStream(response.body)) {
+ *     process.stdout.write(extractDeltaContent(chunk));
+ *   }
+ * }
+ */
+export declare function parseSSEStream(body: ReadableStream<Uint8Array>): AsyncGenerator<StreamChunk>;
+/**
  * Parse a single SSE line, returning the `data` payload or `null`.
  * Returns `null` for `[DONE]` sentinel and non-data lines.
  * @param line - A single line from an SSE stream.

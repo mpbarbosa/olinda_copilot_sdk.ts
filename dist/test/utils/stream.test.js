@@ -96,3 +96,74 @@ describe('isStreamDone', () => {
         expect((0, stream_1.isStreamDone)(ongoing)).toBe(false);
     });
 });
+// ─── parseSSEStream ───────────────────────────────────────────────────────────
+function makeSSEStream(lines) {
+    const encoder = new TextEncoder();
+    return new ReadableStream({
+        start(controller) {
+            for (const line of lines) {
+                controller.enqueue(encoder.encode(line + '\n'));
+            }
+            controller.close();
+        },
+    });
+}
+describe('parseSSEStream', () => {
+    it('yields parsed chunks and stops at [DONE]', async () => {
+        const body = makeSSEStream([
+            `data: ${JSON.stringify(fixtures_1.STREAM_CHUNK)}`,
+            'data: [DONE]',
+        ]);
+        const chunks = [];
+        for await (const chunk of (0, stream_1.parseSSEStream)(body)) {
+            chunks.push(chunk);
+        }
+        expect(chunks).toEqual([fixtures_1.STREAM_CHUNK]);
+    });
+    it('skips malformed JSON lines', async () => {
+        const body = makeSSEStream([
+            `data: ${JSON.stringify(fixtures_1.STREAM_CHUNK)}`,
+            'data: {not valid json}',
+            'data: [DONE]',
+        ]);
+        const chunks = [];
+        for await (const chunk of (0, stream_1.parseSSEStream)(body)) {
+            chunks.push(chunk);
+        }
+        expect(chunks).toEqual([fixtures_1.STREAM_CHUNK]);
+    });
+    it('skips non-data lines (comments, blanks)', async () => {
+        const body = makeSSEStream([
+            ': keep-alive',
+            '',
+            `data: ${JSON.stringify(fixtures_1.STREAM_CHUNK)}`,
+            'data: [DONE]',
+        ]);
+        const chunks = [];
+        for await (const chunk of (0, stream_1.parseSSEStream)(body)) {
+            chunks.push(chunk);
+        }
+        expect(chunks).toEqual([fixtures_1.STREAM_CHUNK]);
+    });
+    it('yields multiple chunks before [DONE]', async () => {
+        const body = makeSSEStream([
+            `data: ${JSON.stringify(fixtures_1.STREAM_CHUNK)}`,
+            `data: ${JSON.stringify(fixtures_1.STREAM_CHUNK)}`,
+            'data: [DONE]',
+        ]);
+        const chunks = [];
+        for await (const chunk of (0, stream_1.parseSSEStream)(body)) {
+            chunks.push(chunk);
+        }
+        expect(chunks).toHaveLength(2);
+        expect(chunks[0]).toEqual(fixtures_1.STREAM_CHUNK);
+    });
+    it('yields nothing for an empty stream', async () => {
+        const body = makeSSEStream([]);
+        const chunks = [];
+        for await (const chunk of (0, stream_1.parseSSEStream)(body)) {
+            chunks.push(chunk);
+        }
+        expect(chunks).toEqual([]);
+    });
+});

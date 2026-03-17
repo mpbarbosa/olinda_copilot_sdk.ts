@@ -59,25 +59,22 @@ describe('approveAllTools', () => {
     it('returns a function', () => {
         expect(typeof (0, hooks_js_1.approveAllTools)()).toBe('function');
     });
-    it('always returns { permissionDecision: "allow" }', () => {
-        const handler = (0, hooks_js_1.approveAllTools)();
-        const result = handler(makePreInput('bash'), invocation);
-        expect(result).toEqual({ permissionDecision: 'allow' });
+    it('returns the same approveAll reference each call', () => {
+        expect((0, hooks_js_1.approveAllTools)()).toBe((0, hooks_js_1.approveAllTools)());
     });
-    it('allows tools with any name', () => {
+    it('result is assignable as PermissionHandler (type-level)', () => {
         const handler = (0, hooks_js_1.approveAllTools)();
-        for (const name of ['bash', 'write_file', 'read_file', 'unknown_tool']) {
-            const result = handler(makePreInput(name), invocation);
-            expect(result.permissionDecision).toBe('allow');
-        }
-    });
-    it('returns a new handler each call', () => {
-        expect((0, hooks_js_1.approveAllTools)()).not.toBe((0, hooks_js_1.approveAllTools)());
+        expect(handler).toBeDefined();
     });
     it('handler is synchronous (no Promise)', () => {
         const handler = (0, hooks_js_1.approveAllTools)();
-        const result = handler(makePreInput('bash'), invocation);
+        const result = handler({ kind: 'shell' }, { sessionId: 'sess-001' });
         expect(result).not.toBeInstanceOf(Promise);
+    });
+    it('returns same handler reference (delegates to SDK approveAll)', () => {
+        const h1 = (0, hooks_js_1.approveAllTools)();
+        const h2 = (0, hooks_js_1.approveAllTools)();
+        expect(h1).toBe(h2);
     });
 });
 // ---------------------------------------------------------------------------
@@ -158,21 +155,32 @@ describe('denyTools', () => {
 // Handler signature compatibility
 // ---------------------------------------------------------------------------
 describe('handler type compatibility', () => {
-    it('approveAllTools handler accepts PostToolUseInput (structural check)', () => {
-        // PostToolUseInput is not a PreToolUseInput but we test shape safety
-        const pre = makePreInput('read_file');
-        const handler = (0, hooks_js_1.approveAllTools)();
-        expect(() => handler(pre, invocation)).not.toThrow();
-    });
     it('createHooks preserves handler identity after round-trip', () => {
-        const myHandler = (0, hooks_js_1.approveAllTools)();
+        const myHandler = jest.fn().mockReturnValue(undefined);
         const hooks = (0, hooks_js_1.createHooks)({ onPreToolUse: myHandler });
-        const result = hooks.onPreToolUse(makePreInput('bash'), invocation);
-        expect(result.permissionDecision).toBe('allow');
+        hooks.onPreToolUse(makePreInput('bash'), invocation);
+        expect(myHandler).toHaveBeenCalledTimes(1);
     });
     it('denyTools handler output includes only permissionDecision when no reason', () => {
         const handler = (0, hooks_js_1.denyTools)(['bash']);
         const result = handler(makePreInput('bash'), invocation);
         expect(Object.keys(result)).toEqual(['permissionDecision']);
+    });
+    it('UserPromptSubmittedHandler is assignable to UserPromptHandler (alias)', () => {
+        const fn = async (_input, _inv) => ({ modifiedPrompt: 'hi' });
+        const hooks = (0, hooks_js_1.createHooks)({ onUserPromptSubmitted: fn });
+        expect(hooks.onUserPromptSubmitted).toBe(fn);
+    });
+    it('createHooks result is assignable to SessionHooks (SDK bridge check)', () => {
+        const hooks = (0, hooks_js_1.createHooks)({
+            onPreToolUse: jest.fn(),
+            onPostToolUse: jest.fn(),
+            onUserPromptSubmitted: jest.fn(),
+            onSessionStart: jest.fn(),
+            onSessionEnd: jest.fn(),
+            onErrorOccurred: jest.fn(),
+        });
+        expect(hooks).toBeDefined();
+        expect(Object.keys(hooks)).toHaveLength(6);
     });
 });

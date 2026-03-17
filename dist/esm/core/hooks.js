@@ -1,8 +1,11 @@
+import { approveAll } from '@github/copilot-sdk';
 /**
  * Creates a typed {@link SessionHooks} object from a partial config.
  *
  * This is a typed factory that gives full type inference when building hook
  * configs incrementally. Pass the result directly to `SessionConfig.hooks`.
+ * The returned object is structurally assignable to `@github/copilot-sdk`'s
+ * `SessionHooks` — no conversion needed.
  *
  * @param config - A partial set of session hook handlers.
  * @returns A `SessionHooks` object containing the provided handlers.
@@ -10,7 +13,7 @@
  * @example
  * ```ts
  * const hooks = createHooks({
- *   onPreToolUse: approveAllTools(),
+ *   onPreToolUse: (input) => input.toolName === 'bash' ? { permissionDecision: 'deny' } : undefined,
  *   onSessionEnd: async (input) => ({ sessionSummary: input.reason }),
  * });
  * ```
@@ -19,21 +22,26 @@ export function createHooks(config) {
     return { ...config };
 }
 /**
- * Returns a {@link PreToolUseHandler} that unconditionally approves every
- * tool invocation.
+ * Returns a {@link PermissionHandler} that unconditionally approves every
+ * permission request — equivalent to the SDK's `approveAll` constant, but as
+ * a factory function for use when a fresh instance is required (e.g. per-test
+ * isolation or conditional wrapping).
  *
- * Useful as a starting point when building a whitelist-based permission model
- * or during development/testing.
+ * Pass the result to `SessionConfig.onPermissionRequest`.
  *
- * @returns A pre-tool-use handler that always returns `{ permissionDecision: 'allow' }`.
- * @since 0.2.1
+ * **Breaking change from 0.2.x:** Previously returned a `PreToolUseHandler`.
+ * To approve all tool invocations via hooks, use an inline handler instead:
+ * `createHooks({ onPreToolUse: () => ({ permissionDecision: 'allow' }) })`.
+ *
+ * @returns A `PermissionHandler` that approves every request.
+ * @since 0.4.1
  * @example
  * ```ts
- * const hooks = createHooks({ onPreToolUse: approveAllTools() });
+ * const config: SessionConfig = { onPermissionRequest: approveAllTools() };
  * ```
  */
 export function approveAllTools() {
-    return () => ({ permissionDecision: 'allow' });
+    return approveAll;
 }
 /**
  * Returns a {@link PreToolUseHandler} that denies a specific set of tools by

@@ -11,6 +11,64 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.5.0]
+
+### Added
+
+- **Session management methods on `CopilotSdkWrapper`** (all require `initialize()` first):
+  - `resumeSession(sessionId, config?)` — resume an existing session by ID
+  - `listSessions(filter?)` — list available sessions with optional filter
+  - `deleteSession(sessionId)` — permanently delete a session by ID
+  - `getLastSessionId()` — ID of the most recently used session
+  - `getForegroundSessionId()` — ID of the current foreground session
+  - `setForegroundSessionId(sessionId)` — bring a session to the foreground
+  - `ping(message?)` — verify server connectivity
+  - `getStatus()` — current server status
+  - `getState()` — synchronous connection state (no network round-trip)
+- **Session lifecycle types** (re-exported from `@github/copilot-sdk`):
+  `SessionContext`, `SessionListFilter`, `SessionMetadata`, `ForegroundSessionInfo`,
+  `SessionLifecycleEventType`, `SessionLifecycleEvent`, `SessionLifecycleHandler`,
+  `TypedSessionLifecycleHandler`
+- **Session event types** (re-exported from `@github/copilot-sdk`):
+  `SessionEvent`, `SessionEventType`, `SessionEventPayload<T>`,
+  `SessionEventHandler`, `TypedSessionEventHandler<T>`, `AssistantMessageEvent`
+- **Model introspection types** (re-exported from `@github/copilot-sdk`):
+  `ModelInfo`, `ModelCapabilities`, `ModelBilling`, `ModelPolicy`
+- **Status types** (re-exported from `@github/copilot-sdk`):
+  `GetStatusResponse`, `GetAuthStatusResponse`, `ConnectionState`
+- **Client options** (re-exported from `@github/copilot-sdk`):
+  `CopilotClientOptions`, `MessageOptions`
+- All types and methods exported from the public `src/index.ts` entry point.
+
+---
+
+## [0.4.2]
+
+### Added
+
+- **`parseSSEStream(body)`** async generator (`src/utils/stream.ts`) — encapsulates the
+  `TextDecoder` + `ReadableStream` reader loop, line buffering, `[DONE]` detection, and
+  malformed JSON skipping. Returns `AsyncGenerator<StreamChunk>`.
+- **`CopilotClient.streamText(messages, options?)`** (`src/core/completions_client.ts`) —
+  convenience async generator that yields `string` delta values by mapping
+  `extractDeltaContent()` over `stream()`. Eliminates per-consumer boilerplate.
+- **`SdkSmokeTest`** module (`src/lib/sdk_smoke_test.ts`) — lightweight Copilot API
+  connectivity check. Sends a minimal prompt and validates that the SDK session
+  is authenticated and responsive. Follows the referential transparency pattern:
+  pure functions (`buildSmokeTestPrompt`, `validateSmokeTestResponse`,
+  `formatSmokeTestResult`) plus the async `runSdkSmokeTest` wrapper that owns
+  the `CopilotSdkWrapper` lifecycle.
+- **`SdkSmokeTestOptions`** and **`SdkSmokeTestResult`** TypeScript interfaces exported
+  from the public API.
+- All new exports added to `src/index.ts`.
+
+### Changed
+
+- **`CopilotClient.stream()`** now delegates to `parseSSEStream()` — the private
+  `parseSSELines()` method was removed; `stream()` body shrinks to two lines.
+
+---
+
 ## [0.4.1] — 2026-03-12
 
 ### Added

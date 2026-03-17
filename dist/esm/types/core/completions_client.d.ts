@@ -53,5 +53,20 @@ export declare class CopilotClient {
      * }
      */
     stream(messages: Message[], options?: Partial<Omit<CompletionRequest, 'messages' | 'stream'>>): AsyncGenerator<StreamChunk>;
+    /**
+     * Send a streaming chat completion request and yield the delta text content directly.
+     * Equivalent to calling {@link stream} and mapping {@link extractDeltaContent} over each chunk.
+     * @param messages - Conversation history.
+     * @param options - Optional overrides for the request body.
+     * @returns Async iterable of text strings (one per SSE chunk).
+     * @throws {AuthenticationError} On HTTP 401.
+     * @throws {APIError} On any other non-2xx HTTP response.
+     * @since 0.4.2
+     * @example
+     * for await (const text of client.streamText([createUserMessage('Hi')])) {
+     *   process.stdout.write(text);
+     * }
+     */
+    streamText(messages: Message[], options?: Partial<Omit<CompletionRequest, 'messages' | 'stream'>>): AsyncGenerator<string>;
 }
 export default CopilotClient;

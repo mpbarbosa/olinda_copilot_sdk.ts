@@ -175,4 +175,73 @@ describe('CopilotClient', () => {
             expect(chunks).toEqual([]);
         });
     });
+    describe('streamText', () => {
+        const createMockStream = (lines) => {
+            const encoder = new TextEncoder();
+            const chunks = lines.map(line => encoder.encode(line + '\n'));
+            let index = 0;
+            return {
+                getReader: () => ({
+                    read: jest.fn().mockImplementation(() => {
+                        if (index < chunks.length) {
+                            return Promise.resolve({ done: false, value: chunks[index++] });
+                        }
+                        return Promise.resolve({ done: true, value: undefined });
+                    }),
+                    releaseLock: jest.fn(),
+                }),
+            };
+        };
+        it('should yield delta text strings from stream chunks', async () => {
+            const sseLines = [
+                'data: {"choices":[{"delta":{"content":"Hi"},"finish_reason":null}]}',
+                'data: {"choices":[{"delta":{"content":" there"},"finish_reason":null}]}',
+                'data: [DONE]',
+            ];
+            globalAny.fetch.mockResolvedValue({
+                ok: true,
+                status: 200,
+                body: createMockStream(sseLines),
+            });
+            const client = new completions_client_1.default({ token: validToken });
+            const texts = [];
+            for await (const text of client.streamText(sampleMessages)) {
+                texts.push(text);
+            }
+            expect(texts).toEqual(['Hi', ' there']);
+        });
+        it('should throw AuthenticationError on HTTP 401', async () => {
+            globalAny.fetch.mockResolvedValue({
+                ok: false,
+                status: 401,
+                statusText: 'Unauthorized',
+            });
+            const client = new completions_client_1.default({ token: validToken });
+            const iterator = client.streamText(sampleMessages);
+            await expect(iterator.next()).rejects.toThrow(errors_1.AuthenticationError);
+        });
+        it('should throw APIError on non-2xx HTTP response', async () => {
+            globalAny.fetch.mockResolvedValue({
+                ok: false,
+                status: 500,
+                statusText: 'Internal Server Error',
+            });
+            const client = new completions_client_1.default({ token: validToken });
+            const iterator = client.streamText(sampleMessages);
+            await expect(iterator.next()).rejects.toThrow(errors_1.APIError);
+        });
+        it('should return immediately if response.body is missing', async () => {
+            globalAny.fetch.mockResolvedValue({
+                ok: true,
+                status: 200,
+                body: undefined,
+            });
+            const client = new completions_client_1.default({ token: validToken });
+            const texts = [];
+            for await (const text of client.streamText(sampleMessages)) {
+                texts.push(text);
+            }
+            expect(texts).toEqual([]);
+        });
+    });
 });

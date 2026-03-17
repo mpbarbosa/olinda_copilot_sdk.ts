@@ -44,6 +44,24 @@ async *stream(
 ): AsyncGenerator<StreamChunk>
 ```
 
+### `streamText(messages, options?)`
+
+Convenience async generator that yields plain text delta strings. Internally
+delegates to `stream()` and maps `extractDeltaContent()` over each chunk.
+
+```typescript
+async *streamText(
+  messages: Message[],
+  options?: Partial<Omit<CompletionRequest, 'messages' | 'stream'>>
+): AsyncGenerator<string>
+```
+
+```typescript
+for await (const text of client.streamText(messages)) {
+  process.stdout.write(text);
+}
+```
+
 ---
 
 ## Message Utilities (`src/utils/messages`)
@@ -70,6 +88,7 @@ Pure SSE parsing utilities — no side effects, no state.
 |---|---|---|
 | `parseSSELine` | `(line: string) => string \| null` | Extract data payload from a SSE line |
 | `parseSSEChunk` | `(line: string) => StreamChunk \| null` | Parse a SSE line into a typed chunk |
+| `parseSSEStream` | `(body: ReadableStream<Uint8Array>) => AsyncGenerator<StreamChunk>` | Parse an entire SSE response body as an async generator |
 | `extractDeltaContent` | `(chunk: StreamChunk) => string` | Get combined delta content from a chunk |
 | `isStreamDone` | `(chunk: StreamChunk) => boolean` | Check if chunk signals end of stream |
 
@@ -370,6 +389,83 @@ complete within 5 seconds.
 async cleanup(): Promise<void>
 ```
 
+### Session Management (v0.5.0)
+
+All methods below require `initialize()` to have been called first (i.e. a client must be active).
+They throw `SystemError` otherwise.
+
+#### `resumeSession(sessionId, config?)`
+
+Destroys the current active session (if any) and resumes an existing session by ID.
+
+```typescript
+async resumeSession(sessionId: string, config?: ResumeSessionConfig): Promise<void>
+```
+
+#### `listSessions(filter?)`
+
+Lists all sessions, optionally filtered.
+
+```typescript
+async listSessions(filter?: SessionListFilter): Promise<SessionMetadata[]>
+```
+
+#### `deleteSession(sessionId)`
+
+Permanently deletes a session by ID. Does not affect the currently active session.
+
+```typescript
+async deleteSession(sessionId: string): Promise<void>
+```
+
+#### `getLastSessionId()`
+
+Returns the ID of the most recently used session, or `undefined` if none.
+
+```typescript
+async getLastSessionId(): Promise<string | undefined>
+```
+
+#### `getForegroundSessionId()`
+
+Returns the ID of the current foreground session, or `undefined` if none.
+
+```typescript
+async getForegroundSessionId(): Promise<string | undefined>
+```
+
+#### `setForegroundSessionId(sessionId)`
+
+Brings the given session to the foreground.
+
+```typescript
+async setForegroundSessionId(sessionId: string): Promise<void>
+```
+
+#### `ping(message?)`
+
+Sends a ping to verify server connectivity.
+
+```typescript
+async ping(message?: string): Promise<{ message?: string; timestamp: string }>
+```
+
+#### `getStatus()`
+
+Returns the current server status.
+
+```typescript
+async getStatus(): Promise<GetStatusResponse>
+```
+
+#### `getState()`
+
+Returns the current connection state synchronously, without a network round-trip.
+
+```typescript
+getState(): ConnectionState
+```
+
 ### Properties
 
 | Property | Type | Description |
@@ -649,6 +745,66 @@ Normalises and deduplicates a list of skill directory paths. Trims whitespace, r
 loadSkillDirectories(['./skills', './skills', '', '  ./extra  '])
 // → ['./skills', './extra']
 ```
+
+---
+
+## Session Management & Model Introspection Types (v0.5.0)
+
+All types below are re-exported from `@github/copilot-sdk` for consumers who want full type
+coverage without a direct dependency on the SDK package.
+
+### Connection
+
+| Type | Description |
+|---|---|
+| `ConnectionState` | `'disconnected' \| 'connecting' \| 'connected' \| 'error'` |
+| `CopilotClientOptions` | Constructor options for the SDK's `CopilotClient` (host, port, cliPath, etc.) |
+
+### Session Lifecycle
+
+| Type | Description |
+|---|---|
+| `SessionContext` | Session context snapshot |
+| `SessionListFilter` | Filter criteria for `listSessions()` |
+| `SessionMetadata` | Session metadata shape (id, name, timestamps, context) |
+| `ForegroundSessionInfo` | Foreground session descriptor |
+| `SessionLifecycleEventType` | `'session.created' \| 'session.deleted' \| 'session.updated' \| ...` |
+| `SessionLifecycleEvent` | Lifecycle event with type discriminant and metadata |
+| `SessionLifecycleHandler` | `(event: SessionLifecycleEvent) => void` |
+| `TypedSessionLifecycleHandler<K>` | Type-safe handler for a specific lifecycle event type |
+
+### Session Events
+
+| Type | Description |
+|---|---|
+| `SessionEvent` | Full union of all session event shapes |
+| `SessionEventType` | Union of all event type strings |
+| `SessionEventPayload<T>` | Extracts the payload type for a given event type string |
+| `SessionEventHandler` | `(event: SessionEvent) => void` |
+| `TypedSessionEventHandler<T>` | Type-safe handler for a specific session event type |
+| `AssistantMessageEvent` | The `assistant.message` event shape |
+
+### Model Introspection
+
+| Type | Description |
+|---|---|
+| `ModelInfo` | Rich model descriptor (id, name, capabilities, billing, policy) |
+| `ModelCapabilities` | Per-model capability flags (streaming, functions, vision, etc.) |
+| `ModelBilling` | Per-model billing metadata |
+| `ModelPolicy` | Per-model policy flags |
+
+### Status
+
+| Type | Description |
+|---|---|
+| `GetStatusResponse` | Return shape of `CopilotSdkWrapper.getStatus()` |
+| `GetAuthStatusResponse` | Auth status shape (used in `initialize()`) |
+
+### Message Options
+
+| Type | Description |
+|---|---|
+| `MessageOptions` | Full `sendAndWait` options (prompt, images, context, timeout, etc.) |
 
 ---
 

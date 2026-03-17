@@ -1,6 +1,6 @@
 {
   "name": "olinda_copilot_sdk.ts",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "TypeScript Wrapper Library for GitHub Copilot SDK",
   "main": "dist/src/index.js",
   "types": "dist/types/src/index.d.ts",

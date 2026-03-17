@@ -8,7 +8,7 @@ export { CopilotSDKError, AuthenticationError, APIError, SystemError } from './c
 export { isGitHubToken, resolveHmacFromEnv, resolveAuthPriority } from './core/auth.js';
 export { createHooks, approveAllTools, denyTools } from './core/hooks.js';
 export { createUserMessage, createSystemMessage, createAssistantMessage, createFunctionMessage, extractContent, hasRole, filterByRole, } from './utils/messages.js';
-export { parseSSELine, parseSSEChunk, extractDeltaContent, isStreamDone } from './utils/stream.js';
+export { parseSSELine, parseSSEChunk, parseSSEStream, extractDeltaContent, isStreamDone } from './utils/stream.js';
 export { createLocalMCPServer, createRemoteMCPServer } from './core/mcp.js';
 export { loadSkillDirectories } from './core/skills.js';
 // ---------------------------------------------------------------------------
@@ -18,3 +18,11 @@ export { CopilotSdkWrapper, } from './core/session_client.js';
 /** Re-exported from `@github/copilot-sdk` — approves all permission requests automatically. */
 export { approveAll } from '@github/copilot-sdk';
 export { defineTool } from './core/tools.js';
+// ---------------------------------------------------------------------------
+// v0.3.3 — LogValidator: token-efficient log-to-SDK validation pipeline
+// ---------------------------------------------------------------------------
+export { LogValidator, parseLogIssues, buildValidationPrompt, selectRelevantFiles } from './lib/log_validator.js';
+// ---------------------------------------------------------------------------
+// v0.4.2 — SdkSmokeTest: minimal connectivity check for the Copilot API
+// ---------------------------------------------------------------------------
+export { runSdkSmokeTest, buildSmokeTestPrompt, validateSmokeTestResponse, formatSmokeTestResult } from './lib/sdk_smoke_test.js';

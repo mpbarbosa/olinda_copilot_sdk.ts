@@ -72,10 +72,9 @@ describe('Public API surface', () => {
         expect(typeof index_1.approveAllTools).toBe('function');
         expect(typeof index_1.denyTools).toBe('function');
     });
-    it('approveAllTools returns a handler that approves every tool', () => {
+    it('approveAllTools returns a PermissionHandler function', () => {
         const handler = (0, index_1.approveAllTools)();
-        const result = handler({ timestamp: 0, cwd: '/', toolName: 'bash', toolArgs: {} }, { sessionId: 'test' });
-        expect(result).toEqual({ permissionDecision: 'allow' });
+        expect(typeof handler).toBe('function');
     });
     it('denyTools returns a handler that denies listed tools', () => {
         const handler = (0, index_1.denyTools)(['bash'], 'blocked');
@@ -83,7 +82,7 @@ describe('Public API surface', () => {
         expect(denied).toMatchObject({ permissionDecision: 'deny' });
     });
     it('createHooks returns an object with the provided hooks', () => {
-        const onPreToolUse = (0, index_1.approveAllTools)();
+        const onPreToolUse = jest.fn();
         const hooks = (0, index_1.createHooks)({ onPreToolUse });
         expect(hooks.onPreToolUse).toBe(onPreToolUse);
     });

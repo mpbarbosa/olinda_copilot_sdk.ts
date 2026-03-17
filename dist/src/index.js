@@ -5,7 +5,7 @@
  * @since 0.1.3
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.defineTool = exports.approveAll = exports.CopilotSdkWrapper = exports.loadSkillDirectories = exports.createRemoteMCPServer = exports.createLocalMCPServer = exports.isStreamDone = exports.extractDeltaContent = exports.parseSSEChunk = exports.parseSSELine = exports.filterByRole = exports.hasRole = exports.extractContent = exports.createFunctionMessage = exports.createAssistantMessage = exports.createSystemMessage = exports.createUserMessage = exports.denyTools = exports.approveAllTools = exports.createHooks = exports.resolveAuthPriority = exports.resolveHmacFromEnv = exports.isGitHubToken = exports.SystemError = exports.APIError = exports.AuthenticationError = exports.CopilotSDKError = exports.CopilotClient = void 0;
+exports.formatSmokeTestResult = exports.validateSmokeTestResponse = exports.buildSmokeTestPrompt = exports.runSdkSmokeTest = exports.selectRelevantFiles = exports.buildValidationPrompt = exports.parseLogIssues = exports.LogValidator = exports.defineTool = exports.approveAll = exports.CopilotSdkWrapper = exports.loadSkillDirectories = exports.createRemoteMCPServer = exports.createLocalMCPServer = exports.isStreamDone = exports.extractDeltaContent = exports.parseSSEStream = exports.parseSSEChunk = exports.parseSSELine = exports.filterByRole = exports.hasRole = exports.extractContent = exports.createFunctionMessage = exports.createAssistantMessage = exports.createSystemMessage = exports.createUserMessage = exports.denyTools = exports.approveAllTools = exports.createHooks = exports.resolveAuthPriority = exports.resolveHmacFromEnv = exports.isGitHubToken = exports.SystemError = exports.APIError = exports.AuthenticationError = exports.CopilotSDKError = exports.CopilotClient = void 0;
 var completions_client_js_1 = require("./core/completions_client.js");
 Object.defineProperty(exports, "CopilotClient", { enumerable: true, get: function () { return completions_client_js_1.CopilotClient; } });
 var errors_js_1 = require("./core/errors.js");
@@ -32,6 +32,7 @@ Object.defineProperty(exports, "filterByRole", { enumerable: true, get: function
 var stream_js_1 = require("./utils/stream.js");
 Object.defineProperty(exports, "parseSSELine", { enumerable: true, get: function () { return stream_js_1.parseSSELine; } });
 Object.defineProperty(exports, "parseSSEChunk", { enumerable: true, get: function () { return stream_js_1.parseSSEChunk; } });
+Object.defineProperty(exports, "parseSSEStream", { enumerable: true, get: function () { return stream_js_1.parseSSEStream; } });
 Object.defineProperty(exports, "extractDeltaContent", { enumerable: true, get: function () { return stream_js_1.extractDeltaContent; } });
 Object.defineProperty(exports, "isStreamDone", { enumerable: true, get: function () { return stream_js_1.isStreamDone; } });
 var mcp_js_1 = require("./core/mcp.js");
@@ -49,3 +50,19 @@ var copilot_sdk_1 = require("@github/copilot-sdk");
 Object.defineProperty(exports, "approveAll", { enumerable: true, get: function () { return copilot_sdk_1.approveAll; } });
 var tools_js_1 = require("./core/tools.js");
 Object.defineProperty(exports, "defineTool", { enumerable: true, get: function () { return tools_js_1.defineTool; } });
+// ---------------------------------------------------------------------------
+// v0.3.3 — LogValidator: token-efficient log-to-SDK validation pipeline
+// ---------------------------------------------------------------------------
+var log_validator_js_1 = require("./lib/log_validator.js");
+Object.defineProperty(exports, "LogValidator", { enumerable: true, get: function () { return log_validator_js_1.LogValidator; } });
+Object.defineProperty(exports, "parseLogIssues", { enumerable: true, get: function () { return log_validator_js_1.parseLogIssues; } });
+Object.defineProperty(exports, "buildValidationPrompt", { enumerable: true, get: function () { return log_validator_js_1.buildValidationPrompt; } });
+Object.defineProperty(exports, "selectRelevantFiles", { enumerable: true, get: function () { return log_validator_js_1.selectRelevantFiles; } });
+// ---------------------------------------------------------------------------
+// v0.4.2 — SdkSmokeTest: minimal connectivity check for the Copilot API
+// ---------------------------------------------------------------------------
+var sdk_smoke_test_js_1 = require("./lib/sdk_smoke_test.js");
+Object.defineProperty(exports, "runSdkSmokeTest", { enumerable: true, get: function () { return sdk_smoke_test_js_1.runSdkSmokeTest; } });
+Object.defineProperty(exports, "buildSmokeTestPrompt", { enumerable: true, get: function () { return sdk_smoke_test_js_1.buildSmokeTestPrompt; } });
+Object.defineProperty(exports, "validateSmokeTestResponse", { enumerable: true, get: function () { return sdk_smoke_test_js_1.validateSmokeTestResponse; } });
+Object.defineProperty(exports, "formatSmokeTestResult", { enumerable: true, get: function () { return sdk_smoke_test_js_1.formatSmokeTestResult; } });

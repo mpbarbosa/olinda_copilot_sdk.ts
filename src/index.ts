@@ -161,3 +161,33 @@ export type { LogIssue, CodeSnippet, LogValidatorOptions, IssueSeverity } from '
 
 export { runSdkSmokeTest, buildSmokeTestPrompt, validateSmokeTestResponse, formatSmokeTestResult } from './lib/sdk_smoke_test.js';
 export type { SdkSmokeTestOptions, SdkSmokeTestResult } from './lib/sdk_smoke_test.js';
+
+// ---------------------------------------------------------------------------
+// v0.5.0 — Session Management & Model Introspection
+// ---------------------------------------------------------------------------
+
+export type {
+	ConnectionState,
+	CopilotClientOptions,
+	SessionContext,
+	SessionListFilter,
+	SessionMetadata,
+	ForegroundSessionInfo,
+	SessionLifecycleEventType,
+	SessionLifecycleEvent,
+	SessionLifecycleHandler,
+	TypedSessionLifecycleHandler,
+	SessionEvent,
+	SessionEventType,
+	SessionEventPayload,
+	SessionEventHandler,
+	TypedSessionEventHandler,
+	ModelInfo,
+	ModelCapabilities,
+	ModelBilling,
+	ModelPolicy,
+	GetStatusResponse,
+	GetAuthStatusResponse,
+	MessageOptions,
+	AssistantMessageEvent,
+} from './core/session_types.js';
