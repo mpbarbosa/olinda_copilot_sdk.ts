@@ -29,7 +29,7 @@
     "src/core/session_client.ts": {
       "score": 100,
       "issueCount": 0,
-      "lastAnalyzed": "2026-03-17T16:25:11.982Z"
+      "lastAnalyzed": "2026-03-17T22:06:07.389Z"
     },
     "src/core/session_config.ts": {
       "score": 100,
@@ -59,7 +59,7 @@
     "src/index.ts": {
       "score": 100,
       "issueCount": 0,
-      "lastAnalyzed": "2026-03-12T19:08:12.568Z"
+      "lastAnalyzed": "2026-03-17T22:06:07.389Z"
     },
     ".ai_workflow/commit_history.json": {
       "score": 100,
@@ -89,12 +89,22 @@
     "src/core/session_types.ts": {
       "score": 100,
       "issueCount": 0,
-      "lastAnalyzed": "2026-03-17T16:25:11.982Z"
+      "lastAnalyzed": "2026-03-17T22:06:07.389Z"
     },
     "src/lib/sdk_smoke_test.ts": {
       "score": 100,
       "issueCount": 0,
       "lastAnalyzed": "2026-03-17T16:25:11.982Z"
+    },
+    "package-lock.json": {
+      "score": 100,
+      "issueCount": 0,
+      "lastAnalyzed": "2026-03-17T22:06:07.389Z"
+    },
+    "package.json": {
+      "score": 100,
+      "issueCount": 0,
+      "lastAnalyzed": "2026-03-17T22:06:07.389Z"
     }
   }
 }
