@@ -4,7 +4,7 @@
     "src/core/hooks.ts": {
       "score": 100,
       "issueCount": 0,
-      "lastAnalyzed": "2026-03-12T18:46:48.521Z"
+      "lastAnalyzed": "2026-03-17T16:25:11.982Z"
     },
     "src/core/auth.ts": {
       "score": 100,
@@ -14,7 +14,7 @@
     "src/core/completions_client.ts": {
       "score": 100,
       "issueCount": 0,
-      "lastAnalyzed": "2026-03-12T15:53:09.315Z"
+      "lastAnalyzed": "2026-03-17T16:25:11.982Z"
     },
     "src/core/errors.ts": {
       "score": 100,
@@ -29,7 +29,7 @@
     "src/core/session_client.ts": {
       "score": 100,
       "issueCount": 0,
-      "lastAnalyzed": "2026-03-12T18:46:48.521Z"
+      "lastAnalyzed": "2026-03-17T16:25:11.982Z"
     },
     "src/core/session_config.ts": {
       "score": 100,
@@ -85,6 +85,16 @@
       "score": 100,
       "issueCount": 0,
       "lastAnalyzed": "2026-03-12T23:10:43.721Z"
+    },
+    "src/core/session_types.ts": {
+      "score": 100,
+      "issueCount": 0,
+      "lastAnalyzed": "2026-03-17T16:25:11.982Z"
+    },
+    "src/lib/sdk_smoke_test.ts": {
+      "score": 100,
+      "issueCount": 0,
+      "lastAnalyzed": "2026-03-17T16:25:11.982Z"
     }
   }
 }
