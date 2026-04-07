@@ -30,6 +30,9 @@ update process end-to-end.
 4. **Install dependencies** — runs a targeted
    `npm install "olinda_utils.js@<tarball_url>"` to keep the lockfile
    deterministic.
+5. **Build olinda_utils.js** — runs `npm run build` inside
+   `node_modules/olinda_utils.js` because its `dist/` is not committed to the
+   git repo and must be generated before TypeScript can resolve its types.
 5. **Validate TypeScript** — runs `npm run validate` (`tsc --noEmit`) to catch
    type errors introduced by the new version.
 6. **Run tests** — runs the full Jest suite to confirm nothing regressed.

@@ -132,6 +132,18 @@ jobs:
           rm -f package-lock.json
           npm install "olinda_utils.js@${{ steps.resolve.outputs.tarball_url }}"
 
+      # ── 6b. Build olinda_utils.js ─────────────────────────────────────────────
+      # olinda_utils.js does not ship dist/ in its git repo, so the CDN tarball
+      # contains only source files.  We must build it in-place so that TypeScript
+      # can resolve its type declarations for the validate step.
+      - name: Build olinda_utils.js (generate dist/)
+        if: steps.current.outputs.up_to_date != 'true'
+        run: |
+          cd node_modules/olinda_utils.js
+          npm install --ignore-scripts
+          npm run build
+          cd -
+
       # ── 7. Type-check ─────────────────────────────────────────────────────────
       - name: Validate TypeScript (tsc --noEmit)
         if: steps.current.outputs.up_to_date != 'true'
