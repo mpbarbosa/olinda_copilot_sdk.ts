@@ -123,9 +123,13 @@ jobs:
           TARGET_URL: ${{ steps.resolve.outputs.tarball_url }}
 
       # ── 6. Install & lock ─────────────────────────────────────────────────────
+      # Delete the lockfile before installing so npm regenerates it from scratch.
+      # This avoids stale pinned URLs for transitive dependencies that may have
+      # been removed from the npm registry since the last lockfile was committed.
       - name: Install dependencies (targeted update)
         if: steps.current.outputs.up_to_date != 'true'
         run: |
+          rm -f package-lock.json
           npm install "olinda_utils.js@${{ steps.resolve.outputs.tarball_url }}"
 
       # ── 7. Type-check ─────────────────────────────────────────────────────────
