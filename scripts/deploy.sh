@@ -13,8 +13,9 @@ cleanup() {
 trap cleanup EXIT
 
 # ── Colour helpers ────────────────────────────────────────────────────────────
-RED='\033[0;31m'; GREEN='\033[0;32m'; CYAN='\033[0;36m'; YELLOW='\033[0;33m'; NC='\033[0m'
-info()  { echo -e "${CYAN}[deploy]${NC} $*"; }
+# shellcheck source=scripts/colors.sh
+source "$(dirname "${BASH_SOURCE[0]}")/colors.sh"
+info()  { echo -e "${BLUE}[deploy]${NC} $*"; }
 ok()    { echo -e "${GREEN}[deploy] ✓${NC} $*"; }
 warn()  { echo -e "${YELLOW}[deploy] ⚠${NC} $*"; }
 fail()  { echo -e "${RED}[deploy] ✗${NC} $*" >&2; exit 1; }
@@ -46,9 +47,9 @@ TAG="v${VERSION}"
 GH_REPO="mpbarbosa/olinda_copilot_sdk.ts"
 
 echo ""
-echo -e "${CYAN}╔════════════════════════════════════════════╗${NC}"
-echo -e "${CYAN}║   olinda_copilot_sdk.ts  ·  Deploy         ║${NC}"
-echo -e "${CYAN}╚════════════════════════════════════════════╝${NC}"
+echo -e "${BLUE}╔════════════════════════════════════════════╗${NC}"
+echo -e "${BLUE}║   olinda_copilot_sdk.ts  ·  Deploy         ║${NC}"
+echo -e "${BLUE}╚════════════════════════════════════════════╝${NC}"
 echo ""
 info "Project root : $PROJECT_ROOT"
 info "Package      : $PACKAGE_NAME"
@@ -66,45 +67,46 @@ fi
 TAG_EXISTS_LOCALLY=false
 if git rev-parse "${TAG}" >/dev/null 2>&1; then
   TAG_EXISTS_LOCALLY=true
-  # Check if the tag is already on the remote (i.e. already delivered via CDN)
   if git ls-remote --tags origin "refs/tags/${TAG}" 2>/dev/null | grep -q .; then
-    echo -e "${RED}[deploy] ✗${NC} Tag ${TAG} already exists and is already delivered. Bump the version before deploying." >&2
-    exit 3
+    warn "Tag ${TAG} already exists and is already on the remote."
+    warn "Skipping build/test/tag steps — resuming from CDN delivery step."
+    echo ""
+  else
+    warn "Tag ${TAG} exists locally but has not been pushed to the remote yet."
+    warn "Skipping build/test steps and resuming from CDN delivery (push) step."
+    echo ""
   fi
-  warn "Tag ${TAG} exists locally but has not been pushed to the remote yet."
-  warn "Skipping build/test steps and resuming from CDN delivery (push) step."
-  echo ""
 fi
 
 if [[ "${TAG_EXISTS_LOCALLY}" == "false" ]]; then
-  # ── Step 1/5 — Install + Validate ──────────────────────────────────────────
-  info "Step 1/5 — Installing dependencies and type-checking …"
+  # ── Step 1/6 — Install + Validate ──────────────────────────────────────────
+  info "Step 1/6 — Installing dependencies and type-checking …"
   npm ci --prefer-offline --no-audit
   npm run validate || fail "Type-check failed. Aborting deploy."
   ok "Dependencies installed and types valid"
   echo ""
 
-  # ── Step 2/5 — Test ────────────────────────────────────────────────────────
-  info "Step 2/5 — Running tests …"
+  # ── Step 2/6 — Test ────────────────────────────────────────────────────────
+  info "Step 2/6 — Running tests …"
   npm test || fail "Tests failed. Aborting deploy."
   ok "Tests passed"
   echo ""
 
-  # ── Step 3/5 — Build (CJS + ESM) ───────────────────────────────────────────
-  info "Step 3/5 — Building CJS and ESM bundles …"
+  # ── Step 3/6 — Build (CJS + ESM) ───────────────────────────────────────────
+  info "Step 3/6 — Building CJS and ESM bundles …"
   npm run build     || fail "CJS build failed. Aborting deploy."
   npm run build:esm || fail "ESM build failed. Aborting deploy."
   ok "Build complete (dist/ · dist/esm/)"
   echo ""
 else
-  info "Step 1/5 — Skipped (tag already built locally)"
-  info "Step 2/5 — Skipped (tag already built locally)"
-  info "Step 3/5 — Skipped (tag already built locally)"
+  info "Step 1/6 — Skipped (tag already built locally)"
+  info "Step 2/6 — Skipped (tag already built locally)"
+  info "Step 3/6 — Skipped (tag already built locally)"
   echo ""
 fi
 
-# ── Step 4/5 — CDN delivery (commit artifacts, tag & push to GitHub) ─────────
-info "Step 4/5 — Enabling CDN delivery via GitHub …"
+# ── Step 4/6 — CDN delivery (commit artifacts, tag & push to GitHub) ─────────
+info "Step 4/6 — Enabling CDN delivery via GitHub …"
 
 # Force-add compiled dist/ artifacts (dist/ is in .gitignore but must be
 # committed to the GitHub tag for jsDelivr CDN delivery to work)
@@ -136,13 +138,13 @@ git push origin "${CURRENT_BRANCH}" --tags
 ok "Pushed to origin/${CURRENT_BRANCH} with tag ${TAG}"
 echo ""
 
-# ── Step 5/5 — Publish to npm ────────────────────────────────────────────────
+# ── Step 5/6 — Publish to npm ────────────────────────────────────────────────
 if [[ "${SKIP_NPM_PUBLISH}" == "true" ]]; then
-  info "Step 5/5 — npm publish skipped (NPM_TOKEN not set)"
+  info "Step 5/6 — npm publish skipped (NPM_TOKEN not set)"
   warn "To publish to npm, set NPM_TOKEN and re-run:"
   warn "  export NPM_TOKEN=npm_... && bash scripts/deploy.sh"
 else
-  info "Step 5/5 — Publishing to npm …"
+  info "Step 5/6 — Publishing to npm …"
   echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > "$PROJECT_ROOT/.npmrc"
 
   set +e
@@ -154,20 +156,20 @@ else
   if [[ $PUBLISH_EXIT -ne 0 ]]; then
     if echo "$PUBLISH_OUTPUT" | grep -q "Two-factor authentication\|bypass 2fa"; then
       echo -e "${RED}[deploy] ✗${NC} npm publish failed: 2FA bypass required." >&2
-      echo -e "${CYAN}[deploy]${NC} Your token doesn't have 2FA bypass enabled." >&2
-      echo -e "${CYAN}[deploy]${NC} Fix: create an Automation token at https://www.npmjs.com/settings/~/tokens" >&2
-      echo -e "${CYAN}[deploy]${NC}   → Granular Access Token → enable 'Bypass 2FA' → Read and write" >&2
+      echo -e "${BLUE}[deploy]${NC} Your token doesn't have 2FA bypass enabled." >&2
+      echo -e "${BLUE}[deploy]${NC} Fix: create an Automation token at https://www.npmjs.com/settings/~/tokens" >&2
+      echo -e "${BLUE}[deploy]${NC}   → Granular Access Token → enable 'Bypass 2FA' → Read and write" >&2
     elif echo "$PUBLISH_OUTPUT" | grep -q "403\|Forbidden\|credentials"; then
       echo -e "${RED}[deploy] ✗${NC} npm publish failed: invalid or expired token." >&2
-      echo -e "${CYAN}[deploy]${NC} Verify NPM_TOKEN is a valid Automation token with publish rights." >&2
-      echo -e "${CYAN}[deploy]${NC}   https://www.npmjs.com/settings/~/tokens" >&2
+      echo -e "${BLUE}[deploy]${NC} Verify NPM_TOKEN is a valid Automation token with publish rights." >&2
+      echo -e "${BLUE}[deploy]${NC}   https://www.npmjs.com/settings/~/tokens" >&2
     elif echo "$PUBLISH_OUTPUT" | grep -q "cannot publish over\|already exists\|E409"; then
       echo -e "${RED}[deploy] ✗${NC} npm publish failed: version ${VERSION} is already published." >&2
-      echo -e "${CYAN}[deploy]${NC} Bump the version in package.json before deploying." >&2
+      echo -e "${BLUE}[deploy]${NC} Bump the version in package.json before deploying." >&2
       exit 3
     elif echo "$PUBLISH_OUTPUT" | grep -q "404\|not found"; then
       echo -e "${RED}[deploy] ✗${NC} npm publish failed: registry or package not found." >&2
-      echo -e "${CYAN}[deploy]${NC} Check the package name in package.json and the registry URL." >&2
+      echo -e "${BLUE}[deploy]${NC} Check the package name in package.json and the registry URL." >&2
     else
       echo -e "${RED}[deploy] ✗${NC} npm publish failed (exit $PUBLISH_EXIT)." >&2
     fi
@@ -199,4 +201,56 @@ if [[ "${SKIP_NPM_PUBLISH}" != "true" ]]; then
 fi
 
 ok "Deployment of ${TAG} complete! 🚀"
+echo ""
+
+# ── Step 6/6 — CDN availability check ────────────────────────────────────────
+info "Step 6/6 — Checking CDN availability for ${TAG} …"
+
+MAIN_FILE="dist/src/index.js"
+GITHUB_USER="${GH_REPO%%/*}"
+GITHUB_REPO_NAME="${GH_REPO##*/}"
+CDN_URL="https://cdn.jsdelivr.net/gh/${GH_REPO}@${VERSION}/${MAIN_FILE}"
+
+_cdn_purge() {
+  local url="$1"
+  local purge_url="${url/cdn.jsdelivr.net/purge.jsdelivr.net}"
+  curl -s -o /dev/null --max-time 10 "${purge_url}" || true
+}
+
+_github_raw_check() {
+  local gh_user="$1" gh_repo="$2" git_tag="$3" rel_path="$4"
+  local raw_url="https://raw.githubusercontent.com/${gh_user}/${gh_repo}/${git_tag}/${rel_path}"
+  curl -s -f -o /dev/null --max-time 10 "${raw_url}"
+}
+
+_cdn_check() {
+  local label="$1" url="$2" max_retries=5 interval=30
+  _cdn_purge "${url}"
+  for ((attempt=1; attempt<=max_retries; attempt++)); do
+    if curl -s -f -o /dev/null --max-time 10 "${url}"; then
+      ok "${label} is live on jsDelivr ✓"
+      echo "    ${url}"
+      return 0
+    fi
+    if [[ ${attempt} -lt ${max_retries} ]]; then
+      warn "${label}: not ready yet (attempt ${attempt}/${max_retries}) — retrying in ${interval}s …"
+      sleep "${interval}"
+    fi
+  done
+  warn "${label}: not yet available on CDN after ${max_retries} attempts."
+  echo "    Check manually: ${url}"
+  return 0
+}
+
+if command -v curl &>/dev/null; then
+  if _github_raw_check "${GITHUB_USER}" "${GITHUB_REPO_NAME}" "${TAG}" "${MAIN_FILE}"; then
+    ok "${MAIN_FILE} is committed and visible on GitHub ✓"
+  else
+    warn "${MAIN_FILE} not found on GitHub — CDN delivery will fail"
+  fi
+  _cdn_check "${GITHUB_REPO_NAME} ${TAG}" "${CDN_URL}" || true
+else
+  warn "curl not found — skipping CDN check"
+  echo "    Verify manually: ${CDN_URL}"
+fi
 echo ""
