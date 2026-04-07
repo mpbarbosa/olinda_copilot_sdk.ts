@@ -389,7 +389,7 @@ complete within 5 seconds.
 async cleanup(): Promise<void>
 ```
 
-### Session Management (v0.5.2)
+### Session Management (v0.5.3)
 
 All methods below require `initialize()` to have been called first (i.e. a client must be active).
 They throw `SystemError` otherwise.
@@ -748,7 +748,7 @@ loadSkillDirectories(['./skills', './skills', '', '  ./extra  '])
 
 ---
 
-## Session Management & Model Introspection Types (v0.5.2)
+## Session Management & Model Introspection Types (v0.5.3)
 
 All types below are re-exported from `@github/copilot-sdk` for consumers who want full type
 coverage without a direct dependency on the SDK package.
