@@ -23,6 +23,7 @@
     "test:watch": "jest --watch --testPathPattern='test/(core|integration|utils|lib|index)'",
     "test:coverage": "jest --coverage --testPathPattern='test/(core|integration|utils|lib|index)'",
     "test:verbose": "jest --verbose --testPathPattern='test/(core|integration|utils|lib|index)'",
+    "test:docker": "bash scripts/run-tests-docker.sh",
     "bench": "jest --testPathPattern='test/benchmarks' --verbose --passWithNoTests",
     "validate": "tsc --noEmit",
     "lint": "eslint 'src/**/*.ts'",

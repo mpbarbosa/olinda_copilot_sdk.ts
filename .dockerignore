@@ -1,0 +1,32 @@
+# ── Installed packages ────────────────────────────────────────────────────────
+# npm ci installs these fresh inside the container.
+node_modules/
+
+# ── Build output ──────────────────────────────────────────────────────────────
+# Tests run against TypeScript source through ts-jest — pre-built output not needed.
+# The container rebuilds dist/ in a dedicated RUN layer (required for integration tests).
+dist/
+
+# ── Test artefacts ────────────────────────────────────────────────────────────
+# Tests produce their own coverage inside the container.
+coverage/
+
+# ── Jest cache ────────────────────────────────────────────────────────────────
+# Stale host cache should not bleed into the container's clean environment.
+.jest-cache/
+
+# ── Version-control metadata ──────────────────────────────────────────────────
+.git/
+.gitignore
+
+# ── Logs and diagnostics ──────────────────────────────────────────────────────
+*.log
+npm-debug.log*
+.npm/
+
+# ── Editor and OS artefacts ───────────────────────────────────────────────────
+.DS_Store
+*.tsbuildinfo
+
+# ── AI workflow artefacts ─────────────────────────────────────────────────────
+.ai_workflow/

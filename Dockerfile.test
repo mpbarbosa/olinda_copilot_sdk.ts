@@ -1,0 +1,47 @@
+# ── Test runner image for olinda_copilot_sdk.ts ──────────────────────────────
+#
+# Build and run:
+#   docker build -f Dockerfile.test -t olinda_copilot_sdk-test .
+#   docker run --rm -e CI=true olinda_copilot_sdk-test
+#
+# Run with coverage extracted to the host:
+#   docker run --rm \
+#     -e CI=true \
+#     -v "$(pwd)/coverage:/app/coverage" \
+#     olinda_copilot_sdk-test \
+#     npm test -- --runInBand --coverage
+#
+# Or use the convenience script (recommended):
+#   npm run test:docker
+#   bash scripts/run-tests-docker.sh
+#   bash scripts/run-tests-docker.sh -- --coverage
+# ─────────────────────────────────────────────────────────────────────────────
+
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copy dependency manifests first so this layer is cached between source changes.
+COPY package.json package-lock.json ./
+
+# Override NODE_ENV=production (the default in all official Node images) so that
+# npm ci installs devDependencies (Jest, ts-jest, TypeScript, etc.).
+# --ignore-scripts skips lifecycle scripts that may fail inside Alpine.
+ENV NODE_ENV=test
+RUN npm ci --ignore-scripts
+
+# olinda_utils.js is consumed via a GitHub tarball CDN URL. The tarball contains
+# only source files — dist/ is not committed to its git repo. Build it in-place
+# so TypeScript can resolve its type declarations and tests can import its exports.
+RUN cd node_modules/olinda_utils.js && npm install --ignore-scripts && npm run build
+
+# Copy the rest of the project after the install layers so source changes do not
+# invalidate the dependency cache. .dockerignore controls what is excluded.
+COPY . .
+
+# Build the project so that test/integration/ tests can validate the compiled
+# CJS and ESM dist artefacts (dist_artifacts.test.ts, cjs.test.ts).
+RUN npm run build && npm run build:esm
+
+# Run the full Jest suite by default.
+CMD ["npm", "test"]
