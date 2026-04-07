@@ -251,8 +251,119 @@ export class CopilotSdkWrapper {
         }
     }
     // --------------------------------------------------------------------------
+    // Session management & status — wraps CopilotClient methods (v0.5.3)
+    // --------------------------------------------------------------------------
+    /**
+     * Resumes an existing session by ID, replacing the current active session.
+     * The previous session is destroyed before the new one is established.
+     *
+     * @param sessionId - ID of the session to resume.
+     * @param config    - Optional session config overrides.
+     * @throws {@link SystemError} If no client is active (before `initialize()`).
+     * @since 0.5.3
+     * @example
+     * const lastId = await wrapper.getLastSessionId();
+     * if (lastId) await wrapper.resumeSession(lastId);
+     */
+    async resumeSession(sessionId, config) {
+        const client = this._requireClient();
+        if (this._session) {
+            await this._session.destroy().catch(() => { });
+            this._session = null;
+        }
+        this._session = await client.resumeSession(sessionId, config ?? { onPermissionRequest: approveAll });
+        this._sendQueue = Promise.resolve();
+    }
+    /**
+     * Lists all sessions, optionally filtered.
+     *
+     * @param filter - Optional filter criteria.
+     * @returns Array of session metadata.
+     * @throws {@link SystemError} If no client is active.
+     * @since 0.5.3
+     */
+    async listSessions(filter) {
+        return this._requireClient().listSessions(filter);
+    }
+    /**
+     * Deletes a session by ID. Does not affect the currently active session.
+     *
+     * @param sessionId - ID of the session to delete.
+     * @throws {@link SystemError} If no client is active.
+     * @since 0.5.3
+     */
+    async deleteSession(sessionId) {
+        return this._requireClient().deleteSession(sessionId);
+    }
+    /**
+     * Returns the ID of the most recently used session, or `undefined` if none.
+     *
+     * @throws {@link SystemError} If no client is active.
+     * @since 0.5.3
+     */
+    async getLastSessionId() {
+        return this._requireClient().getLastSessionId();
+    }
+    /**
+     * Returns the ID of the current foreground session, or `undefined` if none.
+     *
+     * @throws {@link SystemError} If no client is active.
+     * @since 0.5.3
+     */
+    async getForegroundSessionId() {
+        return this._requireClient().getForegroundSessionId();
+    }
+    /**
+     * Promotes a session to foreground by ID.
+     *
+     * @param sessionId - ID of the session to bring to the foreground.
+     * @throws {@link SystemError} If no client is active.
+     * @since 0.5.3
+     */
+    async setForegroundSessionId(sessionId) {
+        return this._requireClient().setForegroundSessionId(sessionId);
+    }
+    /**
+     * Sends a ping to the server to verify connectivity.
+     *
+     * @param message - Optional message to echo back.
+     * @returns Ping response containing the echoed message and a numeric timestamp.
+     * @throws {@link SystemError} If no client is active.
+     * @since 0.5.3
+     * @example
+     * const { timestamp } = await wrapper.ping('health check');
+     */
+    async ping(message) {
+        return this._requireClient().ping(message);
+    }
+    /**
+     * Returns the current server status.
+     *
+     * @throws {@link SystemError} If no client is active.
+     * @since 0.5.3
+     */
+    async getStatus() {
+        return this._requireClient().getStatus();
+    }
+    /**
+     * Returns the current client connection state without a network round-trip.
+     *
+     * @throws {@link SystemError} If no client is active.
+     * @since 0.5.3
+     */
+    getState() {
+        return this._requireClient().getState();
+    }
+    // --------------------------------------------------------------------------
     // Private helpers
     // --------------------------------------------------------------------------
+    /** Throws SystemError if the client has not been started yet. */
+    _requireClient() {
+        if (!this._client) {
+            throw new SystemError('No active client. Call initialize() first.');
+        }
+        return this._client;
+    }
     /** Performs a single serialised sendAndWait call. */
     async _doSend(prompt, timeoutMs) {
         const timeout = timeoutMs ?? this._timeout;

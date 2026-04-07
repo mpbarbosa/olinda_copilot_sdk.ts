@@ -28,14 +28,340 @@ structure:
   docs_dirs:
     - docs
 
-workflow:
-  smart_execution: true
-  parallel_execution: true
-  ai_cache_enabled: true
-  auto_commit: false
-  multi_stage_pipeline: false
-  ml_optimize: false
+# ============================================================================
+# AI PERSONAS
+# ============================================================================
+# Personas selected for this project (TypeScript wrapper library for
+# @github/copilot-sdk — CJS + ESM dual output).
+#
+# ENABLED — matched to this project's stack and characteristics:
+#   typescript_reviewer        — TypeScript generics, dual CJS/ESM types, strict mode; step_19
+#   documentation_expert       — API docs, README, JSDoc; steps 01, 02, 02_5
+#   technical_writer           — markdown quality and doc consolidation; steps 13, 21
+#   test_engineer              — jest test review, generation, execution; steps 06-08
+#   code_quality_analyst       — ESLint, TypeScript quality; step_10
+#   architecture_reviewer      — SDK wrapper design and API surface; steps 00, 05
+#   devops_engineer            — npm scripts, deploy.sh, validate script; steps 03, 04
+#   dependency_analyst         — @github/copilot-sdk compatibility; step_09
+#   git_specialist             — conventional commits, git finalization; step_12
+#   async_performance_engineer — async SDK wrapper call patterns; step_20
+#   performance_engineer       — API latency, bench script coverage; step_23
+#
+# DISABLED — not applicable:
+#   prompt_engineer         — pure SDK wrapper, no prompt engineering
+#   ux_analyst              — no UI layer
+#   accessibility_expert    — no HTML/CSS layer
+#   aws_serverless_engineer — no AWS infrastructure
+#   api_designer            — SDK wrapper, not API designer
+#   security_expert         — no auth/secrets management in scope
 
+ai_personas:
+  enabled:
+    - typescript_reviewer
+    - documentation_expert
+    - technical_writer
+    - test_engineer
+    - code_quality_analyst
+    - architecture_reviewer
+    - devops_engineer
+    - dependency_analyst
+    - git_specialist
+    - async_performance_engineer
+    - performance_engineer
+  disabled:
+    - prompt_engineer
+    - ux_analyst
+    - accessibility_expert
+    - aws_serverless_engineer
+    - api_designer
+    - security_expert
+
+
+workflow:
+  settings:
+    auto_mode: false
+    parallel_execution: true
+    smart_execution: true
+    ml_optimize: false
+    multi_stage: false
+    auto_commit: false
+
+  # Legacy stage shortcuts (kept for backwards compatibility)
+  stages:
+    quick:
+      enabled: true
+      steps: [step_00, step_01, step_02]
+    medium:
+      enabled: true
+      steps: [step_00, step_01, step_02, step_03, step_04, step_05]
+    full:
+      enabled: true
+      steps: [step_00, step_0b, step_01, step_02, step_02_5, step_03, step_04, step_05, step_06, step_07, step_08, step_09, step_10, step_13, step_19, step_20, step_11, step_16, step_17, step_0f, step_12]
+
+  steps:
+
+    # PRE-PROCESSING
+    - id: step_00
+      name: "Pre-Analysis"
+      file: "step_00.js"
+      description: "Analyze TypeScript library structure, detect changes to src/, test/, and dist/ CJS/ESM outputs"
+      phase: 1
+      enabled: true
+      can_parallelize: false
+      dependencies: []
+      ai_persona: architecture_reviewer
+
+    # BOOTSTRAP DOCUMENTATION
+    - id: step_0b
+      name: "Bootstrap Documentation"
+      file: "step_0b.js"
+      description: "Generate initial documentation for undocumented or poorly documented modules"
+      phase: 1
+      enabled: true
+      can_parallelize: false
+      dependencies: [step_00]
+      ai_persona: technical_writer
+
+    # DOCUMENTATION & ANALYSIS
+    - id: step_01
+      name: "Documentation Updates"
+      file: "step_01.js"
+      description: "Review and update README, API docs, and inline JSDoc for changed TypeScript modules"
+      phase: 1
+      enabled: true
+      can_parallelize: true
+      dependencies: [step_00]
+      ai_persona: documentation_expert
+
+    - id: step_02
+      name: "Consistency Analysis"
+      file: "step_02.js"
+      description: "Check cross-reference consistency between docs, type definitions, and source"
+      phase: 1
+      enabled: true
+      can_parallelize: true
+      dependencies: [step_01]
+      ai_persona: documentation_expert
+
+    - id: step_02_5
+      name: "Documentation Optimization"
+      file: "step_02_5.js"
+      description: "Optimize and consolidate documentation structure and API reference"
+      phase: 1
+      enabled: true
+      can_parallelize: true
+      dependencies: [step_02]
+      ai_persona: technical_writer
+
+    - id: step_03
+      name: "Script References"
+      file: "step_03.js"
+      description: "Validate npm scripts, deploy.sh, bench script, and validate script references"
+      phase: 1
+      enabled: true
+      can_parallelize: true
+      dependencies: [step_02]
+      ai_persona: devops_engineer
+
+    # STRUCTURE & CONFIG VALIDATION
+    - id: step_04
+      name: "Config Validation"
+      file: "step_04.js"
+      description: "Validate tsconfig.json, package.json dual CJS/ESM exports, and jest configuration"
+      phase: 1
+      enabled: true
+      can_parallelize: true
+      dependencies: [step_00]
+      ai_persona: devops_engineer
+
+    - id: step_05
+      name: "Directory Structure"
+      file: "step_05.js"
+      description: "Validate src/, test/, dist/ structure and CJS/ESM output organization"
+      phase: 1
+      enabled: true
+      can_parallelize: false
+      dependencies: [step_04]
+      ai_persona: architecture_reviewer
+
+    # TESTING PHASE
+    - id: step_06
+      name: "Test Review"
+      file: "step_06.js"
+      description: "Review jest test coverage for @github/copilot-sdk wrapper functions"
+      phase: 2
+      enabled: true
+      can_parallelize: false
+      dependencies: [step_05]
+      ai_persona: test_engineer
+
+    - id: step_07
+      name: "Test Generation"
+      file: "step_07.js"
+      description: "Generate missing unit tests for SDK wrapper and response parsing"
+      phase: 2
+      enabled: true
+      can_parallelize: false
+      dependencies: [step_06]
+      ai_persona: test_engineer
+
+    - id: step_08
+      name: "Test Execution"
+      file: "step_08.js"
+      description: "Execute jest test suite and validate coverage thresholds"
+      phase: 2
+      enabled: true
+      can_parallelize: false
+      dependencies: [step_07]
+      ai_persona: test_engineer
+
+    # QUALITY PHASE
+    - id: step_09
+      name: "Dependency Analysis"
+      file: "step_09.js"
+      description: "Audit npm dependencies including @github/copilot-sdk version compatibility"
+      phase: 2
+      enabled: true
+      can_parallelize: true
+      dependencies: [step_08]
+      ai_persona: dependency_analyst
+
+    - id: step_10
+      name: "Code Quality"
+      file: "step_10.js"
+      description: "Run ESLint, check TypeScript strict mode compliance, review code quality patterns"
+      phase: 2
+      enabled: true
+      can_parallelize: true
+      dependencies: [step_09]
+      ai_persona: code_quality_analyst
+
+    # SPECIALIZED ANALYSIS
+    - id: step_13
+      name: "Markdown Lint"
+      file: "step_13.js"
+      description: "Lint and fix README.md and API documentation markdown files"
+      phase: 2
+      enabled: true
+      can_parallelize: true
+      dependencies: [step_10]
+      ai_persona: technical_writer
+
+    - id: step_19
+      name: "TypeScript Review"
+      file: "step_19.js"
+      description: "Review TypeScript generics, SDK type mappings, and dual CJS/ESM type declarations"
+      phase: 2
+      enabled: true
+      can_parallelize: true
+      dependencies: [step_10]
+      ai_persona: typescript_reviewer
+
+    - id: step_20
+      name: "Async Performance Review"
+      file: "step_20.js"
+      description: "Review async/await patterns and Promise handling in @github/copilot-sdk wrapper calls"
+      phase: 2
+      enabled: true
+      can_parallelize: true
+      dependencies: [step_10]
+      ai_persona: async_performance_engineer
+
+    - id: step_18
+      name: "Debugging"
+      file: "step_18.js"
+      description: "Optional debugging step for SDK integration issues"
+      phase: 2
+      enabled: false
+      reason: "Optional debugging step — enable only when investigating SDK integration failures"
+      can_parallelize: false
+      dependencies: [step_10]
+      ai_persona: code_quality_analyst
+
+    - id: step_21
+      name: "Doc Consolidation"
+      file: "step_21.js"
+      description: "Consolidate and deduplicate API reference documentation"
+      phase: 2
+      enabled: true
+      can_parallelize: true
+      dependencies: [step_13]
+      ai_persona: documentation_expert
+
+    - id: step_22
+      name: "Accessibility Review"
+      file: "step_22.js"
+      description: "HTML/CSS accessibility review for web-facing components"
+      phase: 2
+      enabled: false
+      reason: "TypeScript SDK wrapper library with no HTML/CSS layer"
+      can_parallelize: true
+      dependencies: [step_13]
+      ai_persona: accessibility_expert
+
+    - id: step_23
+      name: "Performance Review"
+      file: "step_23.js"
+      description: "Performance review: @github/copilot-sdk API call latency, request batching, response parsing efficiency; bench script coverage"
+      phase: 2
+      enabled: true
+      can_parallelize: true
+      dependencies: [step_13]
+      ai_persona: performance_engineer
+
+    # CONTEXT ANALYSIS
+    - id: step_11
+      name: "Context Analysis"
+      file: "step_11.js"
+      description: "Analyze project context, cross-module relationships, and API surface completeness"
+      phase: 2
+      enabled: true
+      can_parallelize: false
+      dependencies: [step_10]
+      ai_persona: architecture_reviewer
+
+    # FINALIZATION
+    - id: step_16
+      name: "Version Update"
+      file: "step_16.js"
+      description: "Update version in package.json and CHANGELOG.md for release"
+      phase: 2
+      enabled: true
+      can_parallelize: false
+      dependencies: [step_11]
+      ai_persona: devops_engineer
+
+    - id: step_17
+      name: "Workflow Summary"
+      file: "step_17.js"
+      description: "Generate workflow execution summary and metrics report"
+      phase: 2
+      enabled: true
+      can_parallelize: false
+      dependencies: [step_16]
+      ai_persona: technical_writer
+
+    # GIT FINALIZATION
+    - id: step_0f
+      name: "Commit Artifacts"
+      file: "step_0f.js"
+      description: "Commit workflow artifacts, docs, and generated files"
+      phase: 3
+      enabled: true
+      can_parallelize: false
+      dependencies: [step_17]
+      ai_persona: git_specialist
+
+    # Git Finalization MUST BE LAST
+    - id: step_12
+      name: "Git Finalization"
+      file: "step_12.js"
+      description: "Stage, commit, and push with conventional commit message"
+      phase: 3
+      enabled: true
+      can_parallelize: false
+      dependencies: [step_0f]
+      ai_persona: git_specialist
 deploy:
   description: 'Build, publish olinda_copilot_sdk.ts to npm, and tag the release'
   script: 'scripts/deploy.sh'

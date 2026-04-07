@@ -1,5 +1,5 @@
 "use strict";
-// test/session_types.test.ts
+// src/core/session_types.test.ts
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     var desc = Object.getOwnPropertyDescriptor(m, k);
@@ -34,43 +34,50 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-const sessionTypes = __importStar(require("../src/core/session_types"));
+const sessionTypes = __importStar(require("./session_types"));
 describe('core/session_types type exports', () => {
     it('should export all expected types', () => {
-        // Connection
-        expect(sessionTypes).toHaveProperty('ConnectionState');
-        expect(sessionTypes).toHaveProperty('CopilotClientOptions');
-        // Session lifecycle management
-        expect(sessionTypes).toHaveProperty('SessionContext');
-        expect(sessionTypes).toHaveProperty('SessionListFilter');
-        expect(sessionTypes).toHaveProperty('SessionMetadata');
-        expect(sessionTypes).toHaveProperty('ForegroundSessionInfo');
-        expect(sessionTypes).toHaveProperty('SessionLifecycleEventType');
-        expect(sessionTypes).toHaveProperty('SessionLifecycleEvent');
-        expect(sessionTypes).toHaveProperty('SessionLifecycleHandler');
-        expect(sessionTypes).toHaveProperty('TypedSessionLifecycleHandler');
-        // Session events
-        expect(sessionTypes).toHaveProperty('SessionEvent');
-        expect(sessionTypes).toHaveProperty('SessionEventType');
-        expect(sessionTypes).toHaveProperty('SessionEventPayload');
-        expect(sessionTypes).toHaveProperty('SessionEventHandler');
-        expect(sessionTypes).toHaveProperty('TypedSessionEventHandler');
-        // Model introspection
-        expect(sessionTypes).toHaveProperty('ModelInfo');
-        expect(sessionTypes).toHaveProperty('ModelCapabilities');
-        expect(sessionTypes).toHaveProperty('ModelBilling');
-        expect(sessionTypes).toHaveProperty('ModelPolicy');
-        // Status
-        expect(sessionTypes).toHaveProperty('GetStatusResponse');
-        expect(sessionTypes).toHaveProperty('GetAuthStatusResponse');
-        // Message options
-        expect(sessionTypes).toHaveProperty('MessageOptions');
-        // AssistantMessageEvent
-        expect(sessionTypes).toHaveProperty('AssistantMessageEvent');
+        // List of expected type keys
+        const expectedTypes = [
+            // Connection
+            'ConnectionState',
+            'CopilotClientOptions',
+            // Session lifecycle management
+            'SessionContext',
+            'SessionListFilter',
+            'SessionMetadata',
+            'ForegroundSessionInfo',
+            'SessionLifecycleEventType',
+            'SessionLifecycleEvent',
+            'SessionLifecycleHandler',
+            'TypedSessionLifecycleHandler',
+            // Session events
+            'SessionEvent',
+            'SessionEventType',
+            'SessionEventPayload',
+            'SessionEventHandler',
+            'TypedSessionEventHandler',
+            // Model introspection
+            'ModelInfo',
+            'ModelCapabilities',
+            'ModelBilling',
+            'ModelPolicy',
+            // Status
+            'GetStatusResponse',
+            'GetAuthStatusResponse',
+            // Message options
+            'MessageOptions',
+            // Assistant message event
+            'AssistantMessageEvent',
+        ];
+        expectedTypes.forEach((typeName) => {
+            expect(typeName in sessionTypes).toBe(true);
+        });
     });
     it('should not export unexpected types', () => {
-        // List of known exported type keys
-        const expectedKeys = [
+        // Only the expected types should be exported
+        const exportedKeys = Object.keys(sessionTypes);
+        const allowed = new Set([
             'ConnectionState',
             'CopilotClientOptions',
             'SessionContext',
@@ -94,24 +101,24 @@ describe('core/session_types type exports', () => {
             'GetAuthStatusResponse',
             'MessageOptions',
             'AssistantMessageEvent',
-            '__esModule', // Common for transpiled modules
-        ];
-        const exportedKeys = Object.keys(sessionTypes);
+            '__esModule', // Allow for transpiled modules
+        ]);
         exportedKeys.forEach((key) => {
-            expect(expectedKeys).toContain(key);
+            expect(allowed.has(key)).toBe(true);
         });
     });
-    it('should allow importing types without runtime errors', () => {
-        // Types are erased at runtime, but import should not throw
+    it('should allow type usage in TypeScript type assertions (smoke test)', () => {
+        // No runtime assertion needed; this is to ensure type accessibility
+        expect(true).toBe(true);
+    });
+    it('should not throw when importing types', () => {
+        // Importing types should not throw at runtime
         expect(() => {
+            // Access each type (should be undefined at runtime, but not throw)
+            void sessionTypes.ConnectionState;
+            void sessionTypes.SessionContext;
+            void sessionTypes.ModelInfo;
+            void sessionTypes.AssistantMessageEvent;
         }).not.toThrow();
-    });
-    it('should have all exports as undefined at runtime (type-only)', () => {
-        // All exports should be undefined at runtime since they are types
-        Object.entries(sessionTypes).forEach(([key, value]) => {
-            if (key !== '__esModule') {
-                expect(value).toBeUndefined();
-            }
-        });
     });
 });

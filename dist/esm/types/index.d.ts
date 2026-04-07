@@ -29,3 +29,4 @@ export { LogValidator, parseLogIssues, buildValidationPrompt, selectRelevantFile
 export type { LogIssue, CodeSnippet, LogValidatorOptions, IssueSeverity } from './lib/log_validator.js';
 export { runSdkSmokeTest, buildSmokeTestPrompt, validateSmokeTestResponse, formatSmokeTestResult } from './lib/sdk_smoke_test.js';
 export type { SdkSmokeTestOptions, SdkSmokeTestResult } from './lib/sdk_smoke_test.js';
+export type { ConnectionState, CopilotClientOptions, SessionContext, SessionListFilter, SessionMetadata, ForegroundSessionInfo, SessionLifecycleEventType, SessionLifecycleEvent, SessionLifecycleHandler, TypedSessionLifecycleHandler, SessionEvent, SessionEventType, SessionEventPayload, SessionEventHandler, TypedSessionEventHandler, ModelInfo, ModelCapabilities, ModelBilling, ModelPolicy, GetStatusResponse, GetAuthStatusResponse, MessageOptions, AssistantMessageEvent, } from './core/session_types.js';

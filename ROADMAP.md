@@ -1,6 +1,6 @@
 # ROADMAP — olinda_copilot_sdk.ts
 
-> **Current version**: 0.5.2  
+> **Current version**: 0.5.3  
 > **Reference SDK**: `@github/copilot-sdk` v0.1.32  
 > **Goal**: Become the idiomatic TypeScript execution layer for `@github/copilot-sdk` — enabling applications to embed programmable, agentic AI workflows anywhere software runs, not just inside an IDE.
 
@@ -18,7 +18,7 @@ olinda's role is to make that execution capability a composable, typed, applicat
 - [Milestone v0.2.1 — Session Client Export + Core Parity](#milestone-v021--session-client-export--core-parity)
 - [Milestone v0.3.2 — Full SessionConfig Parity](#milestone-v032--full-sessionconfig-parity)
 - [Milestone v0.4.1 — Permission & Hooks Bridge](#milestone-v041--permission--hooks-bridge)
-- [Milestone v0.5.2 — Session Management & Model Introspection](#milestone-v052--session-management--model-introspection)
+- [Milestone v0.5.3 — Session Management & Model Introspection](#milestone-v052--session-management--model-introspection)
 - [Milestone v0.6.0 — Advanced Features](#milestone-v060--advanced-features)
 - [Milestone v0.7.0 — Agentic Execution Patterns](#milestone-v070--agentic-execution-patterns)
 - [Non-Goals](#non-goals)
@@ -214,7 +214,7 @@ olinda's hook system (`PreToolUseHandler`, `PostToolUseHandler`, etc.) uses a **
 
 ---
 
-## Milestone v0.5.2 — Session Management & Model Introspection
+## Milestone v0.5.3 — Session Management & Model Introspection
 
 > **Theme**: Export the full set of session management and model query types so consumers don't need to depend on `@github/copilot-sdk` directly for types.
 

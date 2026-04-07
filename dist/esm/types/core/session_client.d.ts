@@ -14,7 +14,7 @@
  * @version 2.0.0
  */
 import { CopilotClient } from '@github/copilot-sdk';
-import type { CopilotSession, ModelInfo } from '@github/copilot-sdk';
+import type { CopilotSession, ConnectionState, GetStatusResponse, ModelInfo, ResumeSessionConfig, SessionListFilter, SessionMetadata } from '@github/copilot-sdk';
 /** Options accepted by the {@link CopilotSdkWrapper} constructor. */
 export interface CopilotSdkWrapperOptions {
     /** Model identifier to use when creating sessions (e.g. `"claude-sonnet-4.5"`). */
@@ -119,6 +119,89 @@ export declare class CopilotSdkWrapper {
      *  - forceStop: if client.stop() hangs beyond FORCE_STOP_TIMEOUT_MS, forceStop() is called.
      */
     cleanup(): Promise<void>;
+    /**
+     * Resumes an existing session by ID, replacing the current active session.
+     * The previous session is destroyed before the new one is established.
+     *
+     * @param sessionId - ID of the session to resume.
+     * @param config    - Optional session config overrides.
+     * @throws {@link SystemError} If no client is active (before `initialize()`).
+     * @since 0.5.3
+     * @example
+     * const lastId = await wrapper.getLastSessionId();
+     * if (lastId) await wrapper.resumeSession(lastId);
+     */
+    resumeSession(sessionId: string, config?: ResumeSessionConfig): Promise<void>;
+    /**
+     * Lists all sessions, optionally filtered.
+     *
+     * @param filter - Optional filter criteria.
+     * @returns Array of session metadata.
+     * @throws {@link SystemError} If no client is active.
+     * @since 0.5.3
+     */
+    listSessions(filter?: SessionListFilter): Promise<SessionMetadata[]>;
+    /**
+     * Deletes a session by ID. Does not affect the currently active session.
+     *
+     * @param sessionId - ID of the session to delete.
+     * @throws {@link SystemError} If no client is active.
+     * @since 0.5.3
+     */
+    deleteSession(sessionId: string): Promise<void>;
+    /**
+     * Returns the ID of the most recently used session, or `undefined` if none.
+     *
+     * @throws {@link SystemError} If no client is active.
+     * @since 0.5.3
+     */
+    getLastSessionId(): Promise<string | undefined>;
+    /**
+     * Returns the ID of the current foreground session, or `undefined` if none.
+     *
+     * @throws {@link SystemError} If no client is active.
+     * @since 0.5.3
+     */
+    getForegroundSessionId(): Promise<string | undefined>;
+    /**
+     * Promotes a session to foreground by ID.
+     *
+     * @param sessionId - ID of the session to bring to the foreground.
+     * @throws {@link SystemError} If no client is active.
+     * @since 0.5.3
+     */
+    setForegroundSessionId(sessionId: string): Promise<void>;
+    /**
+     * Sends a ping to the server to verify connectivity.
+     *
+     * @param message - Optional message to echo back.
+     * @returns Ping response containing the echoed message and a numeric timestamp.
+     * @throws {@link SystemError} If no client is active.
+     * @since 0.5.3
+     * @example
+     * const { timestamp } = await wrapper.ping('health check');
+     */
+    ping(message?: string): Promise<{
+        message: string;
+        timestamp: number;
+        protocolVersion?: number;
+    }>;
+    /**
+     * Returns the current server status.
+     *
+     * @throws {@link SystemError} If no client is active.
+     * @since 0.5.3
+     */
+    getStatus(): Promise<GetStatusResponse>;
+    /**
+     * Returns the current client connection state without a network round-trip.
+     *
+     * @throws {@link SystemError} If no client is active.
+     * @since 0.5.3
+     */
+    getState(): ConnectionState;
+    /** Throws SystemError if the client has not been started yet. */
+    private _requireClient;
     /** Performs a single serialised sendAndWait call. */
     private _doSend;
 }

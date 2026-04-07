@@ -67,7 +67,7 @@ await wrapper.initialize();
 const result = await wrapper.send('Summarize this repo');
 console.log(result.choices[0].message.content);
 
-// Session management (v0.5.2+)
+// Session management (v0.5.3+)
 const sessionId = await wrapper.getLastSessionId();
 const sessions = await wrapper.listSessions();
 const status = await wrapper.getStatus();
