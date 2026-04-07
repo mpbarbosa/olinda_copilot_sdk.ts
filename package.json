@@ -55,7 +55,7 @@
   },
   "dependencies": {
     "@github/copilot-sdk": "^0.1.32",
-    "olinda_utils.js": "github:mpbarbosa/olinda_utils.js#v0.3.15"
+    "olinda_utils.js": "https://github.com/mpbarbosa/olinda_utils.js/archive/refs/tags/v0.3.15.tar.gz"
   },
   "devDependencies": {
     "@types/jest": "29.5.14",
