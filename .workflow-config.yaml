@@ -7,7 +7,7 @@ project:
   type: 'typescript-library'
   description: 'TypeScript Wrapper Library for GitHub Copilot SDK'
   kind: 'nodejs_api'
-  version: '0.1.3'
+  version: '0.7.0'
 
 tech_stack:
   primary_language: 'typescript'
@@ -17,6 +17,9 @@ tech_stack:
   test_framework: 'jest'
   test_command: 'npm test'
   lint_command: 'npm run lint'
+  lint_commands:
+    javascript: 'npm run lint'
+    typescript: 'npm run lint'
   build_command: 'npm run build'
   validate_command: 'npm run validate'
 
@@ -369,3 +372,14 @@ deploy:
     description: 'Build and tag olinda_copilot_sdk.ts for CDN delivery (npm publish skipped)'
     env:
       SKIP_NPM_PUBLISH: 'true'
+
+version:
+  config_files:
+    - package.json
+    - package-lock.json
+
+skills:
+  version_sync:
+    command: 'npm install --package-lock-only'
+    check_command: 'npm run validate'
+    description: 'Refresh package-lock metadata after version bumps and verify the project still type-checks'
