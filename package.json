@@ -1,6 +1,6 @@
 {
   "name": "olinda_copilot_sdk.ts",
-  "version": "0.5.3",
+  "version": "0.7.0",
   "description": "TypeScript Wrapper Library for GitHub Copilot SDK",
   "main": "dist/src/index.js",
   "types": "dist/types/src/index.d.ts",
@@ -16,13 +16,14 @@
     "build": "tsc --project tsconfig.json",
     "build:esm": "tsc --project tsconfig.esm.json && echo '{\"type\":\"module\"}' > dist/esm/package.json",
     "start": "node dist/src/index.js",
-    "test": "jest --coverage --testPathPattern='test/(core|integration|utils|lib|index)' --passWithNoTests",
-    "test:core": "jest --testPathPattern='test/(core|index)' --passWithNoTests",
+    "test": "jest --coverage --testPathPattern='test/(core|integration|utils|lib|index|claude)' --passWithNoTests",
+    "test:core": "jest --testPathPattern='test/(core|index|claude)' --passWithNoTests",
     "test:utils": "jest --testPathPattern='test/utils' --passWithNoTests",
     "test:integration": "jest --testPathPattern='test/integration' --passWithNoTests",
-    "test:watch": "jest --watch --testPathPattern='test/(core|integration|utils|lib|index)'",
-    "test:coverage": "jest --coverage --testPathPattern='test/(core|integration|utils|lib|index)'",
-    "test:verbose": "jest --verbose --testPathPattern='test/(core|integration|utils|lib|index)'",
+    "test:claude": "jest --testPathPattern='test/claude' --passWithNoTests",
+    "test:watch": "jest --watch --testPathPattern='test/(core|integration|utils|lib|index|claude)'",
+    "test:coverage": "jest --coverage --testPathPattern='test/(core|integration|utils|lib|index|claude)'",
+    "test:verbose": "jest --verbose --testPathPattern='test/(core|integration|utils|lib|index|claude)'",
     "test:docker": "bash scripts/run-tests-docker.sh",
     "bench": "jest --testPathPattern='test/benchmarks' --verbose --passWithNoTests",
     "validate": "tsc --noEmit",
@@ -55,8 +56,9 @@
     "url": "git+https://github.com/mpbarbosa/olinda_copilot_sdk.ts.git"
   },
   "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "^0.2.118",
     "@github/copilot-sdk": "^0.1.32",
-    "olinda_utils.js": "https://github.com/mpbarbosa/olinda_utils.js/archive/refs/tags/v0.3.16.tar.gz"
+    "olinda_utils.js": "github:mpbarbosa/olinda_utils.js#v0.3.16"
   },
   "devDependencies": {
     "@types/jest": "29.5.14",

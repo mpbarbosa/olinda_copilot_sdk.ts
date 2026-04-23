@@ -254,7 +254,7 @@ class CopilotSdkWrapper {
         }
     }
     // --------------------------------------------------------------------------
-    // Session management & status — wraps CopilotClient methods (v0.5.2)
+    // Session management & status — wraps CopilotClient methods (v0.5.3)
     // --------------------------------------------------------------------------
     /**
      * Resumes an existing session by ID, replacing the current active session.
@@ -263,7 +263,7 @@ class CopilotSdkWrapper {
      * @param sessionId - ID of the session to resume.
      * @param config    - Optional session config overrides.
      * @throws {@link SystemError} If no client is active (before `initialize()`).
-     * @since 0.5.2
+     * @since 0.5.3
      * @example
      * const lastId = await wrapper.getLastSessionId();
      * if (lastId) await wrapper.resumeSession(lastId);
@@ -283,7 +283,7 @@ class CopilotSdkWrapper {
      * @param filter - Optional filter criteria.
      * @returns Array of session metadata.
      * @throws {@link SystemError} If no client is active.
-     * @since 0.5.2
+     * @since 0.5.3
      */
     async listSessions(filter) {
         return this._requireClient().listSessions(filter);
@@ -293,7 +293,7 @@ class CopilotSdkWrapper {
      *
      * @param sessionId - ID of the session to delete.
      * @throws {@link SystemError} If no client is active.
-     * @since 0.5.2
+     * @since 0.5.3
      */
     async deleteSession(sessionId) {
         return this._requireClient().deleteSession(sessionId);
@@ -302,7 +302,7 @@ class CopilotSdkWrapper {
      * Returns the ID of the most recently used session, or `undefined` if none.
      *
      * @throws {@link SystemError} If no client is active.
-     * @since 0.5.2
+     * @since 0.5.3
      */
     async getLastSessionId() {
         return this._requireClient().getLastSessionId();
@@ -311,7 +311,7 @@ class CopilotSdkWrapper {
      * Returns the ID of the current foreground session, or `undefined` if none.
      *
      * @throws {@link SystemError} If no client is active.
-     * @since 0.5.2
+     * @since 0.5.3
      */
     async getForegroundSessionId() {
         return this._requireClient().getForegroundSessionId();
@@ -321,7 +321,7 @@ class CopilotSdkWrapper {
      *
      * @param sessionId - ID of the session to bring to the foreground.
      * @throws {@link SystemError} If no client is active.
-     * @since 0.5.2
+     * @since 0.5.3
      */
     async setForegroundSessionId(sessionId) {
         return this._requireClient().setForegroundSessionId(sessionId);
@@ -332,7 +332,7 @@ class CopilotSdkWrapper {
      * @param message - Optional message to echo back.
      * @returns Ping response containing the echoed message and a numeric timestamp.
      * @throws {@link SystemError} If no client is active.
-     * @since 0.5.2
+     * @since 0.5.3
      * @example
      * const { timestamp } = await wrapper.ping('health check');
      */
@@ -343,7 +343,7 @@ class CopilotSdkWrapper {
      * Returns the current server status.
      *
      * @throws {@link SystemError} If no client is active.
-     * @since 0.5.2
+     * @since 0.5.3
      */
     async getStatus() {
         return this._requireClient().getStatus();
@@ -352,7 +352,7 @@ class CopilotSdkWrapper {
      * Returns the current client connection state without a network round-trip.
      *
      * @throws {@link SystemError} If no client is active.
-     * @since 0.5.2
+     * @since 0.5.3
      */
     getState() {
         return this._requireClient().getState();

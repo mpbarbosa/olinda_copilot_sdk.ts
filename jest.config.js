@@ -5,6 +5,7 @@ module.exports = {
 	testMatch: ['<rootDir>/test/**/*.test.ts', '<rootDir>/test/**/*.benchmark.ts'],
 	moduleNameMapper: {
 		'^@github/copilot-sdk$': '<rootDir>/test/__stubs__/copilot-sdk.cjs',
+		'^@anthropic-ai/claude-agent-sdk$': '<rootDir>/test/__stubs__/claude-agent-sdk.cjs',
 		'^(\\.{1,2}/.*)\\.js$': '$1',
 	},
 	randomize: true,

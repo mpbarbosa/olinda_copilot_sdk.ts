@@ -26,3 +26,9 @@ export { LogValidator, parseLogIssues, buildValidationPrompt, selectRelevantFile
 // v0.4.2 — SdkSmokeTest: minimal connectivity check for the Copilot API
 // ---------------------------------------------------------------------------
 export { runSdkSmokeTest, buildSmokeTestPrompt, validateSmokeTestResponse, formatSmokeTestResult } from './lib/sdk_smoke_test.js';
+// ---------------------------------------------------------------------------
+// v0.7.0 — Claude Agent SDK Wrapper + Anthropic Messages API Client
+// ---------------------------------------------------------------------------
+export { ClaudeClient } from './claude/completions_client.js';
+export { ClaudeSDKError, ClaudeAuthError, ClaudeAPIError } from './claude/errors.js';
+export { ClaudeSdkWrapper } from './claude/sdk_wrapper.js';

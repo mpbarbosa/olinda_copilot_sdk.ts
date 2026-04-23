@@ -126,7 +126,7 @@ export declare class CopilotSdkWrapper {
      * @param sessionId - ID of the session to resume.
      * @param config    - Optional session config overrides.
      * @throws {@link SystemError} If no client is active (before `initialize()`).
-     * @since 0.5.2
+     * @since 0.5.3
      * @example
      * const lastId = await wrapper.getLastSessionId();
      * if (lastId) await wrapper.resumeSession(lastId);
@@ -138,7 +138,7 @@ export declare class CopilotSdkWrapper {
      * @param filter - Optional filter criteria.
      * @returns Array of session metadata.
      * @throws {@link SystemError} If no client is active.
-     * @since 0.5.2
+     * @since 0.5.3
      */
     listSessions(filter?: SessionListFilter): Promise<SessionMetadata[]>;
     /**
@@ -146,21 +146,21 @@ export declare class CopilotSdkWrapper {
      *
      * @param sessionId - ID of the session to delete.
      * @throws {@link SystemError} If no client is active.
-     * @since 0.5.2
+     * @since 0.5.3
      */
     deleteSession(sessionId: string): Promise<void>;
     /**
      * Returns the ID of the most recently used session, or `undefined` if none.
      *
      * @throws {@link SystemError} If no client is active.
-     * @since 0.5.2
+     * @since 0.5.3
      */
     getLastSessionId(): Promise<string | undefined>;
     /**
      * Returns the ID of the current foreground session, or `undefined` if none.
      *
      * @throws {@link SystemError} If no client is active.
-     * @since 0.5.2
+     * @since 0.5.3
      */
     getForegroundSessionId(): Promise<string | undefined>;
     /**
@@ -168,7 +168,7 @@ export declare class CopilotSdkWrapper {
      *
      * @param sessionId - ID of the session to bring to the foreground.
      * @throws {@link SystemError} If no client is active.
-     * @since 0.5.2
+     * @since 0.5.3
      */
     setForegroundSessionId(sessionId: string): Promise<void>;
     /**
@@ -177,7 +177,7 @@ export declare class CopilotSdkWrapper {
      * @param message - Optional message to echo back.
      * @returns Ping response containing the echoed message and a numeric timestamp.
      * @throws {@link SystemError} If no client is active.
-     * @since 0.5.2
+     * @since 0.5.3
      * @example
      * const { timestamp } = await wrapper.ping('health check');
      */
@@ -190,14 +190,14 @@ export declare class CopilotSdkWrapper {
      * Returns the current server status.
      *
      * @throws {@link SystemError} If no client is active.
-     * @since 0.5.2
+     * @since 0.5.3
      */
     getStatus(): Promise<GetStatusResponse>;
     /**
      * Returns the current client connection state without a network round-trip.
      *
      * @throws {@link SystemError} If no client is active.
-     * @since 0.5.2
+     * @since 0.5.3
      */
     getState(): ConnectionState;
     /** Throws SystemError if the client has not been started yet. */

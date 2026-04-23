@@ -19,7 +19,7 @@ olinda's role is to make that execution capability a composable, typed, applicat
 - [Milestone v0.3.2 — Full SessionConfig Parity](#milestone-v032--full-sessionconfig-parity)
 - [Milestone v0.4.1 — Permission & Hooks Bridge](#milestone-v041--permission--hooks-bridge)
 - [Milestone v0.5.3 — Session Management & Model Introspection](#milestone-v052--session-management--model-introspection)
-- [Milestone v0.6.0 — Advanced Features](#milestone-v060--advanced-features)
+- [Milestone v0.7.0 — Advanced Features](#milestone-v060--advanced-features)
 - [Milestone v0.7.0 — Agentic Execution Patterns](#milestone-v070--agentic-execution-patterns)
 - [Non-Goals](#non-goals)
 
@@ -242,7 +242,7 @@ olinda's hook system (`PreToolUseHandler`, `PostToolUseHandler`, etc.) uses a **
 
 ---
 
-## Milestone v0.6.0 — Advanced Features
+## Milestone v0.7.0 — Advanced Features
 
 > **Theme**: Cover the remaining SDK surface and polish the developer experience.
 
@@ -283,7 +283,7 @@ olinda's hook system (`PreToolUseHandler`, `PostToolUseHandler`, etc.) uses a **
 
 #### Observable execution
 
-- [ ] **`CopilotSdkWrapper.on('step', handler)`** — stream individual agent steps as they execute (builds on the `on(eventType, handler)` planned in v0.6.0)
+- [ ] **`CopilotSdkWrapper.on('step', handler)`** — stream individual agent steps as they execute (builds on the `on(eventType, handler)` planned in v0.7.0)
 - [ ] **`CopilotSdkWrapper.on('tool_call', handler)`** — fires before each tool invocation with the tool name and input
 - [ ] **`CopilotSdkWrapper.on('tool_result', handler)`** — fires after each tool returns with the output and duration
 - [ ] **`ExecutionObserver`** utility — subscribes to all execution events and emits a structured log, suitable for feeding into telemetry, audit trails, or CI dashboards

@@ -5,7 +5,7 @@
  * @since 0.1.3
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.formatSmokeTestResult = exports.validateSmokeTestResponse = exports.buildSmokeTestPrompt = exports.runSdkSmokeTest = exports.selectRelevantFiles = exports.buildValidationPrompt = exports.parseLogIssues = exports.LogValidator = exports.defineTool = exports.approveAll = exports.CopilotSdkWrapper = exports.loadSkillDirectories = exports.createRemoteMCPServer = exports.createLocalMCPServer = exports.isStreamDone = exports.extractDeltaContent = exports.parseSSEStream = exports.parseSSEChunk = exports.parseSSELine = exports.filterByRole = exports.hasRole = exports.extractContent = exports.createFunctionMessage = exports.createAssistantMessage = exports.createSystemMessage = exports.createUserMessage = exports.denyTools = exports.approveAllTools = exports.createHooks = exports.resolveAuthPriority = exports.resolveHmacFromEnv = exports.isGitHubToken = exports.SystemError = exports.APIError = exports.AuthenticationError = exports.CopilotSDKError = exports.CopilotClient = void 0;
+exports.ClaudeSdkWrapper = exports.ClaudeAPIError = exports.ClaudeAuthError = exports.ClaudeSDKError = exports.ClaudeClient = exports.formatSmokeTestResult = exports.validateSmokeTestResponse = exports.buildSmokeTestPrompt = exports.runSdkSmokeTest = exports.selectRelevantFiles = exports.buildValidationPrompt = exports.parseLogIssues = exports.LogValidator = exports.defineTool = exports.approveAll = exports.CopilotSdkWrapper = exports.loadSkillDirectories = exports.createRemoteMCPServer = exports.createLocalMCPServer = exports.isStreamDone = exports.extractDeltaContent = exports.parseSSEStream = exports.parseSSEChunk = exports.parseSSELine = exports.filterByRole = exports.hasRole = exports.extractContent = exports.createFunctionMessage = exports.createAssistantMessage = exports.createSystemMessage = exports.createUserMessage = exports.denyTools = exports.approveAllTools = exports.createHooks = exports.resolveAuthPriority = exports.resolveHmacFromEnv = exports.isGitHubToken = exports.SystemError = exports.APIError = exports.AuthenticationError = exports.CopilotSDKError = exports.CopilotClient = void 0;
 var completions_client_js_1 = require("./core/completions_client.js");
 Object.defineProperty(exports, "CopilotClient", { enumerable: true, get: function () { return completions_client_js_1.CopilotClient; } });
 var errors_js_1 = require("./core/errors.js");
@@ -66,3 +66,14 @@ Object.defineProperty(exports, "runSdkSmokeTest", { enumerable: true, get: funct
 Object.defineProperty(exports, "buildSmokeTestPrompt", { enumerable: true, get: function () { return sdk_smoke_test_js_1.buildSmokeTestPrompt; } });
 Object.defineProperty(exports, "validateSmokeTestResponse", { enumerable: true, get: function () { return sdk_smoke_test_js_1.validateSmokeTestResponse; } });
 Object.defineProperty(exports, "formatSmokeTestResult", { enumerable: true, get: function () { return sdk_smoke_test_js_1.formatSmokeTestResult; } });
+// ---------------------------------------------------------------------------
+// v0.7.0 — Claude Agent SDK Wrapper + Anthropic Messages API Client
+// ---------------------------------------------------------------------------
+var completions_client_js_2 = require("./claude/completions_client.js");
+Object.defineProperty(exports, "ClaudeClient", { enumerable: true, get: function () { return completions_client_js_2.ClaudeClient; } });
+var errors_js_2 = require("./claude/errors.js");
+Object.defineProperty(exports, "ClaudeSDKError", { enumerable: true, get: function () { return errors_js_2.ClaudeSDKError; } });
+Object.defineProperty(exports, "ClaudeAuthError", { enumerable: true, get: function () { return errors_js_2.ClaudeAuthError; } });
+Object.defineProperty(exports, "ClaudeAPIError", { enumerable: true, get: function () { return errors_js_2.ClaudeAPIError; } });
+var sdk_wrapper_js_1 = require("./claude/sdk_wrapper.js");
+Object.defineProperty(exports, "ClaudeSdkWrapper", { enumerable: true, get: function () { return sdk_wrapper_js_1.ClaudeSdkWrapper; } });
