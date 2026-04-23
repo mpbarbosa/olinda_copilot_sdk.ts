@@ -138,15 +138,14 @@ describe('ClaudeClient', () => {
             const client = new completions_client_1.default({ apiKey: validKey });
             await expect(client.complete(sampleMessages)).rejects.toThrow(errors_1.ClaudeAuthError);
         });
-        it('should throw ClaudeAPIError on non-2xx HTTP response', async () => {
-            mockFetchResponse({ ok: false, status: 500, statusText: 'Server Error' });
+        it.each([
+            { status: 429, statusText: 'Too Many Requests' },
+            { status: 500, statusText: 'Server Error' },
+        ])('should throw ClaudeAPIError with statusCode $status for complete() on $statusText', async ({ status, statusText }) => {
+            mockFetchResponse({ ok: false, status, statusText });
             const client = new completions_client_1.default({ apiKey: validKey });
-            await expect(client.complete(sampleMessages)).rejects.toThrow(errors_1.ClaudeAPIError);
-        });
-        it('should include the HTTP status code in ClaudeAPIError', async () => {
-            mockFetchResponse({ ok: false, status: 429, statusText: 'Too Many Requests' });
-            const client = new completions_client_1.default({ apiKey: validKey });
-            await expect(client.complete(sampleMessages)).rejects.toMatchObject({ statusCode: 429 });
+            await expect(client.complete(sampleMessages)).rejects.toBeInstanceOf(errors_1.ClaudeAPIError);
+            await expect(client.complete(sampleMessages)).rejects.toMatchObject({ statusCode: status });
         });
     });
     describe('stream', () => {
@@ -204,8 +203,11 @@ describe('ClaudeClient', () => {
             const client = new completions_client_1.default({ apiKey: validKey });
             await expect(client.stream(sampleMessages).next()).rejects.toThrow(errors_1.ClaudeAuthError);
         });
-        it('should throw ClaudeAPIError on non-2xx HTTP response', async () => {
-            mockFetchResponse({ ok: false, status: 503, statusText: 'Unavailable' });
+        it.each([
+            { status: 429, statusText: 'Too Many Requests' },
+            { status: 503, statusText: 'Unavailable' },
+        ])('should throw ClaudeAPIError for stream() on HTTP $status $statusText', async ({ status, statusText }) => {
+            mockFetchResponse({ ok: false, status, statusText });
             const client = new completions_client_1.default({ apiKey: validKey });
             await expect(client.stream(sampleMessages).next()).rejects.toThrow(errors_1.ClaudeAPIError);
         });
@@ -253,8 +255,11 @@ describe('ClaudeClient', () => {
             const client = new completions_client_1.default({ apiKey: validKey });
             await expect(client.streamText(sampleMessages).next()).rejects.toThrow(errors_1.ClaudeAuthError);
         });
-        it('should throw ClaudeAPIError on non-2xx HTTP response', async () => {
-            mockFetchResponse({ ok: false, status: 500, statusText: 'Server Error' });
+        it.each([
+            { status: 429, statusText: 'Too Many Requests' },
+            { status: 500, statusText: 'Server Error' },
+        ])('should throw ClaudeAPIError for streamText() on HTTP $status $statusText', async ({ status, statusText }) => {
+            mockFetchResponse({ ok: false, status, statusText });
             const client = new completions_client_1.default({ apiKey: validKey });
             await expect(client.streamText(sampleMessages).next()).rejects.toThrow(errors_1.ClaudeAPIError);
         });

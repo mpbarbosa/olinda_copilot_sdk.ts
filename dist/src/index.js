@@ -67,7 +67,7 @@ Object.defineProperty(exports, "buildSmokeTestPrompt", { enumerable: true, get: 
 Object.defineProperty(exports, "validateSmokeTestResponse", { enumerable: true, get: function () { return sdk_smoke_test_js_1.validateSmokeTestResponse; } });
 Object.defineProperty(exports, "formatSmokeTestResult", { enumerable: true, get: function () { return sdk_smoke_test_js_1.formatSmokeTestResult; } });
 // ---------------------------------------------------------------------------
-// v0.7.0 — Claude Agent SDK Wrapper + Anthropic Messages API Client
+// v0.9.0 — Claude Agent SDK Wrapper + Anthropic Messages API Client
 // ---------------------------------------------------------------------------
 var completions_client_js_2 = require("./claude/completions_client.js");
 Object.defineProperty(exports, "ClaudeClient", { enumerable: true, get: function () { return completions_client_js_2.ClaudeClient; } });

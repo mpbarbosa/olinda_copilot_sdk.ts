@@ -44,7 +44,7 @@ GitHub Actions workflow handles the update process end-to-end.
 ## How to trigger manually
 
 ```shell
-gh workflow run update-guia.yml --field version=v0.8.0-alpha
+gh workflow run update-guia.yml --field version=v0.9.0-alpha
 ```
 
 Leave `version` blank to use the latest published release.

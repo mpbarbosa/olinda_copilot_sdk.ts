@@ -2,12 +2,12 @@
  * TypeScript Types for Anthropic Messages API
  * @module claude/types
  * @description Core TypeScript interfaces and types for the Anthropic Messages API.
- * @since 0.8.0
+ * @since 0.9.0
  */
 
 /**
  * Configuration options for {@link ClaudeClient}.
- * @since 0.8.0
+ * @since 0.9.0
  * @example
  * const client = new ClaudeClient({ apiKey: process.env.ANTHROPIC_API_KEY! });
  */
@@ -26,13 +26,13 @@ export interface ClaudeClientOptions {
  * Role of a message participant in the Anthropic Messages API.
  * Note: system prompts are passed as a separate `system` field in the request body,
  * not as messages.
- * @since 0.8.0
+ * @since 0.9.0
  */
 export type ClaudeMessageRole = 'user' | 'assistant';
 
 /**
  * A single message in an Anthropic conversation.
- * @since 0.8.0
+ * @since 0.9.0
  * @example
  * const msg: ClaudeMessage = { role: 'user', content: 'Hello!' };
  */
@@ -45,7 +45,7 @@ export interface ClaudeMessage {
 
 /**
  * Request body for the Anthropic Messages endpoint.
- * @since 0.8.0
+ * @since 0.9.0
  */
 export interface ClaudeCompletionRequest {
 	/** Model identifier (e.g. `'claude-sonnet-4-5'`). */
@@ -67,7 +67,7 @@ export interface ClaudeCompletionRequest {
 
 /**
  * A text content block in an Anthropic completion response.
- * @since 0.8.0
+ * @since 0.9.0
  */
 export interface ClaudeContentBlock {
 	type: 'text';
@@ -77,7 +77,7 @@ export interface ClaudeContentBlock {
 
 /**
  * Token usage statistics from an Anthropic completion.
- * @since 0.8.0
+ * @since 0.9.0
  */
 export interface ClaudeUsage {
 	/** Number of tokens in the input (prompt). */
@@ -88,7 +88,7 @@ export interface ClaudeUsage {
 
 /**
  * Full non-streaming completion response from the Anthropic Messages API.
- * @since 0.8.0
+ * @since 0.9.0
  */
 export interface ClaudeCompletionResponse {
 	/** Unique identifier for this completion. */
@@ -109,7 +109,7 @@ export interface ClaudeCompletionResponse {
 
 /**
  * Discriminated union of SSE event types emitted by the Anthropic streaming API.
- * @since 0.8.0
+ * @since 0.9.0
  */
 export type ClaudeStreamEventType =
 	| 'message_start'
@@ -123,7 +123,7 @@ export type ClaudeStreamEventType =
 /**
  * A single SSE event from the Anthropic streaming Messages API.
  * Use {@link ClaudeTextDeltaEvent} for the typed subtype that carries text.
- * @since 0.8.0
+ * @since 0.9.0
  */
 export interface ClaudeStreamEvent {
 	/** The event type, from the `event:` SSE header line. */
@@ -134,7 +134,7 @@ export interface ClaudeStreamEvent {
 
 /**
  * A `content_block_delta` SSE event carrying an incremental text chunk.
- * @since 0.8.0
+ * @since 0.9.0
  * @example
  * if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
  *   process.stdout.write(event.delta.text);

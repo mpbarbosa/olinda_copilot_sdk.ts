@@ -13,13 +13,11 @@ This file provides concise, project-specific guidance to help Copilot make high-
 ## Architecture and Source Boundaries
 
 Respect these stable source layers:
-
 - `src/core/` – Foundational runtime helpers
 - `src/lib/` – Reusable workflow domain logic
 - `src/utils/` – Shared low-level utilities
 
 Supporting workflow surfaces:
-
 - `.workflow-config.yaml` – Project-local workflow configuration
 - `.ai_workflow/` – Runtime artifacts, cache, and checkpoints
 
@@ -46,7 +44,6 @@ Supporting workflow surfaces:
 ## Validation Commands
 
 For substantive code changes, always validate with:
-
 - `npm run lint`
 - `npm test`
 - `npm run build`
@@ -58,7 +55,6 @@ Use narrower scripts from `package.json` only for intentionally scoped tasks.
 ## Authoritative References
 
 Consult these documents for details:
-
 - `README.md` – Project overview, installation, usage
 - `docs/ARCHITECTURE.md` – Repository layout and architecture
 - `CHANGELOG.md`, `CONTRIBUTING.md`, `ROADMAP.md`

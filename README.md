@@ -79,6 +79,11 @@ await wrapper.cleanup();
 
 See [docs/API.md](./docs/API.md) for the full reference.
 
+Additional design guidance:
+
+- [docs/HIGH_COHESION_GUIDE.md](./docs/HIGH_COHESION_GUIDE.md)
+- [docs/LOW_COUPLING_GUIDE.md](./docs/LOW_COUPLING_GUIDE.md)
+
 | Module | Description |
 |---|---|
 | `CopilotClient` | HTTP client wrapping the Copilot completions API |
@@ -147,6 +152,11 @@ Additional repository metadata:
 - `.github/skills/` contains repository-specific Copilot skills. See
   [`.github/SKILLS.md`](./.github/SKILLS.md) for the index.
 - `.github/extensions/` contains Copilot CLI extensions used by this repository.
+
+For architectural constraints and design guidance, see
+[docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md),
+[docs/HIGH_COHESION_GUIDE.md](./docs/HIGH_COHESION_GUIDE.md), and
+[docs/LOW_COUPLING_GUIDE.md](./docs/LOW_COUPLING_GUIDE.md).
 
 ## License
 

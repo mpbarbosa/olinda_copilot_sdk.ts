@@ -7,12 +7,12 @@
  *
  * Note: Anthropic's SSE format differs from OpenAI's — events use `event:`+`data:` pairs
  * rather than bare `data:` lines, so the existing `parseSSEStream` utility is not used here.
- * @since 0.7.0
+ * @since 0.9.0
  */
 import type { ClaudeClientOptions, ClaudeCompletionRequest, ClaudeCompletionResponse, ClaudeMessage, ClaudeStreamEvent } from './types.js';
 /**
  * Stateless HTTP client for the Anthropic Messages API.
- * @since 0.7.0
+ * @since 0.9.0
  * @example
  * const client = new ClaudeClient({ apiKey: process.env.ANTHROPIC_API_KEY! });
  * const res = await client.complete([{ role: 'user', content: 'Hello!' }]);
@@ -36,7 +36,7 @@ export declare class ClaudeClient {
      * @returns Resolved completion response.
      * @throws {ClaudeAuthError} On HTTP 401.
      * @throws {ClaudeAPIError} On any other non-2xx HTTP response.
-     * @since 0.7.0
+     * @since 0.9.0
      * @example
      * const res = await client.complete([{ role: 'user', content: 'Hi' }]);
      * console.log(res.content[0].text);
@@ -54,7 +54,7 @@ export declare class ClaudeClient {
      * @returns Async iterable of stream events.
      * @throws {ClaudeAuthError} On HTTP 401.
      * @throws {ClaudeAPIError} On any other non-2xx HTTP response.
-     * @since 0.7.0
+     * @since 0.9.0
      * @example
      * for await (const event of client.stream([{ role: 'user', content: 'Hi' }])) {
      *   if (event.type === 'content_block_delta') {
@@ -72,7 +72,7 @@ export declare class ClaudeClient {
      * @returns Async iterable of text strings.
      * @throws {ClaudeAuthError} On HTTP 401.
      * @throws {ClaudeAPIError} On any other non-2xx HTTP response.
-     * @since 0.7.0
+     * @since 0.9.0
      * @example
      * for await (const text of client.streamText([{ role: 'user', content: 'Hi' }])) {
      *   process.stdout.write(text);

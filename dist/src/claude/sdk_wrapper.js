@@ -13,7 +13,7 @@
  * consumed, subsequent calls start a fresh process automatically.
  *
  * @module claude/sdk_wrapper
- * @since 0.7.0
+ * @since 0.9.0
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ClaudeSdkWrapper = void 0;
@@ -26,7 +26,7 @@ const errors_js_1 = require("./errors.js");
  * Wraps the Claude Agent SDK `query()` function with default option management,
  * concurrent-call serialisation, and session management utilities.
  *
- * @since 0.7.0
+ * @since 0.9.0
  * @example
  * const wrapper = new ClaudeSdkWrapper({
  *   model: 'claude-sonnet-4-5',
@@ -64,7 +64,7 @@ class ClaudeSdkWrapper {
     /**
      * Returns `true` if `@anthropic-ai/claude-agent-sdk` can be required at runtime.
      * Does NOT start a subprocess — safe to call any time.
-     * @since 0.7.0
+     * @since 0.9.0
      */
     static isAvailable() {
         try {
@@ -87,7 +87,7 @@ class ClaudeSdkWrapper {
      *
      * @param initializeTimeoutMs - Timeout in milliseconds for the warmup handshake.
      * @returns `{ warmed: true }` on success.
-     * @since 0.7.0
+     * @since 0.9.0
      * @example
      * await wrapper.warmup();
      * const result = await wrapper.run('Hello!');
@@ -114,7 +114,7 @@ class ClaudeSdkWrapper {
      *   when the warm query is consumed (options were fixed at `warmup()` time).
      * @returns Collected run result including concatenated text and metadata.
      * @throws {@link ClaudeSDKError} When the agent run terminates with an error subtype.
-     * @since 0.7.0
+     * @since 0.9.0
      * @example
      * const { content, totalCostUsd } = await wrapper.run('What is 2 + 2?');
      */
@@ -131,7 +131,7 @@ class ClaudeSdkWrapper {
      * Lists sessions, optionally filtered by directory or limit.
      * @param options - Filter options (e.g. `{ dir: process.cwd(), limit: 10 }`).
      * @returns Array of session metadata.
-     * @since 0.7.0
+     * @since 0.9.0
      */
     async listSessions(options) {
         return (0, claude_agent_sdk_1.listSessions)(options);
@@ -141,7 +141,7 @@ class ClaudeSdkWrapper {
      * @param sessionId - UUID of the session.
      * @param options - Optional `{ dir }` project path.
      * @returns Session info, or `undefined` if not found.
-     * @since 0.7.0
+     * @since 0.9.0
      */
     async getSessionInfo(sessionId, options) {
         return (0, claude_agent_sdk_1.getSessionInfo)(sessionId, options);
@@ -150,7 +150,7 @@ class ClaudeSdkWrapper {
      * Deletes a session by ID.
      * @param sessionId - UUID of the session.
      * @param options - Optional `{ dir }` project path.
-     * @since 0.7.0
+     * @since 0.9.0
      */
     async deleteSession(sessionId, options) {
         return (0, claude_agent_sdk_1.deleteSession)(sessionId, options);
@@ -160,7 +160,7 @@ class ClaudeSdkWrapper {
      * @param sessionId - UUID of the session.
      * @param title - New title for the session.
      * @param options - Optional `{ dir }` project path.
-     * @since 0.7.0
+     * @since 0.9.0
      */
     async renameSession(sessionId, title, options) {
         return (0, claude_agent_sdk_1.renameSession)(sessionId, title, options);
@@ -170,7 +170,7 @@ class ClaudeSdkWrapper {
      * @param sessionId - UUID of the session.
      * @param options - Optional filter (e.g. `{ limit, offset }`).
      * @returns Array of messages, or empty array if session not found.
-     * @since 0.7.0
+     * @since 0.9.0
      */
     async getSessionMessages(sessionId, options) {
         return (0, claude_agent_sdk_1.getSessionMessages)(sessionId, options);

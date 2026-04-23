@@ -12,7 +12,7 @@
  * consumed, subsequent calls start a fresh process automatically.
  *
  * @module claude/sdk_wrapper
- * @since 0.8.0
+ * @since 0.9.0
  */
 
 import {
@@ -45,7 +45,7 @@ import { ClaudeSDKError } from './errors.js';
  * Options accepted by the {@link ClaudeSdkWrapper} constructor.
  * All fields become defaults for every `run()` call; they can be overridden
  * per-call via the `overrides` argument.
- * @since 0.8.0
+ * @since 0.9.0
  */
 export interface ClaudeSdkWrapperOptions {
 	/** Model alias or full model ID (e.g. `'claude-sonnet-4-5'`). */
@@ -62,7 +62,7 @@ export interface ClaudeSdkWrapperOptions {
 
 /**
  * Result of a successful {@link ClaudeSdkWrapper.warmup} call.
- * @since 0.8.0
+ * @since 0.9.0
  */
 export interface WarmupResult {
 	/** Always `true` — indicates the subprocess was pre-warmed successfully. */
@@ -71,7 +71,7 @@ export interface WarmupResult {
 
 /**
  * Result returned by {@link ClaudeSdkWrapper.run}.
- * @since 0.8.0
+ * @since 0.9.0
  */
 export interface RunResult {
 	/** Concatenated text from all assistant messages in the run. */
@@ -96,7 +96,7 @@ export interface RunResult {
  * Wraps the Claude Agent SDK `query()` function with default option management,
  * concurrent-call serialisation, and session management utilities.
  *
- * @since 0.8.0
+ * @since 0.9.0
  * @example
  * const wrapper = new ClaudeSdkWrapper({
  *   model: 'claude-sonnet-4-5',
@@ -157,7 +157,7 @@ export class ClaudeSdkWrapper {
 	/**
 	 * Returns `true` if `@anthropic-ai/claude-agent-sdk` can be required at runtime.
 	 * Does NOT start a subprocess — safe to call any time.
-	 * @since 0.8.0
+	 * @since 0.9.0
 	 */
 	static isAvailable(): boolean {
 		try {
@@ -181,7 +181,7 @@ export class ClaudeSdkWrapper {
 	 *
 	 * @param initializeTimeoutMs - Timeout in milliseconds for the warmup handshake.
 	 * @returns `{ warmed: true }` on success.
-	 * @since 0.8.0
+	 * @since 0.9.0
 	 * @example
 	 * await wrapper.warmup();
 	 * const result = await wrapper.run('Hello!');
@@ -210,7 +210,7 @@ export class ClaudeSdkWrapper {
 	 *   when the warm query is consumed (options were fixed at `warmup()` time).
 	 * @returns Collected run result including concatenated text and metadata.
 	 * @throws {@link ClaudeSDKError} When the agent run terminates with an error subtype.
-	 * @since 0.8.0
+	 * @since 0.9.0
 	 * @example
 	 * const { content, totalCostUsd } = await wrapper.run('What is 2 + 2?');
 	 */
@@ -229,7 +229,7 @@ export class ClaudeSdkWrapper {
 	 * Lists sessions, optionally filtered by directory or limit.
 	 * @param options - Filter options (e.g. `{ dir: process.cwd(), limit: 10 }`).
 	 * @returns Array of session metadata.
-	 * @since 0.8.0
+	 * @since 0.9.0
 	 */
 	async listSessions(options?: ListSessionsOptions): Promise<SDKSessionInfo[]> {
 		return sdkListSessions(options);
@@ -240,7 +240,7 @@ export class ClaudeSdkWrapper {
 	 * @param sessionId - UUID of the session.
 	 * @param options - Optional `{ dir }` project path.
 	 * @returns Session info, or `undefined` if not found.
-	 * @since 0.8.0
+	 * @since 0.9.0
 	 */
 	async getSessionInfo(
 		sessionId: string,
@@ -253,7 +253,7 @@ export class ClaudeSdkWrapper {
 	 * Deletes a session by ID.
 	 * @param sessionId - UUID of the session.
 	 * @param options - Optional `{ dir }` project path.
-	 * @since 0.8.0
+	 * @since 0.9.0
 	 */
 	async deleteSession(sessionId: string, options?: SessionMutationOptions): Promise<void> {
 		return sdkDeleteSession(sessionId, options);
@@ -264,7 +264,7 @@ export class ClaudeSdkWrapper {
 	 * @param sessionId - UUID of the session.
 	 * @param title - New title for the session.
 	 * @param options - Optional `{ dir }` project path.
-	 * @since 0.8.0
+	 * @since 0.9.0
 	 */
 	async renameSession(
 		sessionId: string,
@@ -279,7 +279,7 @@ export class ClaudeSdkWrapper {
 	 * @param sessionId - UUID of the session.
 	 * @param options - Optional filter (e.g. `{ limit, offset }`).
 	 * @returns Array of messages, or empty array if session not found.
-	 * @since 0.8.0
+	 * @since 0.9.0
 	 */
 	async getSessionMessages(
 		sessionId: string,
