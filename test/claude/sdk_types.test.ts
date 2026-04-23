@@ -1,55 +1,84 @@
-// test/sdk_types.test.ts
+// test/claude/sdk_types.test.ts
 
-import type * as sdkTypes from '../src/claude/sdk_types';
+import type {
+	Options,
+	PermissionMode,
+	Query,
+	WarmQuery,
+	SDKMessage,
+	SDKAssistantMessage,
+	SDKUserMessage,
+	SDKResultMessage,
+	SDKResultSuccess,
+	SDKResultError,
+	SDKSystemMessage,
+	SDKSessionInfo,
+	SessionMessage,
+	ListSessionsOptions,
+	GetSessionInfoOptions,
+	GetSessionMessagesOptions,
+	SessionMutationOptions,
+	HookEvent,
+	HookCallbackMatcher,
+	HookCallback,
+	AgentDefinition,
+	CanUseTool,
+	EffortLevel,
+} from '../../src/claude/sdk_types';
 
 describe('claude/sdk_types type re-exports', () => {
-  it('should export all expected types', () => {
-    // List of expected type keys
-    const expectedTypes = [
-      'Options',
-      'PermissionMode',
-      'Query',
-      'WarmQuery',
-      'SDKMessage',
-      'SDKAssistantMessage',
-      'SDKUserMessage',
-      'SDKResultMessage',
-      'SDKResultSuccess',
-      'SDKResultError',
-      'SDKSystemMessage',
-      'SDKSessionInfo',
-      'SessionMessage',
-      'ListSessionsOptions',
-      'GetSessionInfoOptions',
-      'GetSessionMessagesOptions',
-      'SessionMutationOptions',
-      'HookEvent',
-      'HookCallbackMatcher',
-      'HookCallback',
-      'AgentDefinition',
-      'CanUseTool',
-      'EffortLevel',
-    ];
+	it('allows PermissionMode values in type positions', () => {
+		const modes: PermissionMode[] = [
+			'default', 'acceptEdits', 'bypassPermissions', 'plan', 'dontAsk', 'auto',
+		];
+		expect(modes).toHaveLength(6);
+		modes.forEach(m => expect(typeof m).toBe('string'));
+	});
 
-    expectedTypes.forEach(typeName => {
-      expect(typeName in sdkTypes).toBe(true);
-    });
-  });
+	it('allows EffortLevel values in type positions', () => {
+		const levels: EffortLevel[] = ['low', 'medium', 'high', 'xhigh', 'max'];
+		expect(levels).toHaveLength(5);
+		levels.forEach(l => expect(typeof l).toBe('string'));
+	});
 
-  it('should allow importing and using re-exported types in type annotations (happy path)', () => {
-    // This test is for type-checking only; it will always pass at runtime.
-    type TestOptions = sdkTypes.Options | undefined;
-    const opts: TestOptions = undefined;
-    expect(opts).toBeUndefined();
-  });
+	it('allows HookEvent values in type positions', () => {
+		const events: HookEvent[] = ['PreToolUse', 'PostToolUse', 'SessionStart', 'SessionEnd', 'Stop'];
+		expect(events).toHaveLength(5);
+		events.forEach(e => expect(typeof e).toBe('string'));
+	});
 
-  it('should not export unexpected types (edge case)', () => {
-    // Check that a random type is not exported
-    expect('NotAType' in sdkTypes).toBe(false);
-  });
+	it('allows all complex types to be used in type positions', () => {
+		// TypeScript erases types at runtime; this tuple asserts each type
+		// compiles correctly when used as a type annotation.
+		const typeMarkers = [] as unknown as [
+			Options,
+			Query,
+			WarmQuery,
+			SDKMessage,
+			SDKAssistantMessage,
+			SDKUserMessage,
+			SDKResultMessage,
+			SDKResultSuccess,
+			SDKResultError,
+			SDKSystemMessage,
+			SDKSessionInfo,
+			SessionMessage,
+			HookCallbackMatcher,
+			HookCallback,
+			AgentDefinition,
+			CanUseTool,
+		];
+		expect(typeMarkers).toHaveLength(0);
+	});
 
-  it('should throw at runtime if accessing a type as a value (error scenario)', () => {
-    // Types are erased at runtime; accessing as value should be undefined
-    expect((sdkTypes as any).Options).toBeUndefined();
-  });
+	it('allows session option types to be used in type positions', () => {
+		const listOpts: ListSessionsOptions = {};
+		const infoOpts: GetSessionInfoOptions = {};
+		const msgsOpts: GetSessionMessagesOptions = {};
+		const mutateOpts: SessionMutationOptions = {};
+		expect(listOpts).toBeDefined();
+		expect(infoOpts).toBeDefined();
+		expect(msgsOpts).toBeDefined();
+		expect(mutateOpts).toBeDefined();
+	});
 });
