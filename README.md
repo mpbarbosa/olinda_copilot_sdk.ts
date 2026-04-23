@@ -120,16 +120,33 @@ The script guards against a dirty working tree and failing tests before proceedi
 
 ```text
 olinda_copilot_sdk.ts/
-├── src/                # TypeScript source
-│   ├── core/           # CopilotClient, types, errors
-│   └── utils/          # message and stream utilities
-├── test/               # Jest test suite
-│   └── __stubs__/      # shared test fixtures and typed constants
-├── scripts/            # automation scripts (deploy.sh)
-├── docs/               # API reference
-└── .github/            # CI/CD workflows and Copilot instructions
-    └── workflows/      # GitHub Actions workflow definitions
+├── src/                      # TypeScript source
+│   ├── core/                 # Copilot REST/SDK clients, auth, hooks, MCP, errors
+│   ├── lib/                  # Higher-level helpers built from core + utils
+│   ├── utils/                # Pure message and stream utilities
+│   └── claude/               # Claude API and Claude Agent SDK wrapper surfaces
+├── test/                     # Jest test suite
+│   ├── core/                 # Unit tests for src/core/
+│   ├── lib/                  # Unit tests for src/lib/
+│   ├── utils/                # Unit tests for src/utils/
+│   ├── integration/          # Build artifact smoke tests
+│   └── __stubs__/            # shared test fixtures and typed constants
+├── scripts/                  # automation scripts (deploy.sh)
+├── docs/                     # API and architecture reference
+├── .claude/                  # Local Claude Code permissions/config metadata
+└── .github/                  # CI/CD workflows plus Copilot automation assets
+    ├── workflows/            # GitHub Actions workflow definitions
+    ├── skills/               # Reusable Copilot skill instructions
+    └── extensions/           # Project-specific Copilot CLI extensions
 ```
+
+Additional repository metadata:
+
+- `.claude/` stores local Claude Code configuration for this checkout. See
+  [`.claude/README.md`](./.claude/README.md).
+- `.github/skills/` contains repository-specific Copilot skills. See
+  [`.github/SKILLS.md`](./.github/SKILLS.md) for the index.
+- `.github/extensions/` contains Copilot CLI extensions used by this repository.
 
 ## License
 

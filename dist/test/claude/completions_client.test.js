@@ -8,11 +8,17 @@ const errors_1 = require("../../src/claude/errors");
 // Mock fetch globally
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const globalAny = global;
+const originalFetch = globalAny.fetch;
+const getFetchMock = () => globalAny.fetch;
+const mockFetchResponse = (response) => {
+    getFetchMock().mockResolvedValue(response);
+};
 beforeEach(() => {
     globalAny.fetch = jest.fn();
 });
 afterEach(() => {
     jest.resetAllMocks();
+    globalAny.fetch = originalFetch;
 });
 const validKey = 'sk-ant-test-key';
 const baseUrl = 'https://api.anthropic.com';
@@ -58,10 +64,12 @@ const createClaudeMockStream = (events) => {
 };
 describe('ClaudeClient', () => {
     describe('constructor', () => {
-        it('should throw ClaudeAuthError if apiKey is missing', () => {
-            expect(() => new completions_client_1.default({ apiKey: '' })).toThrow(errors_1.ClaudeAuthError);
+        it.each([
+            ['an empty apiKey', { apiKey: '' }],
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            expect(() => new completions_client_1.default({})).toThrow(errors_1.ClaudeAuthError);
+            ['a missing apiKey option', {}],
+        ])('should throw ClaudeAuthError for %s', (_label, options) => {
+            expect(() => new completions_client_1.default(options)).toThrow(errors_1.ClaudeAuthError);
         });
         it('should set default baseUrl, model, and apiVersion', () => {
             const client = new completions_client_1.default({ apiKey: validKey });
@@ -87,7 +95,7 @@ describe('ClaudeClient', () => {
     });
     describe('complete', () => {
         it('should return ClaudeCompletionResponse on success', async () => {
-            globalAny.fetch.mockResolvedValue({
+            mockFetchResponse({
                 ok: true,
                 status: 200,
                 json: () => Promise.resolve(completionResponse),
@@ -97,7 +105,7 @@ describe('ClaudeClient', () => {
             expect(res).toEqual(completionResponse);
         });
         it('should use x-api-key and anthropic-version headers', async () => {
-            globalAny.fetch.mockResolvedValue({
+            mockFetchResponse({
                 ok: true,
                 status: 200,
                 json: () => Promise.resolve(completionResponse),
@@ -114,7 +122,7 @@ describe('ClaudeClient', () => {
             }));
         });
         it('should apply optional request overrides', async () => {
-            globalAny.fetch.mockResolvedValue({
+            mockFetchResponse({
                 ok: true,
                 status: 200,
                 json: () => Promise.resolve(completionResponse),
@@ -126,17 +134,17 @@ describe('ClaudeClient', () => {
             expect(body.temperature).toBe(0.5);
         });
         it('should throw ClaudeAuthError on HTTP 401', async () => {
-            globalAny.fetch.mockResolvedValue({ ok: false, status: 401, statusText: 'Unauthorized' });
+            mockFetchResponse({ ok: false, status: 401, statusText: 'Unauthorized' });
             const client = new completions_client_1.default({ apiKey: validKey });
             await expect(client.complete(sampleMessages)).rejects.toThrow(errors_1.ClaudeAuthError);
         });
         it('should throw ClaudeAPIError on non-2xx HTTP response', async () => {
-            globalAny.fetch.mockResolvedValue({ ok: false, status: 500, statusText: 'Server Error' });
+            mockFetchResponse({ ok: false, status: 500, statusText: 'Server Error' });
             const client = new completions_client_1.default({ apiKey: validKey });
             await expect(client.complete(sampleMessages)).rejects.toThrow(errors_1.ClaudeAPIError);
         });
         it('should include the HTTP status code in ClaudeAPIError', async () => {
-            globalAny.fetch.mockResolvedValue({ ok: false, status: 429, statusText: 'Too Many Requests' });
+            mockFetchResponse({ ok: false, status: 429, statusText: 'Too Many Requests' });
             const client = new completions_client_1.default({ apiKey: validKey });
             await expect(client.complete(sampleMessages)).rejects.toMatchObject({ statusCode: 429 });
         });
@@ -148,7 +156,7 @@ describe('ClaudeClient', () => {
                 { event: 'content_block_delta', data: { type: 'content_block_delta', index: 0, delta: { type: 'text_delta', text: 'Hi' } } },
                 { event: 'message_stop', data: { type: 'message_stop' } },
             ];
-            globalAny.fetch.mockResolvedValue({
+            mockFetchResponse({
                 ok: true,
                 status: 200,
                 body: createClaudeMockStream(events),
@@ -169,7 +177,7 @@ describe('ClaudeClient', () => {
                 { event: 'message_stop', data: { type: 'message_stop' } },
                 { event: 'content_block_delta', data: { type: 'content_block_delta', index: 0, delta: { type: 'text_delta', text: 'NEVER' } } },
             ];
-            globalAny.fetch.mockResolvedValue({
+            mockFetchResponse({
                 ok: true,
                 status: 200,
                 body: createClaudeMockStream(events),
@@ -183,7 +191,7 @@ describe('ClaudeClient', () => {
             expect(collected[0].type).toBe('message_stop');
         });
         it('should return immediately if response.body is missing', async () => {
-            globalAny.fetch.mockResolvedValue({ ok: true, status: 200, body: undefined });
+            mockFetchResponse({ ok: true, status: 200, body: undefined });
             const client = new completions_client_1.default({ apiKey: validKey });
             const collected = [];
             for await (const evt of client.stream(sampleMessages)) {
@@ -192,12 +200,12 @@ describe('ClaudeClient', () => {
             expect(collected).toHaveLength(0);
         });
         it('should throw ClaudeAuthError on HTTP 401', async () => {
-            globalAny.fetch.mockResolvedValue({ ok: false, status: 401, statusText: 'Unauthorized' });
+            mockFetchResponse({ ok: false, status: 401, statusText: 'Unauthorized' });
             const client = new completions_client_1.default({ apiKey: validKey });
             await expect(client.stream(sampleMessages).next()).rejects.toThrow(errors_1.ClaudeAuthError);
         });
         it('should throw ClaudeAPIError on non-2xx HTTP response', async () => {
-            globalAny.fetch.mockResolvedValue({ ok: false, status: 503, statusText: 'Unavailable' });
+            mockFetchResponse({ ok: false, status: 503, statusText: 'Unavailable' });
             const client = new completions_client_1.default({ apiKey: validKey });
             await expect(client.stream(sampleMessages).next()).rejects.toThrow(errors_1.ClaudeAPIError);
         });
@@ -210,7 +218,7 @@ describe('ClaudeClient', () => {
                 { event: 'content_block_delta', data: { type: 'content_block_delta', index: 0, delta: { type: 'text_delta', text: ' world' } } },
                 { event: 'message_stop', data: { type: 'message_stop' } },
             ];
-            globalAny.fetch.mockResolvedValue({
+            mockFetchResponse({
                 ok: true,
                 status: 200,
                 body: createClaudeMockStream(events),
@@ -228,7 +236,7 @@ describe('ClaudeClient', () => {
                 { event: 'content_block_delta', data: { type: 'content_block_delta', index: 0, delta: { type: 'input_json_delta', partial_json: '{}' } } },
                 { event: 'message_stop', data: { type: 'message_stop' } },
             ];
-            globalAny.fetch.mockResolvedValue({
+            mockFetchResponse({
                 ok: true,
                 status: 200,
                 body: createClaudeMockStream(events),
@@ -241,17 +249,17 @@ describe('ClaudeClient', () => {
             expect(texts).toHaveLength(0);
         });
         it('should throw ClaudeAuthError on HTTP 401', async () => {
-            globalAny.fetch.mockResolvedValue({ ok: false, status: 401, statusText: 'Unauthorized' });
+            mockFetchResponse({ ok: false, status: 401, statusText: 'Unauthorized' });
             const client = new completions_client_1.default({ apiKey: validKey });
             await expect(client.streamText(sampleMessages).next()).rejects.toThrow(errors_1.ClaudeAuthError);
         });
         it('should throw ClaudeAPIError on non-2xx HTTP response', async () => {
-            globalAny.fetch.mockResolvedValue({ ok: false, status: 500, statusText: 'Server Error' });
+            mockFetchResponse({ ok: false, status: 500, statusText: 'Server Error' });
             const client = new completions_client_1.default({ apiKey: validKey });
             await expect(client.streamText(sampleMessages).next()).rejects.toThrow(errors_1.ClaudeAPIError);
         });
         it('should return empty when response.body is missing', async () => {
-            globalAny.fetch.mockResolvedValue({ ok: true, status: 200, body: undefined });
+            mockFetchResponse({ ok: true, status: 200, body: undefined });
             const client = new completions_client_1.default({ apiKey: validKey });
             const texts = [];
             for await (const text of client.streamText(sampleMessages)) {

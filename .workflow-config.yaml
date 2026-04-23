@@ -7,7 +7,7 @@ project:
   type: 'typescript-library'
   description: 'TypeScript Wrapper Library for GitHub Copilot SDK'
   kind: 'nodejs_api'
-  version: '0.7.0'
+  version: '0.8.0'
 
 tech_stack:
   primary_language: 'typescript'

@@ -193,7 +193,7 @@ export type {
 } from './core/session_types.js';
 
 // ---------------------------------------------------------------------------
-// v0.7.0 — Claude Agent SDK Wrapper + Anthropic Messages API Client
+// v0.8.0 — Claude Agent SDK Wrapper + Anthropic Messages API Client
 // ---------------------------------------------------------------------------
 
 export { ClaudeClient } from './claude/completions_client.js';
