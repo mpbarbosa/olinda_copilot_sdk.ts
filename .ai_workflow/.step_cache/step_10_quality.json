@@ -124,12 +124,12 @@
     "eslint.config.js": {
       "score": 100,
       "issueCount": 0,
-      "lastAnalyzed": "2026-04-23T17:40:02.451Z"
+      "lastAnalyzed": "2026-04-23T20:14:44.754Z"
     },
     "jest.config.js": {
       "score": 100,
       "issueCount": 0,
-      "lastAnalyzed": "2026-04-23T17:40:02.451Z"
+      "lastAnalyzed": "2026-04-23T20:14:44.754Z"
     },
     "src/claude/completions_client.ts": {
       "score": 100,

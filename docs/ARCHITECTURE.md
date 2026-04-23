@@ -2,6 +2,11 @@
 
 This document describes the internal structure of the library, the responsibility of each module, and the design decisions behind the main abstractions.
 
+Related design guidance:
+
+- [High Cohesion Guide](./HIGH_COHESION_GUIDE.md)
+- [Low Coupling Guide](./LOW_COUPLING_GUIDE.md)
+
 ---
 
 ## Overview
