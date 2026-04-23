@@ -20,7 +20,9 @@ Both clients are pure, side-effect-free in construction and deterministic in beh
 ```text
 src/
   core/                   # Clients, domain types, errors, auth, extensions
+  lib/                    # Higher-level helpers composed from core + utils
   utils/                  # Pure stateless utility functions
+  claude/                 # Claude API client and Claude Agent SDK wrapper
   index.ts                # Public barrel — re-exports only
 test/
   core/                   # Unit tests for src/core/
@@ -31,6 +33,9 @@ test/
   __stubs__/              # Minimal CJS stub for @github/copilot-sdk
   index.test.ts           # Public export surface smoke tests
 docs/                     # Hand-authored reference documentation
+.claude/                  # Local Claude Code permission/config metadata
+.github/skills/           # Reusable Copilot skill definitions for repo workflows
+.github/extensions/       # Project-specific Copilot CLI extensions
 dist/                     # Compiled CJS output (gitignored in source, committed for consumers)
 dist/esm/                 # Compiled ESM output
 ```
@@ -140,11 +145,74 @@ Pure SSE parsing utilities:
 
 ---
 
+## `src/lib/`
+
+Higher-level helpers that combine the lower-level `src/core/` and `src/utils/`
+building blocks into focused workflows.
+
+### `log_validator.ts`
+
+Token-efficient log review helper that:
+
+- reads AI workflow logs from disk
+- extracts concrete actionable issues
+- samples relevant repository files
+- builds a compact prompt for `CopilotSdkWrapper`
+
+### `sdk_smoke_test.ts`
+
+Minimal connectivity probe for the GitHub Copilot SDK wrapper.
+
+- sends a small prompt through `CopilotSdkWrapper`
+- validates the response shape
+- returns a structured pass/fail result
+
+---
+
+## `src/claude/`
+
+Claude-specific client and wrapper surface, exported alongside the GitHub
+Copilot integrations from the public barrel.
+
+### `completions_client.ts`
+
+Stateless client for Anthropic's Messages API.
+
+### `sdk_wrapper.ts`
+
+Stateful wrapper around the Claude Agent SDK lifecycle.
+
+### `types.ts`, `sdk_types.ts`, `errors.ts`
+
+Shared request/response types, SDK-facing type exports, and the Claude-specific
+error hierarchy.
+
+---
+
 ## `src/index.ts` — Public Entry Point
 
 Barrel re-export only. Everything exported here is part of the public API.
 
 Consumers import from `'olinda_copilot_sdk.ts'`; they never reach into internal paths.
+
+---
+
+## Repository Automation Metadata
+
+### `.github/skills/`
+
+Repository-specific Copilot skill definitions used to automate recurring
+engineering workflows. The catalog lives in `.github/SKILLS.md`.
+
+### `.github/extensions/`
+
+Project-specific Copilot CLI extensions that add repository-aware tooling beyond
+the built-in command set.
+
+### `.claude/`
+
+Local Claude Code configuration for this checkout. The directory is documented
+in `.claude/README.md` so contributors can distinguish it from runtime code.
 
 ---
 

@@ -1,12 +1,8 @@
 {
   "version": 1,
-  "partitionIndex": 1,
-  "totalPartitions": 3,
-  "filesHash": "55861d8c",
-  "partitionLabels": [
-    "src/claude",
-    "jest.config.js, src/core, src",
-    "scripts"
-  ],
-  "updatedAt": "2026-04-23T15:13:53.136Z"
+  "partitionIndex": 0,
+  "totalPartitions": 0,
+  "filesHash": "e3b0c442",
+  "partitionLabels": [],
+  "updatedAt": "2026-04-23T17:40:02.451Z"
 }
