@@ -130,6 +130,31 @@
       "score": 100,
       "issueCount": 0,
       "lastAnalyzed": "2026-04-07T00:28:50.268Z"
+    },
+    "src/claude/completions_client.ts": {
+      "score": 100,
+      "issueCount": 0,
+      "lastAnalyzed": "2026-04-23T15:13:53.134Z"
+    },
+    "src/claude/errors.ts": {
+      "score": 100,
+      "issueCount": 0,
+      "lastAnalyzed": "2026-04-23T15:13:53.134Z"
+    },
+    "src/claude/sdk_types.ts": {
+      "score": 100,
+      "issueCount": 0,
+      "lastAnalyzed": "2026-04-23T15:13:53.134Z"
+    },
+    "src/claude/sdk_wrapper.ts": {
+      "score": 100,
+      "issueCount": 0,
+      "lastAnalyzed": "2026-04-23T15:13:53.134Z"
+    },
+    "src/claude/types.ts": {
+      "score": 100,
+      "issueCount": 0,
+      "lastAnalyzed": "2026-04-23T15:13:53.134Z"
     }
   }
 }

@@ -1,11 +1,12 @@
 {
   "version": 1,
   "partitionIndex": 1,
-  "totalPartitions": 2,
-  "filesHash": "654c5c61",
+  "totalPartitions": 3,
+  "filesHash": "55861d8c",
   "partitionLabels": [
-    ".markdownlint.json, tsconfig.esm.json, tsconfig.json, eslint.config.js, jest.config.js",
+    "src/claude",
+    "jest.config.js, src/core, src",
     "scripts"
   ],
-  "updatedAt": "2026-04-07T00:28:50.269Z"
+  "updatedAt": "2026-04-23T15:13:53.136Z"
 }
