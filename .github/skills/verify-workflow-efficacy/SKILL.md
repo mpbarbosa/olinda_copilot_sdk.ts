@@ -92,6 +92,7 @@ Assign to `PROMPTS_TOTAL`.
 
 Read `.ai_workflow/summaries/<RUN_ID>/workflow_summary.md`.
 Extract from the **Performance Metrics** table:
+
 - `Total Duration` → `DURATION`
 - `Success Rate` → `SUMMARY_SUCCESS_RATE`
 - `Cache hit rate` from the Recommendations section (if present) → `CACHE_HIT_RATE`
@@ -151,11 +152,13 @@ Output the following to the console (exact format):
 ### 10. Emit classification-specific guidance
 
 **High (80–100):**
+
 ```
 ✅ Workflow output is reliable. Proceeding to log audit is recommended.
 ```
 
 **Medium (50–79):**
+
 ```
 ⚠️ Workflow output is partially reliable.
    Anomalies or incomplete steps may affect audit quality.
@@ -163,6 +166,7 @@ Output the following to the console (exact format):
 ```
 
 **Low (0–49):**
+
 ```
 ❌ Workflow efficacy is LOW. The run produced limited useful output.
    Continuing the audit pipeline may surface false issues.

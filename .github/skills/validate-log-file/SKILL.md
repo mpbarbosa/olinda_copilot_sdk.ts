@@ -196,6 +196,7 @@ order):
 | `package.json` only (no `tsconfig.json`) | `javascript` |
 
 Use the `bash` tool to check for these files, e.g.:
+
 ```bash
 ls <project-root>/tsconfig.json 2>/dev/null && \
   grep -m1 "primary_language" <project-root>/.workflow-config.yaml 2>/dev/null
@@ -424,4 +425,3 @@ Exit with a non-zero status (conceptually) when the result is `FAIL`.
 - `.ai_workflow/logs/` — log file tree
 - `.github/skills/validate-logs/SKILL.md` — batch validator (whole run directory)
 - `.github/SKILLS.md` — skills index for this project
-

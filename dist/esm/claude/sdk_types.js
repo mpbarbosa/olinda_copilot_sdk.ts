@@ -5,6 +5,6 @@
  * import from this package rather than the underlying SDK directly.
  *
  * @module claude/sdk_types
- * @since 0.7.0
+ * @since 0.9.1
  */
 export {};

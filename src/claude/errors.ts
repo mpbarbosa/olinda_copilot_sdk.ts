@@ -4,12 +4,12 @@
  * @description Typed error hierarchy for Claude SDK failures.
  * All error constructors set the prototype chain correctly so that
  * `instanceof` checks work after transpilation.
- * @since 0.9.0
+ * @since 0.9.1
  */
 
 /**
  * Base error class for all Claude SDK-level errors.
- * @since 0.9.0
+ * @since 0.9.1
  * @example
  * throw new ClaudeSDKError('something went wrong');
  */
@@ -23,7 +23,7 @@ export class ClaudeSDKError extends Error {
 
 /**
  * Thrown when the API key is missing or authentication fails (HTTP 401).
- * @since 0.9.0
+ * @since 0.9.1
  * @example
  * throw new ClaudeAuthError('apiKey is required');
  */
@@ -37,7 +37,7 @@ export class ClaudeAuthError extends ClaudeSDKError {
 
 /**
  * Thrown when the Anthropic API returns a non-successful HTTP status.
- * @since 0.9.0
+ * @since 0.9.1
  * @example
  * throw new ClaudeAPIError('Bad Request', 400);
  */

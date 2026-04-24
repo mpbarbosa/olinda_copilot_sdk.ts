@@ -27,7 +27,7 @@ export { LogValidator, parseLogIssues, buildValidationPrompt, selectRelevantFile
 // ---------------------------------------------------------------------------
 export { runSdkSmokeTest, buildSmokeTestPrompt, validateSmokeTestResponse, formatSmokeTestResult } from './lib/sdk_smoke_test.js';
 // ---------------------------------------------------------------------------
-// v0.7.0 — Claude Agent SDK Wrapper + Anthropic Messages API Client
+// v0.9.1 — Claude Agent SDK Wrapper + Anthropic Messages API Client
 // ---------------------------------------------------------------------------
 export { ClaudeClient } from './claude/completions_client.js';
 export { ClaudeSDKError, ClaudeAuthError, ClaudeAPIError } from './claude/errors.js';

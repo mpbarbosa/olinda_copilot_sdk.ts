@@ -33,15 +33,15 @@ update process end-to-end.
 5. **Build olinda_utils.js** — runs `npm run build` inside
    `node_modules/olinda_utils.js` because its `dist/` is not committed to the
    git repo and must be generated before TypeScript can resolve its types.
-5. **Validate TypeScript** — runs `npm run validate` (`tsc --noEmit`) to catch
+6. **Validate TypeScript** — runs `npm run validate` (`tsc --noEmit`) to catch
    type errors introduced by the new version.
-6. **Run tests** — runs the full Jest suite to confirm nothing regressed.
-7. **Adjust related code** — `sed`-replaces old version strings in `src/`.
-8. **Update documentation** — replaces old tarball URLs and version strings in
+7. **Run tests** — runs the full Jest suite to confirm nothing regressed.
+8. **Adjust related code** — `sed`-replaces old version strings in `src/`.
+9. **Update documentation** — replaces old tarball URLs and version strings in
    all `*.md` files.
-9. **Adjust related tests** — replaces old version strings in `test/`, then
+10. **Adjust related tests** — replaces old version strings in `test/`, then
    re-runs only the affected test files.
-10. **Open pull request** — uses `peter-evans/create-pull-request@v8` to open
+11. **Open pull request** — uses `peter-evans/create-pull-request@v8` to open
     (or update) a PR on branch `chore/update-olinda-utils-<version>`.
 
 ## How to trigger manually

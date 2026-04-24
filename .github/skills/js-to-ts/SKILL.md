@@ -60,6 +60,7 @@ Read `{targetFile}` in full. Identify:
 | **External dependencies** | `import` statements — note whether types are available (`@types/*`) |
 
 Determine the target extension:
+
 - JSX present → `.tsx`
 - No JSX → `.ts`
 
@@ -86,6 +87,7 @@ For every React component, define a named `Props` interface (or
 Replace the inline JSDoc comment block that described the props shape.
 
 Example pattern:
+
 ```ts
 export interface StepsPanelProps {
   steps: Record<string, StepEntry>;
@@ -138,6 +140,7 @@ do not restructure code needlessly.
 Every public function and type must be reachable via a named export.
 
 - If the file only has `export default`, add a named export alias:
+
   ```ts
   export { ComponentName };
   export default ComponentName;
@@ -164,6 +167,7 @@ context with generic, intention-revealing equivalents that communicate
 **what** the identifier does rather than **where** it is used.
 
 **When to rename:**
+
 - The name embeds a product name, project codename, or team-specific jargon
   (e.g., `pajussaraStep` → `step`, `geocoreEntry` → `entry`)
 - The name refers to a concrete entity in the original application that would
@@ -173,12 +177,14 @@ context with generic, intention-revealing equivalents that communicate
   (e.g., `filterPajussaraSteps` → `filterItems`, `buildGeocoreTree` → `buildTree`)
 
 **When NOT to rename:**
+
 - Names that already read as general-purpose (`items`, `index`, `label`, etc.)
 - Names whose domain specificity is intentional and part of the public API
   contract (e.g., a library deliberately named after a concept)
 - Third-party or framework identifiers (`React`, `useEffect`, `Box`, etc.)
 
 **Process:**
+
 1. List every identifier that fails the domain-agnostic test.
 2. Propose a new name that preserves meaning without domain coupling.
 3. Perform a **whole-file** rename (not just the declaration) — update every
@@ -187,6 +193,7 @@ context with generic, intention-revealing equivalents that communicate
 4. If renaming would break a public API surface (exported symbol), keep the
    original name as a deprecated re-export alias and introduce the new name
    as the primary export:
+
    ```ts
    /** @deprecated Use `newName` instead */
    export { newName as oldName };
@@ -196,6 +203,7 @@ context with generic, intention-revealing equivalents that communicate
 ### 3e — Add a `@module` JSDoc tag if absent
 
 Ensure the file-level `@fileoverview` block (or add one if missing) contains:
+
 ```ts
 /** @module <logical-module-path> */
 ```
