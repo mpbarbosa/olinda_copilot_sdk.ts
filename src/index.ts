@@ -217,6 +217,7 @@ export type {
 	ClaudeSdkWrapperOptions,
 	WarmupResult,
 	RunResult,
+	WarmQuery as ClaudeWarmQuery,
 } from './claude/sdk_wrapper.js';
 
 export type {
@@ -230,7 +231,6 @@ export type {
 	SDKSystemMessage as ClaudeSystemMessage,
 	SDKSessionInfo as ClaudeSessionInfo,
 	SessionMessage as ClaudeSessionMessage,
-	WarmQuery as ClaudeWarmQuery,
 	HookEvent as ClaudeHookEvent,
 	HookCallbackMatcher as ClaudeHookCallbackMatcher,
 	AgentDefinition as ClaudeAgentDefinition,

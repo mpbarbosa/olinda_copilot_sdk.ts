@@ -56,7 +56,7 @@
     "url": "git+https://github.com/mpbarbosa/olinda_copilot_sdk.ts.git"
   },
   "dependencies": {
-    "@anthropic-ai/claude-agent-sdk": "^0.2.118",
+    "@anthropic-ai/claude-agent-sdk": "^0.2.90",
     "@github/copilot-sdk": "^0.1.32",
     "olinda_utils.js": "github:mpbarbosa/olinda_utils.js#v0.3.16"
   },
