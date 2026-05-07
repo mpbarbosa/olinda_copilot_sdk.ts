@@ -3,6 +3,6 @@
  * TypeScript Types for Anthropic Messages API
  * @module claude/types
  * @description Core TypeScript interfaces and types for the Anthropic Messages API.
- * @since 0.9.0
+ * @since 0.9.1
  */
 Object.defineProperty(exports, "__esModule", { value: true });
