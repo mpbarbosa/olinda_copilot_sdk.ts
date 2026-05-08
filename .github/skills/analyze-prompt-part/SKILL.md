@@ -113,6 +113,29 @@ matching rule exclusively. Do not apply rules from other section types.**
 Only finding type 1 should materially reduce the alignment score. Do not deduct more
 than 1–2 points solely because a claim cannot be verified from the truncated context.
 
+**Negative-existence rule**:
+- Treat claims of absence/non-existence with a higher evidence bar. Examples:
+  "directory is undocumented", "file is missing", "no tests exist", "repo lacks
+  X", "handler is not present".
+- Only classify a negative-existence claim as a prompt flaw when the CODEBASE
+  CONTEXT explicitly shows repository search evidence or file coverage that is
+  broad enough to support the claim.
+- If the evidence is only a visible excerpt, clipped directory listing, or
+  truncated documentation sample, do **not** promote the observation into a
+  concrete repository issue. Record it as a `Context limitation` using wording
+  such as `insufficient context` or `not visible in provided context`.
+- When you do confirm a negative-existence claim, cite the exact repository
+  paths that support it.
+
+❌ Incorrect reasoning (do not do this):
+  "`.github/skills/*` appears undocumented in the visible documentation excerpts,
+   so the repository has an undocumented-directory issue."
+
+✅ Correct reasoning:
+  "The provided excerpt does not show whether `.github/SKILLS.md` or
+   `.github/skills/README.md` exists. This is a context limitation, not a
+   confirmed repository issue."
+
 **Historical-artifact rule**:
 - Some prompt logs describe an earlier repository snapshot than the live codebase you are comparing against.
 - A later version bump, changelog entry, or documentation refresh in the live repository is **not** by itself a prompt flaw or mismatch.
@@ -131,6 +154,9 @@ than 1–2 points solely because a claim cannot be verified from the truncated c
 - If you do NOT identify a concrete prompt flaw, explicitly say `No prompt change needed` in the
   Summary and make the first Suggestions item `No prompt change needed — current wording is aligned.`
 - Do not invent improvement work just to avoid an empty review.
+- When the only problem is insufficient evidence for a negative-existence claim,
+  keep the summary neutral and treat it as a context limitation rather than a
+  prompt flaw.
 
 Your task:
 - Identify your section type and apply its rule exclusively

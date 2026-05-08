@@ -105,13 +105,11 @@ describe('ClaudeSdkWrapper', () => {
                 maxTurns: 5,
                 systemPrompt: 'Be brief.',
             });
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const w = wrapper;
-            expect(w._model).toBe('claude-opus-4-7');
-            expect(w._cwd).toBe('/tmp/project');
-            expect(w._permissionMode).toBe('acceptEdits');
-            expect(w._maxTurns).toBe(5);
-            expect(w._systemPrompt).toBe('Be brief.');
+            expect(wrapper).toHaveProperty('_model', 'claude-opus-4-7');
+            expect(wrapper).toHaveProperty('_cwd', '/tmp/project');
+            expect(wrapper).toHaveProperty('_permissionMode', 'acceptEdits');
+            expect(wrapper).toHaveProperty('_maxTurns', 5);
+            expect(wrapper).toHaveProperty('_systemPrompt', 'Be brief.');
         });
     });
     // -------------------------------------------------------------------------

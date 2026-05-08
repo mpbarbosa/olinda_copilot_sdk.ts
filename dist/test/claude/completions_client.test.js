@@ -73,11 +73,9 @@ describe('ClaudeClient', () => {
         });
         it('should set default baseUrl, model, and apiVersion', () => {
             const client = new completions_client_1.default({ apiKey: validKey });
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const c = client;
-            expect(c.baseUrl).toBe(baseUrl);
-            expect(c.model).toBe(model);
-            expect(c.apiVersion).toBe(apiVersion);
+            expect(client).toHaveProperty('baseUrl', baseUrl);
+            expect(client).toHaveProperty('model', model);
+            expect(client).toHaveProperty('apiVersion', apiVersion);
         });
         it('should apply custom baseUrl, model, and apiVersion', () => {
             const client = new completions_client_1.default({
@@ -86,11 +84,9 @@ describe('ClaudeClient', () => {
                 model: 'claude-opus-4-7',
                 apiVersion: '2024-01-01',
             });
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const c = client;
-            expect(c.baseUrl).toBe('https://custom.example.com');
-            expect(c.model).toBe('claude-opus-4-7');
-            expect(c.apiVersion).toBe('2024-01-01');
+            expect(client).toHaveProperty('baseUrl', 'https://custom.example.com');
+            expect(client).toHaveProperty('model', 'claude-opus-4-7');
+            expect(client).toHaveProperty('apiVersion', '2024-01-01');
         });
     });
     describe('complete', () => {
@@ -167,9 +163,9 @@ describe('ClaudeClient', () => {
             }
             // Should yield message_start, content_block_delta, message_stop, then stop
             expect(collected).toHaveLength(3);
-            expect(collected[0].type).toBe('message_start');
-            expect(collected[1].type).toBe('content_block_delta');
-            expect(collected[2].type).toBe('message_stop');
+            expect(collected[0]).toHaveProperty('type', 'message_start');
+            expect(collected[1]).toHaveProperty('type', 'content_block_delta');
+            expect(collected[2]).toHaveProperty('type', 'message_stop');
         });
         it('should stop iteration after message_stop', async () => {
             const events = [
@@ -187,7 +183,7 @@ describe('ClaudeClient', () => {
                 collected.push(evt);
             }
             expect(collected).toHaveLength(1);
-            expect(collected[0].type).toBe('message_stop');
+            expect(collected[0]).toHaveProperty('type', 'message_stop');
         });
         it('should return immediately if response.body is missing', async () => {
             mockFetchResponse({ ok: true, status: 200, body: undefined });

@@ -34,6 +34,12 @@ This skill turns a prompt response into a targeted repair workflow:
 - Only act on items that describe a concrete defect, mismatch, missing element,
   incorrect file/function/behavior, or a concrete performance inefficiency tied
   to named files/modules.
+- Treat **negative-existence claims** ("missing", "undocumented", "no tests",
+  "not present", "repo lacks X") as actionable only when the claim survives
+  live repository verification.
+- If a negative-existence claim was inferred only from visible excerpts,
+  truncated context, or partial documentation samples, drop it. Keep it as a
+  context-limitation note at most; do not turn it into repo work.
 - Treat file-specific performance findings as actionable when they are supported
   by the visible code and describe a real cost such as eager loading, bundle
   bloat, startup overhead, repeated work, unnecessary synchronous I/O, or
@@ -44,6 +50,8 @@ This skill turns a prompt response into a targeted repair workflow:
   is phrased as an "optimization example" when the underlying issue is concrete
   and verified.
 - Re-check every claimed issue against the live repository before editing code.
+- If a response mixes valid issues with unsupported excerpt-only findings, drop
+  only the unsupported items and continue with the confirmed ones.
 - If the response contains no concrete actionable issues, stop and reply with
   exactly:
 
@@ -57,13 +65,23 @@ No actionable issues found in prompt response.
 2. Build a short list of actionable issues that can be verified in the current
    repository, including concrete performance findings when the prompt response
    ties them to named files or modules.
-3. Ignore any issue that belongs to a different repository or cannot be
-   confirmed from the visible code.
+3. Ignore any issue that belongs to a different repository, depends only on
+   excerpt-only evidence, or cannot be confirmed from the visible code.
 4. Fix each confirmed issue directly in the codebase.
 5. Update any directly related developer documentation when the fix changes
    documented behavior or keybindings.
 6. Run the repository's existing validation commands needed to support the
    change.
+
+## Negative-existence example
+
+Use this pattern when handling "missing/undocumented" claims:
+
+- **Reject:** "`.github/skills/*` is undocumented" when the response only says
+  those directories were not described in the visible documentation excerpts.
+- **Accept:** "`.github/extensions/` lacks a local index" only after the live
+  repository check confirms there is no `.github/extensions/README.md` or
+  equivalent local documentation.
 
 ## TUI usage
 

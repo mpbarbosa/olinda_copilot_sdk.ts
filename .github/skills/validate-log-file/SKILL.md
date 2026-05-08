@@ -332,6 +332,41 @@ response echoes it, that is **expected behaviour** — note it rather than
 alarming. If the response skips without a corresponding prompt signal, that is
 more concerning and should be highlighted.
 
+### 2.6 Response evidence discipline for negative-existence claims
+
+Scan the response body for **negative-existence claims** framed as concrete
+repository findings, for example:
+
+- undocumented / not documented
+- missing / not present / does not exist
+- no tests / no file / no evidence of
+- lacks / absent
+
+These claims are valid only when the response also shows repository-level
+evidence such as:
+
+1. cited file paths or documentation surfaces that were checked, or
+2. an explicit search command/result, or
+3. a clearly scoped statement that the finding is limited to the provided
+   excerpt or visible context
+
+If the response turns excerpt-only or truncated evidence into a concrete repo
+issue **without** that supporting evidence, report an error:
+
+```text
+✗ [Response] Unsupported negative-existence claim at line <L>: "<excerpt>" — concrete repo issue asserted from excerpt-only or truncated evidence
+```
+
+If the response clearly limits itself to the visible excerpt instead of claiming
+a repo-wide fact, do not report an error.
+
+Example:
+
+- Bad: "`.github/skills/*` lacks documentation." when the response only says the
+  directories were not described in the visible excerpts.
+- Good: "Not visible in provided context whether `.github/SKILLS.md` or
+  `.github/skills/README.md` documents this directory."
+
 ---
 
 ## Output format
@@ -358,9 +393,10 @@ Part 2 — Response
   ✓ Response — content: non-empty, coherent with persona "documentation_expert"
   ⚠ [Response] Skip signal at line 8: "Structural validation skipped — directory_tree not provided." — AI skipped a task due to missing prompt data
     → Expected: prompt had a matching skip signal at line 51 — this is expected behaviour.
+  ✗ [Response] Unsupported negative-existence claim at line 14: "`.github/skills/*` lacks documentation." — concrete repo issue asserted from excerpt-only or truncated evidence
 
 ────────────────────────────────────────────────────────
-Result: PASS  (4 warning(s))
+Result: FAIL (1 error(s), 4 warning(s))
 ```
 
 **Result line rules:**
@@ -394,7 +430,7 @@ Exit with a non-zero status (conceptually) when the result is `FAIL`.
 
 6. **Locate `## Response`** and extract the fenced code block content.
 
-7. **Validate Part 2** — work through checks 2.1 → 2.5 in order, collecting
+7. **Validate Part 2** — work through checks 2.1 → 2.6 in order, collecting
    findings. Cross-reference 2.5 skip signals against 1.6d skip signals.
 
 8. **Print the report** as described in [Output format](#output-format).
@@ -417,6 +453,7 @@ Exit with a non-zero status (conceptually) when the result is `FAIL`.
 | `.workflow-config.yaml` has a `primary_language` override | Use it as the authoritative expected value in 1.8a |
 | Project root path in Context block does not exist on disk | Report `⚠ [Prompt] Context — Project path not found: <path>`; skip 1.8 sub-checks |
 | Response skip signal matches prompt skip signal | Note as expected behaviour, do not elevate to error |
+| Response says something is missing or undocumented, but only cites visible excerpts | Report `✗ [Response] Unsupported negative-existence claim ...` |
 
 ---
 

@@ -19,11 +19,11 @@ describe('claude/sdk_types type re-exports', () => {
         expect(events).toHaveLength(5);
         events.forEach(e => expect(typeof e).toBe('string'));
     });
-    it('allows all complex types to be used in type positions', () => {
+    it('allows all complex types to be used in compile-time type positions', () => {
         // TypeScript erases types at runtime; this tuple asserts each type
         // compiles correctly when used as a type annotation.
         const typeMarkers = [];
-        expect(typeMarkers).toHaveLength(0);
+        expect(Array.isArray(typeMarkers)).toBe(true);
     });
     it('allows session option types to be used in type positions', () => {
         const listOpts = {};

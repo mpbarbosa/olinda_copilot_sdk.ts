@@ -152,6 +152,8 @@ Additional repository metadata:
 - `.github/skills/` contains repository-specific Copilot skills. See
   [`.github/SKILLS.md`](./.github/SKILLS.md) for the index.
 - `.github/extensions/` contains Copilot CLI extensions used by this repository.
+  See [`.github/extensions/README.md`](./.github/extensions/README.md) for the
+  extension index.
 
 For architectural constraints and design guidance, see
 [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md),

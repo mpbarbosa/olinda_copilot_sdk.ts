@@ -212,7 +212,8 @@ engineering workflows. The catalog lives in `.github/SKILLS.md`.
 ### `.github/extensions/`
 
 Project-specific Copilot CLI extensions that add repository-aware tooling beyond
-the built-in command set.
+the built-in command set. The local index lives in
+`.github/extensions/README.md`.
 
 ### `.claude/`
 
