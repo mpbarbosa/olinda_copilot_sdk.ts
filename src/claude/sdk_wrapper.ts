@@ -17,25 +17,55 @@
 
 import {
 	query,
-	startup,
 	listSessions as sdkListSessions,
 	getSessionInfo as sdkGetSessionInfo,
-	deleteSession as sdkDeleteSession,
 	renameSession as sdkRenameSession,
 	getSessionMessages as sdkGetSessionMessages,
 } from '@anthropic-ai/claude-agent-sdk';
 import type {
 	Options,
 	PermissionMode,
+	Query,
 	SDKSessionInfo,
 	SessionMessage,
-	WarmQuery,
 	ListSessionsOptions,
 	GetSessionInfoOptions,
 	GetSessionMessagesOptions,
 	SessionMutationOptions,
 } from '@anthropic-ai/claude-agent-sdk';
 import { ClaudeSDKError } from './errors.js';
+
+// `startup` and `deleteSession` are not yet part of the SDK's public type
+// declarations at v0.2.90, so we access them via a dynamic require and carry
+// our own compatible interfaces.  At runtime the SDK ships both symbols;
+// in tests they are provided by the jest mock.
+// eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-explicit-any
+const _sdkCompat = require('@anthropic-ai/claude-agent-sdk') as Record<string, (...args: any[]) => unknown>;
+
+type StartupFn = (params: {
+	options?: Options;
+	initializeTimeoutMs?: number;
+}) => Promise<WarmQuery>;
+
+type DeleteSessionFn = (
+	sessionId: string,
+	options?: SessionMutationOptions,
+) => Promise<void>;
+
+const sdkStartup = _sdkCompat['startup'] as StartupFn | undefined;
+const sdkDeleteSession = _sdkCompat['deleteSession'] as DeleteSessionFn | undefined;
+
+/**
+ * Pre-warmed process handle returned by `startup()`.
+ * Compatible with the shape provided by the SDK at runtime and the Jest mock.
+ * @since 0.9.1
+ */
+export interface WarmQuery {
+	/** Run a prompt against the pre-warmed process. */
+	query(prompt: string): Query;
+	/** Optionally close/dispose the pre-warmed process early. */
+	close?(): void | Promise<void>;
+}
 
 // ==============================================================================
 // Public types
@@ -187,7 +217,12 @@ export class ClaudeSdkWrapper {
 	 * const result = await wrapper.run('Hello!');
 	 */
 	async warmup(initializeTimeoutMs?: number): Promise<WarmupResult> {
-		this._warmQuery = await startup({
+		if (!sdkStartup) {
+			throw new ClaudeSDKError(
+				'startup() is not available in this version of @anthropic-ai/claude-agent-sdk',
+			);
+		}
+		this._warmQuery = await sdkStartup({
 			options: this._buildOptions(),
 			...(initializeTimeoutMs !== undefined ? { initializeTimeoutMs } : {}),
 		});
@@ -256,6 +291,11 @@ export class ClaudeSdkWrapper {
 	 * @since 0.9.1
 	 */
 	async deleteSession(sessionId: string, options?: SessionMutationOptions): Promise<void> {
+		if (!sdkDeleteSession) {
+			throw new ClaudeSDKError(
+				'deleteSession() is not available in this version of @anthropic-ai/claude-agent-sdk',
+			);
+		}
 		return sdkDeleteSession(sessionId, options);
 	}
 

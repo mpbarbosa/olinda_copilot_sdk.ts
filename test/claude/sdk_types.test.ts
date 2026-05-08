@@ -4,7 +4,6 @@ import type {
 	Options,
 	PermissionMode,
 	Query,
-	WarmQuery,
 	SDKMessage,
 	SDKAssistantMessage,
 	SDKUserMessage,
@@ -29,15 +28,15 @@ import type {
 describe('claude/sdk_types type re-exports', () => {
 	it('allows PermissionMode values in type positions', () => {
 		const modes: PermissionMode[] = [
-			'default', 'acceptEdits', 'bypassPermissions', 'plan', 'dontAsk', 'auto',
+			'default', 'acceptEdits', 'bypassPermissions', 'plan', 'dontAsk',
 		];
-		expect(modes).toHaveLength(6);
+		expect(modes).toHaveLength(5);
 		modes.forEach(m => expect(typeof m).toBe('string'));
 	});
 
 	it('allows EffortLevel values in type positions', () => {
-		const levels: EffortLevel[] = ['low', 'medium', 'high', 'xhigh', 'max'];
-		expect(levels).toHaveLength(5);
+		const levels: EffortLevel[] = ['low', 'medium', 'high', 'max'];
+		expect(levels).toHaveLength(4);
 		levels.forEach(l => expect(typeof l).toBe('string'));
 	});
 
@@ -53,7 +52,6 @@ describe('claude/sdk_types type re-exports', () => {
 		const typeMarkers = [] as unknown as [
 			Options,
 			Query,
-			WarmQuery,
 			SDKMessage,
 			SDKAssistantMessage,
 			SDKUserMessage,

@@ -13,7 +13,6 @@ export type {
 	Options,
 	PermissionMode,
 	Query,
-	WarmQuery,
 
 	// Message discriminated union
 	SDKMessage,
