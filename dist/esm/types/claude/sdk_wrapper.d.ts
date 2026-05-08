@@ -14,7 +14,18 @@
  * @module claude/sdk_wrapper
  * @since 0.9.1
  */
-import type { Options, PermissionMode, SDKSessionInfo, SessionMessage, WarmQuery, ListSessionsOptions, GetSessionInfoOptions, GetSessionMessagesOptions, SessionMutationOptions } from '@anthropic-ai/claude-agent-sdk';
+import type { Options, PermissionMode, Query, SDKSessionInfo, SessionMessage, ListSessionsOptions, GetSessionInfoOptions, GetSessionMessagesOptions, SessionMutationOptions } from '@anthropic-ai/claude-agent-sdk';
+/**
+ * Pre-warmed process handle returned by `startup()`.
+ * Compatible with the shape provided by the SDK at runtime and the Jest mock.
+ * @since 0.9.1
+ */
+export interface WarmQuery {
+    /** Run a prompt against the pre-warmed process. */
+    query(prompt: string): Query;
+    /** Optionally close/dispose the pre-warmed process early. */
+    close?(): void | Promise<void>;
+}
 /**
  * Options accepted by the {@link ClaudeSdkWrapper} constructor.
  * All fields become defaults for every `run()` call; they can be overridden
