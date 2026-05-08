@@ -7,4 +7,4 @@
  * @module claude/sdk_types
  * @since 0.9.1
  */
-export type { Options, PermissionMode, Query, WarmQuery, SDKMessage, SDKAssistantMessage, SDKUserMessage, SDKResultMessage, SDKResultSuccess, SDKResultError, SDKSystemMessage, SDKSessionInfo, SessionMessage, ListSessionsOptions, GetSessionInfoOptions, GetSessionMessagesOptions, SessionMutationOptions, HookEvent, HookCallbackMatcher, HookCallback, AgentDefinition, CanUseTool, EffortLevel, } from '@anthropic-ai/claude-agent-sdk';
+export type { Options, PermissionMode, Query, SDKMessage, SDKAssistantMessage, SDKUserMessage, SDKResultMessage, SDKResultSuccess, SDKResultError, SDKSystemMessage, SDKSessionInfo, SessionMessage, ListSessionsOptions, GetSessionInfoOptions, GetSessionMessagesOptions, SessionMutationOptions, HookEvent, HookCallbackMatcher, HookCallback, AgentDefinition, CanUseTool, EffortLevel, } from '@anthropic-ai/claude-agent-sdk';

@@ -19,6 +19,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ClaudeSdkWrapper = void 0;
 const claude_agent_sdk_1 = require("@anthropic-ai/claude-agent-sdk");
 const errors_js_1 = require("./errors.js");
+// `startup` and `deleteSession` are not yet part of the SDK's public type
+// declarations at v0.2.90, so we access them via a dynamic require and carry
+// our own compatible interfaces.  At runtime the SDK ships both symbols;
+// in tests they are provided by the jest mock.
+// eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-explicit-any
+const _sdkCompat = require('@anthropic-ai/claude-agent-sdk');
+const sdkStartup = _sdkCompat['startup'];
+const sdkDeleteSession = _sdkCompat['deleteSession'];
 // ==============================================================================
 // ClaudeSdkWrapper
 // ==============================================================================
@@ -93,7 +101,10 @@ class ClaudeSdkWrapper {
      * const result = await wrapper.run('Hello!');
      */
     async warmup(initializeTimeoutMs) {
-        this._warmQuery = await (0, claude_agent_sdk_1.startup)({
+        if (!sdkStartup) {
+            throw new errors_js_1.ClaudeSDKError('startup() is not available in this version of @anthropic-ai/claude-agent-sdk');
+        }
+        this._warmQuery = await sdkStartup({
             options: this._buildOptions(),
             ...(initializeTimeoutMs !== undefined ? { initializeTimeoutMs } : {}),
         });
@@ -153,7 +164,10 @@ class ClaudeSdkWrapper {
      * @since 0.9.1
      */
     async deleteSession(sessionId, options) {
-        return (0, claude_agent_sdk_1.deleteSession)(sessionId, options);
+        if (!sdkDeleteSession) {
+            throw new errors_js_1.ClaudeSDKError('deleteSession() is not available in this version of @anthropic-ai/claude-agent-sdk');
+        }
+        return sdkDeleteSession(sessionId, options);
     }
     /**
      * Renames a session by appending a custom-title entry to its transcript.

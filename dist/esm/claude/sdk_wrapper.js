@@ -14,8 +14,16 @@
  * @module claude/sdk_wrapper
  * @since 0.9.1
  */
-import { query, startup, listSessions as sdkListSessions, getSessionInfo as sdkGetSessionInfo, deleteSession as sdkDeleteSession, renameSession as sdkRenameSession, getSessionMessages as sdkGetSessionMessages, } from '@anthropic-ai/claude-agent-sdk';
+import { query, listSessions as sdkListSessions, getSessionInfo as sdkGetSessionInfo, renameSession as sdkRenameSession, getSessionMessages as sdkGetSessionMessages, } from '@anthropic-ai/claude-agent-sdk';
 import { ClaudeSDKError } from './errors.js';
+// `startup` and `deleteSession` are not yet part of the SDK's public type
+// declarations at v0.2.90, so we access them via a dynamic require and carry
+// our own compatible interfaces.  At runtime the SDK ships both symbols;
+// in tests they are provided by the jest mock.
+// eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-explicit-any
+const _sdkCompat = require('@anthropic-ai/claude-agent-sdk');
+const sdkStartup = _sdkCompat['startup'];
+const sdkDeleteSession = _sdkCompat['deleteSession'];
 // ==============================================================================
 // ClaudeSdkWrapper
 // ==============================================================================
@@ -90,7 +98,10 @@ export class ClaudeSdkWrapper {
      * const result = await wrapper.run('Hello!');
      */
     async warmup(initializeTimeoutMs) {
-        this._warmQuery = await startup({
+        if (!sdkStartup) {
+            throw new ClaudeSDKError('startup() is not available in this version of @anthropic-ai/claude-agent-sdk');
+        }
+        this._warmQuery = await sdkStartup({
             options: this._buildOptions(),
             ...(initializeTimeoutMs !== undefined ? { initializeTimeoutMs } : {}),
         });
@@ -150,6 +161,9 @@ export class ClaudeSdkWrapper {
      * @since 0.9.1
      */
     async deleteSession(sessionId, options) {
+        if (!sdkDeleteSession) {
+            throw new ClaudeSDKError('deleteSession() is not available in this version of @anthropic-ai/claude-agent-sdk');
+        }
         return sdkDeleteSession(sessionId, options);
     }
     /**

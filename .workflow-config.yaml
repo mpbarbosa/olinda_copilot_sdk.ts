@@ -15,6 +15,7 @@ tech_stack:
     - 'javascript'
   build_system: 'npm'
   test_framework: 'jest'
+  test_runner: 'jest'
   test_command: 'npm test'
   lint_command: 'npm run lint'
   lint_commands:
@@ -30,6 +31,25 @@ structure:
     - test
   docs_dirs:
     - docs
+  config_files:
+    - .workflow-config.yaml
+    - eslint.config.js
+    - jest.config.js
+    - package.json
+    - tsconfig.json
+    - tsconfig.esm.json
+  artifact_dir: '.ai_workflow'
+  exclude_paths:
+    - .ai_workflow/logs
+    - .ai_workflow/summaries
+    - .ai_workflow/backlog
+    - .ai_workflow/metrics
+    - .ai_workflow/checkpoints
+    - .ai_workflow/prompts
+    - .ai_workflow/ml_models
+    - .ai_workflow/cache
+    - .ai_workflow/archive
+    - .ai_workflow/archived_docs
 
 # ============================================================================
 # AI PERSONAS
@@ -82,12 +102,12 @@ ai_personas:
 
 workflow:
   settings:
-    auto_mode: false
-    parallel_execution: true
-    smart_execution: true
-    ml_optimize: false
-    multi_stage: false
-    auto_commit: false
+    auto_mode: false # skip interactive prompts
+    parallel_execution: true # run independent steps in parallel
+    smart_execution: true # skip steps based on change detection
+    ml_optimize: false # use ML-driven step optimization
+    multi_stage: false # progressive validation pipeline
+    auto_commit: false # automatically commit workflow artifacts
 
   # Legacy stage shortcuts (kept for backwards compatibility)
   stages:
@@ -377,6 +397,8 @@ version:
   config_files:
     - package.json
     - package-lock.json
+  required_files:
+    - CHANGELOG.md
 
 skills:
   version_sync:
