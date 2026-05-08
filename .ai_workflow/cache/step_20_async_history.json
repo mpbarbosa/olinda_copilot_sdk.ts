@@ -1,0 +1,93 @@
+{
+  "version": 1,
+  "entries": {
+    "src/claude/completions_client.ts": {
+      "mtimeMs": 1777000988595,
+      "hasAsyncPatterns": true
+    },
+    "src/claude/errors.ts": {
+      "mtimeMs": 1777000988595,
+      "hasAsyncPatterns": false
+    },
+    "src/claude/sdk_types.ts": {
+      "mtimeMs": 1778198532273,
+      "hasAsyncPatterns": false
+    },
+    "src/claude/sdk_wrapper.ts": {
+      "mtimeMs": 1778198532273,
+      "hasAsyncPatterns": true
+    },
+    "src/claude/types.ts": {
+      "mtimeMs": 1777000988596,
+      "hasAsyncPatterns": false
+    },
+    "src/core/auth.ts": {
+      "mtimeMs": 1773330809641,
+      "hasAsyncPatterns": true
+    },
+    "src/core/completions_client.ts": {
+      "mtimeMs": 1773762932789,
+      "hasAsyncPatterns": true
+    },
+    "src/core/errors.ts": {
+      "mtimeMs": 1773319044376,
+      "hasAsyncPatterns": false
+    },
+    "src/core/hooks.ts": {
+      "mtimeMs": 1773357060113,
+      "hasAsyncPatterns": true
+    },
+    "src/core/logger.ts": {
+      "mtimeMs": 1776956661547,
+      "hasAsyncPatterns": false
+    },
+    "src/core/mcp.ts": {
+      "mtimeMs": 1773342516185,
+      "hasAsyncPatterns": false
+    },
+    "src/core/session_client.ts": {
+      "mtimeMs": 1775521749665,
+      "hasAsyncPatterns": true
+    },
+    "src/core/session_config.ts": {
+      "mtimeMs": 1773342516185,
+      "hasAsyncPatterns": true
+    },
+    "src/core/session_types.ts": {
+      "mtimeMs": 1775521749665,
+      "hasAsyncPatterns": false
+    },
+    "src/core/skills.ts": {
+      "mtimeMs": 1773342516186,
+      "hasAsyncPatterns": false
+    },
+    "src/core/tools.ts": {
+      "mtimeMs": 1773342516187,
+      "hasAsyncPatterns": true
+    },
+    "src/core/types.ts": {
+      "mtimeMs": 1773319044376,
+      "hasAsyncPatterns": false
+    },
+    "src/index.ts": {
+      "mtimeMs": 1778198532273,
+      "hasAsyncPatterns": false
+    },
+    "src/lib/log_validator.ts": {
+      "mtimeMs": 1773354211422,
+      "hasAsyncPatterns": true
+    },
+    "src/lib/sdk_smoke_test.ts": {
+      "mtimeMs": 1773358815109,
+      "hasAsyncPatterns": true
+    },
+    "src/utils/messages.ts": {
+      "mtimeMs": 1773319044376,
+      "hasAsyncPatterns": false
+    },
+    "src/utils/stream.ts": {
+      "mtimeMs": 1773762892220,
+      "hasAsyncPatterns": true
+    }
+  }
+}

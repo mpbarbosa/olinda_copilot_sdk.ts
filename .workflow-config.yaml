@@ -7,7 +7,7 @@ project:
   type: 'typescript-library'
   description: 'TypeScript Wrapper Library for GitHub Copilot SDK'
   kind: 'nodejs_api'
-  version: '0.9.1'
+  version: '0.9.2'
 
 tech_stack:
   primary_language: 'typescript'
@@ -113,13 +113,10 @@ workflow:
   stages:
     quick:
       enabled: true
-      steps: [step_00, step_01, step_02]
     medium:
       enabled: true
-      steps: [step_00, step_01, step_02, step_03, step_04, step_05]
     full:
       enabled: true
-      steps: [step_00, step_0b, step_01, step_02, step_02_5, step_03, step_04, step_05, step_06, step_07, step_08, step_09, step_10, step_13, step_19, step_20, step_11, step_16, step_17, step_0f, step_12]
 
   steps:
 
@@ -153,7 +150,17 @@ workflow:
       phase: 1
       enabled: true
       can_parallelize: true
-      dependencies: [step_00]
+      dependencies: [step_0b]
+      ai_persona: documentation_expert
+
+    - id: step_01_5
+      name: "Copilot Instructions Validation"
+      file: "step_01_5.js"
+      description: "Audit and refresh .github/copilot-instructions.md against the live repository facts"
+      phase: 1
+      enabled: true
+      can_parallelize: true
+      dependencies: [step_01]
       ai_persona: documentation_expert
 
     - id: step_02
@@ -163,7 +170,7 @@ workflow:
       phase: 1
       enabled: true
       can_parallelize: true
-      dependencies: [step_01]
+      dependencies: [step_01_5]
       ai_persona: documentation_expert
 
     - id: step_02_5
@@ -278,6 +285,7 @@ workflow:
       enabled: true
       can_parallelize: true
       dependencies: [step_10]
+      dependency_comment: "step_18 remains disabled for this SDK wrapper unless we are actively debugging; TypeScript review should still run after code quality."
       ai_persona: typescript_reviewer
 
     - id: step_20
@@ -287,7 +295,7 @@ workflow:
       phase: 2
       enabled: true
       can_parallelize: true
-      dependencies: [step_10]
+      dependencies: [step_19]
       ai_persona: async_performance_engineer
 
     - id: step_18
@@ -298,7 +306,7 @@ workflow:
       enabled: false
       reason: "Optional debugging step — enable only when investigating SDK integration failures"
       can_parallelize: false
-      dependencies: [step_10]
+      dependencies: [step_16]
       ai_persona: code_quality_analyst
 
     - id: step_21
@@ -308,7 +316,7 @@ workflow:
       phase: 2
       enabled: true
       can_parallelize: true
-      dependencies: [step_13]
+      dependencies: [step_02_5]
       ai_persona: documentation_expert
 
     - id: step_22
@@ -319,7 +327,7 @@ workflow:
       enabled: false
       reason: "TypeScript SDK wrapper library with no HTML/CSS layer"
       can_parallelize: true
-      dependencies: [step_13]
+      dependencies: [step_21]
       ai_persona: accessibility_expert
 
     - id: step_23
@@ -327,9 +335,10 @@ workflow:
       file: "step_23.js"
       description: "Performance review: @github/copilot-sdk API call latency, request batching, response parsing efficiency; bench script coverage"
       phase: 2
-      enabled: true
+      enabled: false
+      reason: "The web-facing accessibility/performance branch is intentionally disabled for this SDK wrapper; async performance review remains enabled."
       can_parallelize: true
-      dependencies: [step_13]
+      dependencies: [step_22]
       ai_persona: performance_engineer
 
     # CONTEXT ANALYSIS
@@ -340,8 +349,52 @@ workflow:
       phase: 2
       enabled: true
       can_parallelize: false
-      dependencies: [step_10]
+      dependencies: [step_13]
       ai_persona: architecture_reviewer
+
+    - id: step_11_5
+      name: "AWS LBS Validation"
+      file: "step_11_5.js"
+      description: "Validate AWS load-balancer/serverless deployment details when the project includes that infrastructure"
+      phase: 2
+      enabled: false
+      reason: "This TypeScript SDK wrapper repository does not ship AWS LBS deployment assets."
+      can_parallelize: true
+      dependencies: [step_11]
+      ai_persona: devops_engineer
+
+    - id: step_11_6
+      name: "AWS Serverless Review"
+      file: "step_11_6.js"
+      description: "Review AWS serverless deployment readiness when the project includes that infrastructure"
+      phase: 2
+      enabled: false
+      reason: "This TypeScript SDK wrapper repository has no AWS serverless deployment surface."
+      can_parallelize: true
+      dependencies: [step_11_5]
+      ai_persona: devops_engineer
+
+    - id: step_14
+      name: "Prompt Engineering"
+      file: "step_14.js"
+      description: "Review and optimize prompt assets when the repository owns prompt logic"
+      phase: 2
+      enabled: false
+      reason: "This SDK wrapper is not a prompt-heavy application and does not need a dedicated prompt-engineering pass."
+      can_parallelize: true
+      dependencies: [step_13]
+      ai_persona: technical_writer
+
+    - id: step_15
+      name: "UX Analysis"
+      file: "step_15.js"
+      description: "Review UX flows and ergonomics for user-facing interfaces"
+      phase: 2
+      enabled: false
+      reason: "This package has no UI layer or end-user interaction surface."
+      can_parallelize: true
+      dependencies: [step_14]
+      ai_persona: documentation_expert
 
     # FINALIZATION
     - id: step_16
@@ -351,7 +404,7 @@ workflow:
       phase: 2
       enabled: true
       can_parallelize: false
-      dependencies: [step_11]
+      dependencies: [step_03]
       ai_persona: devops_engineer
 
     - id: step_17
@@ -361,7 +414,8 @@ workflow:
       phase: 2
       enabled: true
       can_parallelize: false
-      dependencies: [step_16]
+      dependencies: [step_03, step_20]
+      dependency_comment: "AWS serverless and accessibility/performance terminal branches are intentionally disabled for this SDK wrapper; the summary should wait for script validation and async performance review instead."
       ai_persona: technical_writer
 
     # GIT FINALIZATION
