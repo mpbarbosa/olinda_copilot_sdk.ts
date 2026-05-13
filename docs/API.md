@@ -1,5 +1,7 @@
 # API Reference — olinda_copilot_sdk.ts
 
+**Document version:** `0.9.2`
+
 Complete API reference for the TypeScript Wrapper Library for GitHub Copilot SDK.
 
 ---
@@ -805,6 +807,127 @@ coverage without a direct dependency on the SDK package.
 | Type | Description |
 |---|---|
 | `MessageOptions` | Full `sendAndWait` options (prompt, images, context, timeout, etc.) |
+
+---
+
+## `ClaudeSdkWrapper`
+
+Execution-focused wrapper around `@anthropic-ai/claude-agent-sdk` query runs.
+Session administration lives in the separate Claude session helper exports.
+
+### Constructor
+
+```typescript
+new ClaudeSdkWrapper(options?: ClaudeSdkWrapperOptions)
+```
+
+`ClaudeSdkWrapperOptions` and `ClaudeRunOptions` share the same fields:
+
+| Field | Type | Description |
+|---|---|---|
+| `model` | `string` | Claude model identifier |
+| `cwd` | `string` | Working directory forwarded to the Claude process |
+| `permissionMode` | `ClaudePermissionMode` | Tool-permission handling mode |
+| `maxTurns` | `number` | Maximum number of agentic turns |
+| `systemPrompt` | `string` | Custom system prompt |
+
+### `ClaudeSdkWrapper.isAvailable()`
+
+```typescript
+static isAvailable(): boolean
+```
+
+Returns `true` when `@anthropic-ai/claude-agent-sdk` is importable.
+
+### `warmed`
+
+```typescript
+get warmed(): boolean
+```
+
+Returns `true` when `warmup()` has prepared a Claude subprocess for the next `run()` call.
+
+### `warmup(initializeTimeoutMs?)`
+
+```typescript
+async warmup(initializeTimeoutMs?: number): Promise<ClaudeWarmupResult>
+```
+
+Pre-heats the Claude subprocess so the next `run()` call can reuse it.
+
+### `run(prompt, overrides?)`
+
+```typescript
+async run(prompt: string, overrides?: ClaudeRunOptions): Promise<ClaudeRunResult>
+```
+
+Runs one Claude query with serialized execution. Returns:
+
+| Field | Type | Description |
+|---|---|---|
+| `content` | `string` | Concatenated assistant text from the run |
+| `sessionId` | `string \| undefined` | Claude session ID for the run |
+| `success` | `boolean` | Whether the run completed successfully |
+| `totalCostUsd` | `number \| undefined` | Reported cost in USD |
+| `numTurns` | `number \| undefined` | Number of turns performed |
+| `durationMs` | `number \| undefined` | Wall-clock run duration |
+
+---
+
+## Claude session helpers
+
+These helpers expose session administration separately from `ClaudeSdkWrapper`
+so execution and transcript management stay in distinct public surfaces.
+
+### `listClaudeSessions(options?)`
+
+```typescript
+async listClaudeSessions(options?: ClaudeSessionQuery): Promise<ClaudeSessionSummary[]>
+```
+
+### `getClaudeSessionInfo(sessionId, options?)`
+
+```typescript
+async getClaudeSessionInfo(
+  sessionId: string,
+  options?: ClaudeSessionLookup,
+): Promise<ClaudeSessionSummary | undefined>
+```
+
+### `deleteClaudeSession(sessionId, options?)`
+
+```typescript
+async deleteClaudeSession(sessionId: string, options?: ClaudeSessionLookup): Promise<void>
+```
+
+### `renameClaudeSession(sessionId, title, options?)`
+
+```typescript
+async renameClaudeSession(
+  sessionId: string,
+  title: string,
+  options?: ClaudeSessionLookup,
+): Promise<void>
+```
+
+### `getClaudeSessionMessages(sessionId, options?)`
+
+```typescript
+async getClaudeSessionMessages(
+  sessionId: string,
+  options?: ClaudeSessionMessagesQuery,
+): Promise<ClaudeSessionMessage[]>
+```
+
+### Claude session types
+
+| Type | Description |
+|---|---|
+| `ClaudeSessionQuery` | List-session query (`dir`, `limit`, `offset`, `includeWorktrees`) |
+| `ClaudeSessionLookup` | Single-session lookup scope (`dir`) |
+| `ClaudeSessionMessagesQuery` | Transcript query (`dir`, `limit`, `offset`, `includeSystemMessages`) |
+| `ClaudeSessionSummary` | Library-owned Claude session metadata |
+| `ClaudeSessionMessage` | Library-owned Claude transcript message shape |
 
 ---
 

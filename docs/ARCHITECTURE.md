@@ -1,11 +1,16 @@
 # Architecture — olinda_copilot_sdk.ts
 
+**Document version:** `0.9.2`
+
 This document describes the internal structure of the library, the responsibility of each module, and the design decisions behind the main abstractions.
 
 Related design guidance:
 
 - [High Cohesion Guide](./HIGH_COHESION_GUIDE.md)
 - [Low Coupling Guide](./LOW_COUPLING_GUIDE.md)
+- [Domain-Driven Design Guide](./DDD_GUIDE.md)
+- [Code Quality Control Guide](./CODE_QUALITY_CONTROL.md)
+- [Referential Transparency Guide](./REFERENTIAL_TRANSPARENCY.md)
 
 ---
 
@@ -185,7 +190,12 @@ Stateless client for Anthropic's Messages API.
 
 ### `sdk_wrapper.ts`
 
-Stateful wrapper around the Claude Agent SDK lifecycle.
+Stateful execution wrapper around the Claude Agent SDK query lifecycle.
+
+### `sessions.ts`
+
+Claude session administration helpers with library-owned session summary and
+transcript message shapes.
 
 ### `types.ts`, `sdk_types.ts`, `errors.ts`
 

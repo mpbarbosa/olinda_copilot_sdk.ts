@@ -1,15 +1,19 @@
 {
   "version": 1,
-  "partitionIndex": 2,
-  "totalPartitions": 6,
-  "filesHash": "57621a5c",
+  "partitionIndex": 1,
+  "totalPartitions": 10,
+  "filesHash": "7ab14a46",
   "partitionLabels": [
     "test/claude",
+    "test/claude (2)",
     "test/core",
     "test/core (2)",
     "test/core (3)",
     "test, test/integration, test/lib",
-    "test/utils"
+    "test/utils",
+    "dist/test",
+    "dist/test (2)",
+    "dist/types"
   ],
-  "updatedAt": "2026-05-08T03:31:31.184Z"
+  "updatedAt": "2026-05-13T22:20:34.265Z"
 }

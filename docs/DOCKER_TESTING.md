@@ -1,5 +1,7 @@
 # Docker Testing Guide
 
+**Document version:** `0.9.2`
+
 > This guide covers running the **olinda_copilot_sdk.ts** test suite inside
 > Docker for fully isolated, reproducible test runs.
 

@@ -1,5 +1,7 @@
 # Low Coupling Guide
 
+**Document version:** `0.9.2`
+
 Low coupling is a core design rule for `olinda_copilot_sdk.ts`.
 
 This library works best when dependencies stay explicit and flow through stable

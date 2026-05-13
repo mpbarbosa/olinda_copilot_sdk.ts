@@ -2,23 +2,39 @@
   "version": 1,
   "entries": {
     "src/claude/completions_client.ts": {
-      "mtimeMs": 1777000988595,
+      "mtimeMs": 1778211489092,
       "hasAsyncPatterns": true
     },
     "src/claude/errors.ts": {
-      "mtimeMs": 1777000988595,
+      "mtimeMs": 1778211489092,
+      "hasAsyncPatterns": false
+    },
+    "src/claude/internal/run_mapping.ts": {
+      "mtimeMs": 1778703428975,
+      "hasAsyncPatterns": true
+    },
+    "src/claude/internal/sdk_compat.ts": {
+      "mtimeMs": 1778703428950,
+      "hasAsyncPatterns": true
+    },
+    "src/claude/internal/sdk_options.ts": {
+      "mtimeMs": 1778703429035,
       "hasAsyncPatterns": false
     },
     "src/claude/sdk_types.ts": {
-      "mtimeMs": 1778198532273,
+      "mtimeMs": 1778703429048,
       "hasAsyncPatterns": false
     },
     "src/claude/sdk_wrapper.ts": {
-      "mtimeMs": 1778198532273,
+      "mtimeMs": 1778703467771,
+      "hasAsyncPatterns": true
+    },
+    "src/claude/sessions.ts": {
+      "mtimeMs": 1778703429042,
       "hasAsyncPatterns": true
     },
     "src/claude/types.ts": {
-      "mtimeMs": 1777000988596,
+      "mtimeMs": 1778211489093,
       "hasAsyncPatterns": false
     },
     "src/core/auth.ts": {
@@ -70,7 +86,7 @@
       "hasAsyncPatterns": false
     },
     "src/index.ts": {
-      "mtimeMs": 1778198532273,
+      "mtimeMs": 1778703429050,
       "hasAsyncPatterns": false
     },
     "src/lib/log_validator.ts": {
