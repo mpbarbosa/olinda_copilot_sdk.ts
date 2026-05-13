@@ -1,6 +1,6 @@
 # Architecture — olinda_copilot_sdk.ts
 
-**Document version:** `0.9.2`
+**Document version:** `0.10.0`
 
 This document describes the internal structure of the library, the responsibility of each module, and the design decisions behind the main abstractions.
 

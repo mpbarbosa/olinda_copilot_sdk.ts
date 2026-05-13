@@ -1,89 +1,42 @@
 /**
- * Claude Agent SDK Wrapper
+ * Claude Agent SDK execution wrapper.
  *
- * Thin wrapper around the `@anthropic-ai/claude-agent-sdk` `query()` function that
- * centralises default option management, serialises concurrent `run()` calls (the SDK
- * does not support simultaneous queries on a single pre-warmed process), and surfaces
- * session management utilities as instance methods.
- *
- * Unlike `CopilotSdkWrapper`, there is no explicit process lifecycle to manage: each
- * `query()` call is self-contained. The optional `warmup()` method pre-heats the
- * subprocess so the first `run()` call has lower latency; after the warm query is
- * consumed, subsequent calls start a fresh process automatically.
+ * Keeps Claude execution concerns in one bounded context: wrapper defaults,
+ * warmup, and serialised prompt execution. Session administration lives in the
+ * separate `claude/sessions` module so the public API does not mix execution
+ * behavior with transcript-management helpers.
  *
  * @module claude/sdk_wrapper
- * @since 0.9.2
+ * @since 0.10.0
  */
 
-import {
-	query,
-	listSessions as sdkListSessions,
-	getSessionInfo as sdkGetSessionInfo,
-	renameSession as sdkRenameSession,
-	getSessionMessages as sdkGetSessionMessages,
-} from '@anthropic-ai/claude-agent-sdk';
-import type {
-	Options,
-	PermissionMode,
-	Query,
-	SDKSessionInfo,
-	SessionMessage,
-	ListSessionsOptions,
-	GetSessionInfoOptions,
-	GetSessionMessagesOptions,
-	SessionMutationOptions,
-} from '@anthropic-ai/claude-agent-sdk';
-import { ClaudeSDKError } from './errors.js';
-
-// `startup` and `deleteSession` are not yet part of the SDK's public type
-// declarations at v0.2.90, so we access them via a dynamic require and carry
-// our own compatible interfaces.  At runtime the SDK ships both symbols;
-// in tests they are provided by the jest mock.
-// eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-explicit-any
-const _sdkCompat = require('@anthropic-ai/claude-agent-sdk') as Record<string, (...args: any[]) => unknown>;
-
-type StartupFn = (params: {
-	options?: Options;
-	initializeTimeoutMs?: number;
-}) => Promise<WarmQuery>;
-
-type DeleteSessionFn = (
-	sessionId: string,
-	options?: SessionMutationOptions,
-) => Promise<void>;
-
-const sdkStartup = _sdkCompat['startup'] as StartupFn | undefined;
-const sdkDeleteSession = _sdkCompat['deleteSession'] as DeleteSessionFn | undefined;
+import { query } from '@anthropic-ai/claude-agent-sdk';
+import { getClaudeStartup, type ClaudeWarmQueryHandle } from './internal/sdk_compat.js';
+import { buildClaudeSdkOptions } from './internal/sdk_options.js';
+import { collectClaudeRunResult } from './internal/run_mapping.js';
 
 /**
- * Pre-warmed process handle returned by `startup()`.
- * Compatible with the shape provided by the SDK at runtime and the Jest mock.
- * @since 0.9.2
+ * Claude permission modes supported by this wrapper.
+ * @since 0.10.0
  */
-export interface WarmQuery {
-	/** Run a prompt against the pre-warmed process. */
-	query(prompt: string): Query;
-	/** Optionally close/dispose the pre-warmed process early. */
-	close?(): void | Promise<void>;
-}
-
-// ==============================================================================
-// Public types
-// ==============================================================================
+export type ClaudePermissionMode =
+	| 'default'
+	| 'acceptEdits'
+	| 'bypassPermissions'
+	| 'plan'
+	| 'dontAsk';
 
 /**
- * Options accepted by the {@link ClaudeSdkWrapper} constructor.
- * All fields become defaults for every `run()` call; they can be overridden
- * per-call via the `overrides` argument.
- * @since 0.9.2
+ * Library-owned execution options shared by Claude wrapper configuration and per-run overrides.
+ * @since 0.10.0
  */
-export interface ClaudeSdkWrapperOptions {
+export interface ClaudeExecutionOptions {
 	/** Model alias or full model ID (e.g. `'claude-sonnet-4-5'`). */
 	model?: string;
-	/** Working directory forwarded to the agent process. Defaults to `process.cwd()`. */
+	/** Working directory forwarded to the agent process. */
 	cwd?: string;
 	/** Permission mode controlling how tool executions are handled. */
-	permissionMode?: PermissionMode;
+	permissionMode?: ClaudePermissionMode;
 	/** Maximum number of agentic turns (API round-trips) before stopping. */
 	maxTurns?: number;
 	/** Custom system prompt prepended to the conversation. */
@@ -91,19 +44,31 @@ export interface ClaudeSdkWrapperOptions {
 }
 
 /**
- * Result of a successful {@link ClaudeSdkWrapper.warmup} call.
- * @since 0.9.2
+ * Constructor options accepted by {@link ClaudeSdkWrapper}.
+ * @since 0.10.0
  */
-export interface WarmupResult {
+export type ClaudeSdkWrapperOptions = ClaudeExecutionOptions;
+
+/**
+ * Per-run Claude execution overrides.
+ * @since 0.10.0
+ */
+export type ClaudeRunOptions = ClaudeExecutionOptions;
+
+/**
+ * Result of a successful {@link ClaudeSdkWrapper.warmup} call.
+ * @since 0.10.0
+ */
+export interface ClaudeWarmupResult {
 	/** Always `true` — indicates the subprocess was pre-warmed successfully. */
 	warmed: boolean;
 }
 
 /**
  * Result returned by {@link ClaudeSdkWrapper.run}.
- * @since 0.9.2
+ * @since 0.10.0
  */
-export interface RunResult {
+export interface ClaudeRunResult {
 	/** Concatenated text from all assistant messages in the run. */
 	content: string;
 	/** Session ID for the completed run, available for `resume` in future calls. */
@@ -118,90 +83,47 @@ export interface RunResult {
 	durationMs?: number;
 }
 
-// ==============================================================================
-// ClaudeSdkWrapper
-// ==============================================================================
-
 /**
- * Wraps the Claude Agent SDK `query()` function with default option management,
- * concurrent-call serialisation, and session management utilities.
+ * Wraps the Claude Agent SDK `query()` function with library-owned execution options,
+ * concurrent-call serialisation, and optional warmup support.
  *
- * @since 0.9.2
+ * @since 0.10.0
  * @example
  * const wrapper = new ClaudeSdkWrapper({
  *   model: 'claude-sonnet-4-5',
  *   cwd: process.cwd(),
- *   allowedTools: ['Read', 'Glob', 'Grep'],
+ *   permissionMode: 'default',
  * });
  * await wrapper.warmup();
  * const result = await wrapper.run('Summarise the README.md file');
  * console.log(result.content);
  */
 export class ClaudeSdkWrapper {
-	private _model: string | undefined;
-	private _cwd: string | undefined;
-	private _permissionMode: PermissionMode | undefined;
-	private _maxTurns: number | undefined;
-	private _systemPrompt: string | undefined;
-
-	private _warmQuery: WarmQuery | null;
+	private readonly _defaults: ClaudeExecutionOptions;
+	private _warmQuery: ClaudeWarmQueryHandle | null;
 
 	/** Serialises concurrent run() calls. */
 	private _runQueue: Promise<void>;
 
-	constructor({
-		model,
-		cwd,
-		permissionMode,
-		maxTurns,
-		systemPrompt,
-	}: ClaudeSdkWrapperOptions = {}) {
-		this._model = model;
-		this._cwd = cwd;
-		this._permissionMode = permissionMode;
-		this._maxTurns = maxTurns;
-		this._systemPrompt = systemPrompt;
-
+	constructor(options: ClaudeSdkWrapperOptions = {}) {
+		this._defaults = { ...options };
 		this._warmQuery = null;
 		this._runQueue = Promise.resolve();
 	}
-
-	// --------------------------------------------------------------------------
-	// Getters
-	// --------------------------------------------------------------------------
 
 	/** `true` when a pre-warmed process is ready to service the next `run()` call. */
 	get warmed(): boolean {
 		return this._warmQuery !== null;
 	}
 
-	/** The pre-warmed query object, or `null` if `warmup()` has not been called. */
-	get warmQuery(): WarmQuery | null {
-		return this._warmQuery;
-	}
-
-	// --------------------------------------------------------------------------
-	// Static helpers
-	// --------------------------------------------------------------------------
-
 	/**
-	 * Returns `true` if `@anthropic-ai/claude-agent-sdk` can be required at runtime.
+	 * Returns `true` if `@anthropic-ai/claude-agent-sdk` can be imported at runtime.
 	 * Does NOT start a subprocess — safe to call any time.
-	 * @since 0.9.2
+	 * @since 0.10.0
 	 */
 	static isAvailable(): boolean {
-		try {
-			// eslint-disable-next-line @typescript-eslint/no-require-imports
-			const mod = require('@anthropic-ai/claude-agent-sdk') as { query?: unknown };
-			return typeof mod.query === 'function';
-		} catch {
-			return false;
-		}
+		return typeof query === 'function';
 	}
-
-	// --------------------------------------------------------------------------
-	// Lifecycle
-	// --------------------------------------------------------------------------
 
 	/**
 	 * Pre-warms the Claude Code subprocess so the first `run()` call has lower latency.
@@ -211,27 +133,20 @@ export class ClaudeSdkWrapper {
 	 *
 	 * @param initializeTimeoutMs - Timeout in milliseconds for the warmup handshake.
 	 * @returns `{ warmed: true }` on success.
-	 * @since 0.9.2
+	 * @since 0.10.0
 	 * @example
 	 * await wrapper.warmup();
 	 * const result = await wrapper.run('Hello!');
 	 */
-	async warmup(initializeTimeoutMs?: number): Promise<WarmupResult> {
-		if (!sdkStartup) {
-			throw new ClaudeSDKError(
-				'startup() is not available in this version of @anthropic-ai/claude-agent-sdk',
-			);
-		}
-		this._warmQuery = await sdkStartup({
-			options: this._buildOptions(),
+	async warmup(initializeTimeoutMs?: number): Promise<ClaudeWarmupResult> {
+		const startup = await getClaudeStartup();
+		this._warmQuery = await startup({
+			options: buildClaudeSdkOptions(this._defaults),
 			...(initializeTimeoutMs !== undefined ? { initializeTimeoutMs } : {}),
 		});
+
 		return { warmed: true };
 	}
-
-	// --------------------------------------------------------------------------
-	// Core run — serialised queue
-	// --------------------------------------------------------------------------
 
 	/**
 	 * Sends a prompt to the agent and returns the collected result.
@@ -241,152 +156,36 @@ export class ClaudeSdkWrapper {
 	 * call will use it (lower latency); subsequent calls use a fresh process.
 	 *
 	 * @param prompt - The prompt text to send.
-	 * @param overrides - Per-call option overrides. Note: overrides are not applied
+	 * @param overrides - Per-run library-owned execution overrides. Note: overrides are not applied
 	 *   when the warm query is consumed (options were fixed at `warmup()` time).
 	 * @returns Collected run result including concatenated text and metadata.
-	 * @throws {@link ClaudeSDKError} When the agent run terminates with an error subtype.
-	 * @since 0.9.2
+	 * @since 0.10.0
 	 * @example
 	 * const { content, totalCostUsd } = await wrapper.run('What is 2 + 2?');
 	 */
-	async run(prompt: string, overrides?: Partial<Options>): Promise<RunResult> {
+	async run(prompt: string, overrides?: ClaudeRunOptions): Promise<ClaudeRunResult> {
 		const result = this._runQueue.then(() => this._doRun(prompt, overrides));
 		// Advance the queue regardless of success/failure so later callers are not blocked.
 		this._runQueue = result.catch(() => {}) as Promise<void>;
 		return result;
 	}
 
-	// --------------------------------------------------------------------------
-	// Session management utilities
-	// --------------------------------------------------------------------------
-
-	/**
-	 * Lists sessions, optionally filtered by directory or limit.
-	 * @param options - Filter options (e.g. `{ dir: process.cwd(), limit: 10 }`).
-	 * @returns Array of session metadata.
-	 * @since 0.9.2
-	 */
-	async listSessions(options?: ListSessionsOptions): Promise<SDKSessionInfo[]> {
-		return sdkListSessions(options);
-	}
-
-	/**
-	 * Reads metadata for a single session by ID.
-	 * @param sessionId - UUID of the session.
-	 * @param options - Optional `{ dir }` project path.
-	 * @returns Session info, or `undefined` if not found.
-	 * @since 0.9.2
-	 */
-	async getSessionInfo(
-		sessionId: string,
-		options?: GetSessionInfoOptions,
-	): Promise<SDKSessionInfo | undefined> {
-		return sdkGetSessionInfo(sessionId, options);
-	}
-
-	/**
-	 * Deletes a session by ID.
-	 * @param sessionId - UUID of the session.
-	 * @param options - Optional `{ dir }` project path.
-	 * @since 0.9.2
-	 */
-	async deleteSession(sessionId: string, options?: SessionMutationOptions): Promise<void> {
-		if (!sdkDeleteSession) {
-			throw new ClaudeSDKError(
-				'deleteSession() is not available in this version of @anthropic-ai/claude-agent-sdk',
-			);
-		}
-		return sdkDeleteSession(sessionId, options);
-	}
-
-	/**
-	 * Renames a session by appending a custom-title entry to its transcript.
-	 * @param sessionId - UUID of the session.
-	 * @param title - New title for the session.
-	 * @param options - Optional `{ dir }` project path.
-	 * @since 0.9.2
-	 */
-	async renameSession(
-		sessionId: string,
-		title: string,
-		options?: SessionMutationOptions,
-	): Promise<void> {
-		return sdkRenameSession(sessionId, title, options);
-	}
-
-	/**
-	 * Reads a session's conversation messages in chronological order.
-	 * @param sessionId - UUID of the session.
-	 * @param options - Optional filter (e.g. `{ limit, offset }`).
-	 * @returns Array of messages, or empty array if session not found.
-	 * @since 0.9.2
-	 */
-	async getSessionMessages(
-		sessionId: string,
-		options?: GetSessionMessagesOptions,
-	): Promise<SessionMessage[]> {
-		return sdkGetSessionMessages(sessionId, options);
-	}
-
-	// --------------------------------------------------------------------------
-	// Private helpers
-	// --------------------------------------------------------------------------
-
 	/** Performs a single serialised agent run. */
-	private async _doRun(prompt: string, overrides?: Partial<Options>): Promise<RunResult> {
-		const queryGen = this._warmQuery !== null
-			? (() => { const q = this._warmQuery!.query(prompt); this._warmQuery = null; return q; })()
-			: query({ prompt, options: this._buildOptions(overrides) });
+	private async _doRun(
+		prompt: string,
+		overrides?: ClaudeRunOptions,
+	): Promise<ClaudeRunResult> {
+		const messageStream = this._warmQuery !== null
+			? this._consumeWarmQuery(prompt)
+			: query({ prompt, options: buildClaudeSdkOptions(this._defaults, overrides) });
 
-		let content = '';
-		let sessionId: string | undefined;
-		let success = false;
-		let totalCostUsd: number | undefined;
-		let numTurns: number | undefined;
-		let durationMs: number | undefined;
-
-		for await (const message of queryGen) {
-			if (message.type === 'assistant') {
-				sessionId = message.session_id;
-				content += this._extractText(message.message.content);
-			} else if (message.type === 'result') {
-				sessionId = message.session_id;
-				if (message.subtype === 'success') {
-					success = true;
-					totalCostUsd = message.total_cost_usd;
-					numTurns = message.num_turns;
-					durationMs = message.duration_ms;
-				} else {
-					const reason = 'errors' in message && message.errors?.[0]
-						? message.errors[0]
-						: message.subtype;
-					throw new ClaudeSDKError(`Run failed: ${reason}`);
-				}
-			}
-		}
-
-		return { content, sessionId, success, totalCostUsd, numTurns, durationMs };
+		return collectClaudeRunResult(messageStream);
 	}
 
-	/** Extracts concatenated text from a BetaMessage content array. */
-	private _extractText(blocks: Array<{ type: string; text?: string }>): string {
-		let text = '';
-		for (const block of blocks) {
-			if (block.type === 'text' && typeof block.text === 'string') {
-				text += block.text;
-			}
-		}
-		return text;
-	}
-
-	/** Merges wrapper defaults with per-call overrides into a full Options object. */
-	private _buildOptions(overrides?: Partial<Options>): Options {
-		const base: Options = {};
-		if (this._model !== undefined) base.model = this._model;
-		if (this._cwd !== undefined) base.cwd = this._cwd;
-		if (this._permissionMode !== undefined) base.permissionMode = this._permissionMode;
-		if (this._maxTurns !== undefined) base.maxTurns = this._maxTurns;
-		if (this._systemPrompt !== undefined) base.systemPrompt = this._systemPrompt;
-		return { ...base, ...overrides };
+	/** Consume the current warm query exactly once. */
+	private _consumeWarmQuery(prompt: string) {
+		const warmQuery = this._warmQuery;
+		this._warmQuery = null;
+		return warmQuery!.query(prompt);
 	}
 }

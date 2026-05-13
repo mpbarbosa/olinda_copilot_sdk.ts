@@ -1,6 +1,6 @@
 # API Reference — olinda_copilot_sdk.ts
 
-**Document version:** `0.9.2`
+**Document version:** `0.10.0`
 
 Complete API reference for the TypeScript Wrapper Library for GitHub Copilot SDK.
 

@@ -2,13 +2,6 @@
 // test/claude/sdk_types.test.ts
 Object.defineProperty(exports, "__esModule", { value: true });
 describe('claude/sdk_types type re-exports', () => {
-    it('allows PermissionMode values in type positions', () => {
-        const modes = [
-            'default', 'acceptEdits', 'bypassPermissions', 'plan', 'dontAsk',
-        ];
-        expect(modes).toHaveLength(5);
-        modes.forEach(m => expect(typeof m).toBe('string'));
-    });
     it('allows EffortLevel values in type positions', () => {
         const levels = ['low', 'medium', 'high', 'max'];
         expect(levels).toHaveLength(4);
@@ -24,15 +17,5 @@ describe('claude/sdk_types type re-exports', () => {
         // compiles correctly when used as a type annotation.
         const typeMarkers = [];
         expect(Array.isArray(typeMarkers)).toBe(true);
-    });
-    it('allows session option types to be used in type positions', () => {
-        const listOpts = {};
-        const infoOpts = {};
-        const msgsOpts = {};
-        const mutateOpts = {};
-        expect(listOpts).toBeDefined();
-        expect(infoOpts).toBeDefined();
-        expect(msgsOpts).toBeDefined();
-        expect(mutateOpts).toBeDefined();
     });
 });

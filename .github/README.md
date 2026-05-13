@@ -34,7 +34,7 @@ parallel to validate the full project lifecycle:
 |------|---------|
 | `copilot-instructions.md` | Coding guidelines injected into GitHub Copilot sessions for this repo |
 | `dependabot.yml` | Automated dependency update configuration |
-| `REFERENTIAL_TRANSPARENCY.md` | Architectural conventions for pure functions and immutability |
+| `REFERENTIAL_TRANSPARENCY.md` | Copilot-facing pointer to the authoritative referential transparency guide in `docs/` |
 
 ---
 

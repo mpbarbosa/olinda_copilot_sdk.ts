@@ -5,6 +5,6 @@
  * import from this package rather than the underlying SDK directly.
  *
  * @module claude/sdk_types
- * @since 0.9.2
+ * @since 0.10.0
  */
-export type { Options, PermissionMode, Query, SDKMessage, SDKAssistantMessage, SDKUserMessage, SDKResultMessage, SDKResultSuccess, SDKResultError, SDKSystemMessage, SDKSessionInfo, SessionMessage, ListSessionsOptions, GetSessionInfoOptions, GetSessionMessagesOptions, SessionMutationOptions, HookEvent, HookCallbackMatcher, HookCallback, AgentDefinition, CanUseTool, EffortLevel, } from '@anthropic-ai/claude-agent-sdk';
+export type { SDKMessage, SDKAssistantMessage, SDKUserMessage, SDKResultMessage, SDKResultSuccess, SDKResultError, SDKSystemMessage, HookEvent, HookCallbackMatcher, HookCallback, AgentDefinition, CanUseTool, EffortLevel, } from '@anthropic-ai/claude-agent-sdk';

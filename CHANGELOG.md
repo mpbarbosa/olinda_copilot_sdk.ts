@@ -9,6 +9,37 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- `listClaudeSessions`, `getClaudeSessionInfo`, `deleteClaudeSession`,
+  `renameClaudeSession`, and `getClaudeSessionMessages` as Claude
+  session-administration helpers with library-owned session types.
+- `ClaudeSessionQuery`, `ClaudeSessionLookup`, `ClaudeSessionMessagesQuery`,
+  `ClaudeSessionSummary`, and `ClaudeSessionMessage` as Claude session value
+  types.
+- `ClaudeExecutionOptions`, `ClaudeRunOptions`, `ClaudeWarmupResult`, and
+  `ClaudeRunResult` as library-owned Claude execution types.
+- `docs/CODE_QUALITY_CONTROL.md` and `.github/CODE_QUALITY_CONTROL.md` to define
+  repository quality gates for boundary-heavy refactors.
+
+### Changed
+
+- `ClaudeSdkWrapper` now focuses on Claude execution concerns only
+  (`warmup` + serialized `run`) instead of also owning session
+  administration.
+- `ClaudeSdkWrapper.run()` now accepts `ClaudeRunOptions` rather than raw
+  `Partial<@anthropic-ai/claude-agent-sdk Options>`.
+- Claude SDK compatibility glue and pure run-mapping logic are now isolated in
+  focused internal modules under `src/claude/internal/`.
+
+### Removed
+
+- Public Claude re-exports that directly exposed raw SDK option and session
+  administration types (`ClaudeAgentOptions`, `ClaudePermissionMode` alias from
+  SDK, `ClaudeSessionInfo`, `ClaudeSessionMessage`, and related session option
+  aliases) have been replaced with library-owned Claude wrapper and session
+  types.
+
 ---
 
 ## [0.5.3]

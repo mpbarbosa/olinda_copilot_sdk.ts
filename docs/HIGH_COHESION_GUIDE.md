@@ -1,6 +1,6 @@
 # High Cohesion Guide
 
-**Document version:** `0.9.2`
+**Document version:** `0.10.0`
 
 High cohesion is a core design rule for `olinda_copilot_sdk.ts`.
 

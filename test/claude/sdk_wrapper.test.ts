@@ -1,33 +1,14 @@
 import { ClaudeSdkWrapper } from '../../src/claude/sdk_wrapper';
 import { ClaudeSDKError } from '../../src/claude/errors';
 
-// ---------------------------------------------------------------------------
-// Mock @anthropic-ai/claude-agent-sdk
-// ---------------------------------------------------------------------------
-
 const mockQuery = jest.fn();
 const mockStartup = jest.fn();
-const mockListSessions = jest.fn();
-const mockGetSessionInfo = jest.fn();
-const mockDeleteSession = jest.fn();
-const mockRenameSession = jest.fn();
-const mockGetSessionMessages = jest.fn();
 
 jest.mock('@anthropic-ai/claude-agent-sdk', () => ({
 	query: (...args: unknown[]) => mockQuery(...args),
 	startup: (...args: unknown[]) => mockStartup(...args),
-	listSessions: (...args: unknown[]) => mockListSessions(...args),
-	getSessionInfo: (...args: unknown[]) => mockGetSessionInfo(...args),
-	deleteSession: (...args: unknown[]) => mockDeleteSession(...args),
-	renameSession: (...args: unknown[]) => mockRenameSession(...args),
-	getSessionMessages: (...args: unknown[]) => mockGetSessionMessages(...args),
 }));
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-/** Creates an async generator that yields the provided messages. */
 async function* makeGen(messages: object[]) {
 	for (const msg of messages) yield msg;
 }
@@ -76,39 +57,24 @@ const resultErrorMsg = {
 	uuid: '00000000-0000-0000-0000-000000000003' as `${string}-${string}-${string}-${string}-${string}`,
 };
 
-// ---------------------------------------------------------------------------
-// Tests
-// ---------------------------------------------------------------------------
-
 describe('ClaudeSdkWrapper', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
-		// Default: query returns a successful assistant + result sequence
 		mockQuery.mockImplementation(() => makeGen([assistantMsg, resultSuccessMsg]));
 		mockStartup.mockResolvedValue({
 			query: jest.fn().mockReturnValue(makeGen([assistantMsg, resultSuccessMsg])),
 			close: jest.fn(),
 			[Symbol.asyncDispose]: jest.fn(),
 		});
-		mockListSessions.mockResolvedValue([{ sessionId }]);
-		mockGetSessionInfo.mockResolvedValue({ sessionId });
-		mockDeleteSession.mockResolvedValue(undefined);
-		mockRenameSession.mockResolvedValue(undefined);
-		mockGetSessionMessages.mockResolvedValue([]);
 	});
-
-	// -------------------------------------------------------------------------
-	// constructor
-	// -------------------------------------------------------------------------
 
 	describe('constructor', () => {
 		it('should initialize with default options', () => {
 			const wrapper = new ClaudeSdkWrapper();
 			expect(wrapper.warmed).toBe(false);
-			expect(wrapper.warmQuery).toBeNull();
 		});
 
-		it('should store provided options', () => {
+		it('should report warmed state only after warmup', async () => {
 			const wrapper = new ClaudeSdkWrapper({
 				model: 'claude-opus-4-7',
 				cwd: '/tmp/project',
@@ -116,17 +82,11 @@ describe('ClaudeSdkWrapper', () => {
 				maxTurns: 5,
 				systemPrompt: 'Be brief.',
 			});
-			expect(wrapper).toHaveProperty('_model', 'claude-opus-4-7');
-			expect(wrapper).toHaveProperty('_cwd', '/tmp/project');
-			expect(wrapper).toHaveProperty('_permissionMode', 'acceptEdits');
-			expect(wrapper).toHaveProperty('_maxTurns', 5);
-			expect(wrapper).toHaveProperty('_systemPrompt', 'Be brief.');
+			expect(wrapper.warmed).toBe(false);
+			await wrapper.warmup();
+			expect(wrapper.warmed).toBe(true);
 		});
 	});
-
-	// -------------------------------------------------------------------------
-	// isAvailable
-	// -------------------------------------------------------------------------
 
 	describe('isAvailable', () => {
 		it('should return true when the SDK stub is loaded', () => {
@@ -134,17 +94,12 @@ describe('ClaudeSdkWrapper', () => {
 		});
 	});
 
-	// -------------------------------------------------------------------------
-	// warmup
-	// -------------------------------------------------------------------------
-
 	describe('warmup', () => {
 		it('should call startup() and mark the wrapper as warmed', async () => {
 			const wrapper = new ClaudeSdkWrapper({ model: 'claude-sonnet-4-5', cwd: '/tmp' });
 			const result = await wrapper.warmup();
 			expect(result).toEqual({ warmed: true });
 			expect(wrapper.warmed).toBe(true);
-			expect(wrapper.warmQuery).not.toBeNull();
 			expect(mockStartup).toHaveBeenCalledTimes(1);
 		});
 
@@ -165,12 +120,8 @@ describe('ClaudeSdkWrapper', () => {
 		});
 	});
 
-	// -------------------------------------------------------------------------
-	// run
-	// -------------------------------------------------------------------------
-
 	describe('run', () => {
-		it('should return RunResult with collected text on success', async () => {
+		it('should return ClaudeRunResult with collected text on success', async () => {
 			const wrapper = new ClaudeSdkWrapper();
 			const result = await wrapper.run('Hello');
 			expect(result.success).toBe(true);
@@ -181,7 +132,7 @@ describe('ClaudeSdkWrapper', () => {
 			expect(result.durationMs).toBe(1500);
 		});
 
-		it('should pass prompt and merged options to query()', async () => {
+		it('should pass prompt and merged wrapper overrides to query()', async () => {
 			const wrapper = new ClaudeSdkWrapper({ model: 'claude-sonnet-4-5', cwd: '/my/dir' });
 			await wrapper.run('Do something', { maxTurns: 10 });
 			expect(mockQuery).toHaveBeenCalledWith(
@@ -208,7 +159,7 @@ describe('ClaudeSdkWrapper', () => {
 			await expect(wrapper.run('Fail please')).rejects.toThrow('Something went wrong');
 		});
 
-		it('should use warm query when warmed and set warmQuery to null after use', async () => {
+		it('should use warm query when warmed and clear warmed state after use', async () => {
 			const warmQueryMock = {
 				query: jest.fn().mockReturnValue(makeGen([assistantMsg, resultSuccessMsg])),
 				close: jest.fn(),
@@ -235,10 +186,6 @@ describe('ClaudeSdkWrapper', () => {
 		});
 	});
 
-	// -------------------------------------------------------------------------
-	// Serialisation
-	// -------------------------------------------------------------------------
-
 	describe('serialisation', () => {
 		it('should serialise concurrent run() calls', async () => {
 			const order: number[] = [];
@@ -262,53 +209,6 @@ describe('ClaudeSdkWrapper', () => {
 			const wrapper = new ClaudeSdkWrapper();
 			await Promise.all([wrapper.run('first'), wrapper.run('second')]);
 			expect(order).toEqual([1, 2]);
-		});
-	});
-
-	// -------------------------------------------------------------------------
-	// Session utilities
-	// -------------------------------------------------------------------------
-
-	describe('listSessions', () => {
-		it('should delegate to SDK listSessions', async () => {
-			const wrapper = new ClaudeSdkWrapper();
-			const sessions = await wrapper.listSessions({ limit: 5 });
-			expect(mockListSessions).toHaveBeenCalledWith({ limit: 5 });
-			expect(sessions).toEqual([{ sessionId }]);
-		});
-	});
-
-	describe('getSessionInfo', () => {
-		it('should delegate to SDK getSessionInfo', async () => {
-			const wrapper = new ClaudeSdkWrapper();
-			const info = await wrapper.getSessionInfo(sessionId, { dir: '/tmp' });
-			expect(mockGetSessionInfo).toHaveBeenCalledWith(sessionId, { dir: '/tmp' });
-			expect(info).toEqual({ sessionId });
-		});
-	});
-
-	describe('deleteSession', () => {
-		it('should delegate to SDK deleteSession', async () => {
-			const wrapper = new ClaudeSdkWrapper();
-			await wrapper.deleteSession(sessionId);
-			expect(mockDeleteSession).toHaveBeenCalledWith(sessionId, undefined);
-		});
-	});
-
-	describe('renameSession', () => {
-		it('should delegate to SDK renameSession', async () => {
-			const wrapper = new ClaudeSdkWrapper();
-			await wrapper.renameSession(sessionId, 'New Title');
-			expect(mockRenameSession).toHaveBeenCalledWith(sessionId, 'New Title', undefined);
-		});
-	});
-
-	describe('getSessionMessages', () => {
-		it('should delegate to SDK getSessionMessages', async () => {
-			const wrapper = new ClaudeSdkWrapper();
-			const messages = await wrapper.getSessionMessages(sessionId, { limit: 10 });
-			expect(mockGetSessionMessages).toHaveBeenCalledWith(sessionId, { limit: 10 });
-			expect(messages).toEqual([]);
 		});
 	});
 });

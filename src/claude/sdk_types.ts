@@ -5,15 +5,10 @@
  * import from this package rather than the underlying SDK directly.
  *
  * @module claude/sdk_types
- * @since 0.9.2
+ * @since 0.10.0
  */
 
 export type {
-	// Core query API
-	Options,
-	PermissionMode,
-	Query,
-
 	// Message discriminated union
 	SDKMessage,
 	SDKAssistantMessage,
@@ -22,14 +17,6 @@ export type {
 	SDKResultSuccess,
 	SDKResultError,
 	SDKSystemMessage,
-
-	// Session management
-	SDKSessionInfo,
-	SessionMessage,
-	ListSessionsOptions,
-	GetSessionInfoOptions,
-	GetSessionMessagesOptions,
-	SessionMutationOptions,
 
 	// Hooks
 	HookEvent,

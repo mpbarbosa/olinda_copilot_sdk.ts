@@ -39,6 +39,9 @@ npm run build:esm    # compile TypeScript → dist/esm/ (ESM)
 import {
   CopilotClient,
   CopilotSdkWrapper,
+  ClaudeSdkWrapper,
+  listClaudeSessions,
+  getClaudeSessionMessages,
   approveAll,
   createUserMessage,
   createSystemMessage,
@@ -60,8 +63,18 @@ for await (const chunk of client.stream([createUserMessage('Tell me a joke')])) 
 
 // Streaming completion (text-only convenience generator)
 for await (const text of client.streamText([createUserMessage('Tell me a joke')])) {
-  process.stdout.write(text);
+ process.stdout.write(text);
 }
+
+// Claude execution wrapper
+const claude = new ClaudeSdkWrapper({ model: 'claude-sonnet-4-5', cwd: process.cwd() });
+const claudeResult = await claude.run('Summarize this repo', { maxTurns: 2 });
+console.log(claudeResult.content);
+
+// Claude session administration
+const claudeSessions = await listClaudeSessions({ dir: process.cwd(), limit: 5 });
+const claudeTranscript = await getClaudeSessionMessages(claudeSessions[0].sessionId);
+console.log(claudeTranscript.length);
 
 // Session-based wrapper (CLI process, tools, MCP)
 const wrapper = new CopilotSdkWrapper({ token: process.env.GITHUB_TOKEN!, onPermissionRequest: approveAll });
@@ -85,11 +98,15 @@ Additional design guidance:
 
 - [docs/HIGH_COHESION_GUIDE.md](./docs/HIGH_COHESION_GUIDE.md)
 - [docs/LOW_COUPLING_GUIDE.md](./docs/LOW_COUPLING_GUIDE.md)
+- [docs/DDD_GUIDE.md](./docs/DDD_GUIDE.md)
+- [docs/CODE_QUALITY_CONTROL.md](./docs/CODE_QUALITY_CONTROL.md)
 
 | Module | Description |
 |---|---|
 | `CopilotClient` | HTTP client wrapping the Copilot completions API |
 | `CopilotSdkWrapper` | Session-based wrapper for CLI-process completions (tools, MCP, skills) |
+| `ClaudeSdkWrapper` | Claude Agent SDK execution wrapper with library-owned run options |
+| `listClaudeSessions` etc. | Claude session administration helpers with library-owned session values |
 | `approveAll` | Default permission handler — approves all tool requests automatically |
 | `createUserMessage` etc. | Pure message factory functions |
 | `parseSSELine` etc. | Pure SSE stream parsing utilities |

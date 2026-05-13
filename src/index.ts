@@ -193,7 +193,7 @@ export type {
 } from './core/session_types.js';
 
 // ---------------------------------------------------------------------------
-// v0.9.2 — Claude Agent SDK Wrapper + Anthropic Messages API Client
+// v0.10.0 — Claude Agent SDK Wrapper + Anthropic Messages API Client
 // ---------------------------------------------------------------------------
 
 export { ClaudeClient } from './claude/completions_client.js';
@@ -214,23 +214,36 @@ export { ClaudeSDKError, ClaudeAuthError, ClaudeAPIError } from './claude/errors
 
 export { ClaudeSdkWrapper } from './claude/sdk_wrapper.js';
 export type {
+	ClaudePermissionMode,
+	ClaudeExecutionOptions,
 	ClaudeSdkWrapperOptions,
-	WarmupResult,
-	RunResult,
-	WarmQuery as ClaudeWarmQuery,
+	ClaudeRunOptions,
+	ClaudeWarmupResult,
+	ClaudeRunResult,
 } from './claude/sdk_wrapper.js';
 
+export {
+	listClaudeSessions,
+	getClaudeSessionInfo,
+	deleteClaudeSession,
+	renameClaudeSession,
+	getClaudeSessionMessages,
+} from './claude/sessions.js';
 export type {
-	Options as ClaudeAgentOptions,
-	PermissionMode as ClaudePermissionMode,
+	ClaudeSessionQuery,
+	ClaudeSessionLookup,
+	ClaudeSessionMessagesQuery,
+	ClaudeSessionSummary,
+	ClaudeSessionMessage,
+} from './claude/sessions.js';
+
+export type {
 	SDKMessage as ClaudeSDKMessage,
 	SDKAssistantMessage as ClaudeAssistantMessage,
 	SDKResultMessage as ClaudeResultMessage,
 	SDKResultSuccess as ClaudeResultSuccess,
 	SDKResultError as ClaudeResultError,
 	SDKSystemMessage as ClaudeSystemMessage,
-	SDKSessionInfo as ClaudeSessionInfo,
-	SessionMessage as ClaudeSessionMessage,
 	HookEvent as ClaudeHookEvent,
 	HookCallbackMatcher as ClaudeHookCallbackMatcher,
 	AgentDefinition as ClaudeAgentDefinition,
